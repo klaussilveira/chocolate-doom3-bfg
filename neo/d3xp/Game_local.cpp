@@ -3862,11 +3862,11 @@ idGameLocal::AlertAI
 */
 void idGameLocal::AlertAI(idEntity* ent)
 {
-    if (ent && ent->IsType(idActor::Type)) {
-        // alert them for the next frame
-        lastAIAlertTime = time + 1;
-        lastAIAlertEntity = static_cast<idActor*>(ent);
-    }
+	if (ent && ent->IsType(idActor::Type)) {
+		// alert them for the next frame
+		lastAIAlertTime = framenum + 1;
+		lastAIAlertEntity = static_cast<idActor*>(ent);
+	}
 }
 
 /*
@@ -3876,15 +3876,9 @@ idGameLocal::GetAlertEntity
 */
 idActor* idGameLocal::GetAlertEntity()
 {
-    int timeGroup = 0;
-    if (lastAIAlertTime && lastAIAlertEntity.GetEntity()) {
-        timeGroup = lastAIAlertEntity.GetEntity()->timeGroup;
-    }
-    SetTimeState ts(timeGroup);
-
-    if (lastAIAlertTime >= time) {
-        return lastAIAlertEntity.GetEntity();
-    }
+	if (lastAIAlertTime >= framenum) {
+		return lastAIAlertEntity.GetEntity();
+	}
 
     return NULL;
 }
