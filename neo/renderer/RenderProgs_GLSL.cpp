@@ -126,12 +126,12 @@ attribInfo_t attribsPC[] = {
     { "float", "facing", "FACE", "gl_FrontFacing", 0, AT_PS_IN | AT_PS_IN_RESERVED, 0 },
 
     // fragment program output
-    { "float4", "color", "COLOR", "gl_FragColor", 0, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
-    { "half4", "hcolor", "COLOR", "gl_FragColor", 0, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
-    { "float4", "color0", "COLOR0", "gl_FragColor", 0, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
-    { "float4", "color1", "COLOR1", "gl_FragColor", 1, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
-    { "float4", "color2", "COLOR2", "gl_FragColor", 2, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
-    { "float4", "color3", "COLOR3", "gl_FragColor", 3, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
+    { "float4", "color", "COLOR", "fo_FragColor", 0, AT_PS_OUT, 0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
+    { "half4", "hcolor", "COLOR", "fo_FragColor", 0, AT_PS_OUT, 0 },
+    { "float4", "color0", "COLOR0", "fo_FragColor", 0, AT_PS_OUT, 0 },
+    { "float4", "color1", "COLOR1", "fo_FragColor", 1, AT_PS_OUT, 0 },
+    { "float4", "color2", "COLOR2", "fo_FragColor", 2, AT_PS_OUT, 0 },
+    { "float4", "color3", "COLOR3", "fo_FragColor", 3, AT_PS_OUT, 0 },
     { "float", "depth", "DEPTH", "gl_FragDepth", 4, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
 
 // vertex to fragment program pass through
