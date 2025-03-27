@@ -33,63 +33,55 @@ If you have questions concerning this license or the applicable additional terms
 This class handles parsing and triangulating a shape
 ================================================
 */
-class idSWFShapeParser
-{
+class idSWFShapeParser {
 public:
-	idSWFShapeParser() { }
-	void Parse( idSWFBitStream& bitstream, idSWFShape& shape, int recordType );
-	void ParseMorph( idSWFBitStream& bitstream, idSWFShape& shape );
-	void ParseFont( idSWFBitStream& bitstream, idSWFFontGlyph& shape );
-	
+    idSWFShapeParser() { }
+    void Parse(idSWFBitStream& bitstream, idSWFShape& shape, int recordType);
+    void ParseMorph(idSWFBitStream& bitstream, idSWFShape& shape);
+    void ParseFont(idSWFBitStream& bitstream, idSWFFontGlyph& shape);
+
 private:
-	bool extendedCount;
-	bool rgba;
-	bool morph;
-	bool lineStyle2;
-	
-	struct swfSPEdge_t
-	{
-		uint16 v0;
-		uint16 v1;
-		uint16 cp;	// control point if this is a curve, 0xFFFF otherwise
-	};
-	struct swfSPMorphEdge_t
-	{
-		swfSPEdge_t start;
-		swfSPEdge_t end;
-	};
-	struct swfSPLineLoop_t
-	{
-		bool hole;
-		idList< uint16, TAG_SWF > vindex1;
-		idList< uint16, TAG_SWF > vindex2;
-	};
-	struct swfSPDrawFill_t
-	{
-		swfFillStyle_t style;
-		idList< swfSPMorphEdge_t, TAG_SWF > edges;
-		idList< swfSPLineLoop_t, TAG_SWF > loops;
-	};
-	struct swfSPDrawLine_t
-	{
-		swfLineStyle_t style;
-		idList< swfSPMorphEdge_t, TAG_SWF > edges;
-	};
-	idList< idVec2, TAG_SWF > verts;
-	idList< swfSPDrawFill_t, TAG_SWF > fillDraws;
-	idList< swfSPDrawLine_t, TAG_SWF > lineDraws;
-	
-	
+    bool extendedCount;
+    bool rgba;
+    bool morph;
+    bool lineStyle2;
+
+    struct swfSPEdge_t {
+        uint16 v0;
+        uint16 v1;
+        uint16 cp; // control point if this is a curve, 0xFFFF otherwise
+    };
+    struct swfSPMorphEdge_t {
+        swfSPEdge_t start;
+        swfSPEdge_t end;
+    };
+    struct swfSPLineLoop_t {
+        bool hole;
+        idList<uint16, TAG_SWF> vindex1;
+        idList<uint16, TAG_SWF> vindex2;
+    };
+    struct swfSPDrawFill_t {
+        swfFillStyle_t style;
+        idList<swfSPMorphEdge_t, TAG_SWF> edges;
+        idList<swfSPLineLoop_t, TAG_SWF> loops;
+    };
+    struct swfSPDrawLine_t {
+        swfLineStyle_t style;
+        idList<swfSPMorphEdge_t, TAG_SWF> edges;
+    };
+    idList<idVec2, TAG_SWF> verts;
+    idList<swfSPDrawFill_t, TAG_SWF> fillDraws;
+    idList<swfSPDrawLine_t, TAG_SWF> lineDraws;
+
 private:
-	void ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* bitstream2, bool swap );
-	void ReadFillStyle( idSWFBitStream& bitstream );
-	void ParseEdge( idSWFBitStream& bitstream, int32& penX, int32& penY, swfSPEdge_t& edge );
-	void MakeLoops();
-	void TriangulateSoup( idSWFShape& shape );
-	void TriangulateSoup( idSWFFontGlyph& shape );
-	int FindEarVert( const swfSPLineLoop_t& loop );
-	void AddUniqueVert( idSWFShapeDrawFill& drawFill, const idVec2& start, const idVec2& end );
-	
+    void ParseShapes(idSWFBitStream& bitstream1, idSWFBitStream* bitstream2, bool swap);
+    void ReadFillStyle(idSWFBitStream& bitstream);
+    void ParseEdge(idSWFBitStream& bitstream, int32& penX, int32& penY, swfSPEdge_t& edge);
+    void MakeLoops();
+    void TriangulateSoup(idSWFShape& shape);
+    void TriangulateSoup(idSWFFontGlyph& shape);
+    int FindEarVert(const swfSPLineLoop_t& loop);
+    void AddUniqueVert(idSWFShapeDrawFill& drawFill, const idVec2& start, const idVec2& end);
 };
 
 #endif // !__SWF_SHAPEPARSER_H__

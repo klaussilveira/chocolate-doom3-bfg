@@ -48,11 +48,11 @@ typedef struct AVExpr AVExpr;
  * @return >= 0 in case of success, a negative value corresponding to an
  * AVERROR code otherwise
  */
-int av_expr_parse_and_eval(double *res, const char *s,
-                           const char * const *const_names, const double *const_values,
-                           const char * const *func1_names, double (* const *funcs1)(void *, double),
-                           const char * const *func2_names, double (* const *funcs2)(void *, double, double),
-                           void *opaque, int log_offset, void *log_ctx);
+int av_expr_parse_and_eval(double* res, const char* s,
+    const char* const* const_names, const double* const_values,
+    const char* const* func1_names, double (*const* funcs1)(void*, double),
+    const char* const* func2_names, double (*const* funcs2)(void*, double, double),
+    void* opaque, int log_offset, void* log_ctx);
 
 /**
  * Parse an expression.
@@ -71,11 +71,11 @@ int av_expr_parse_and_eval(double *res, const char *s,
  * @return >= 0 in case of success, a negative value corresponding to an
  * AVERROR code otherwise
  */
-int av_expr_parse(AVExpr **expr, const char *s,
-                  const char * const *const_names,
-                  const char * const *func1_names, double (* const *funcs1)(void *, double),
-                  const char * const *func2_names, double (* const *funcs2)(void *, double, double),
-                  int log_offset, void *log_ctx);
+int av_expr_parse(AVExpr** expr, const char* s,
+    const char* const* const_names,
+    const char* const* func1_names, double (*const* funcs1)(void*, double),
+    const char* const* func2_names, double (*const* funcs2)(void*, double, double),
+    int log_offset, void* log_ctx);
 
 /**
  * Evaluate a previously parsed expression.
@@ -84,12 +84,12 @@ int av_expr_parse(AVExpr **expr, const char *s,
  * @param opaque a pointer which will be passed to all functions from funcs1 and funcs2
  * @return the value of the expression
  */
-double av_expr_eval(AVExpr *e, const double *const_values, void *opaque);
+double av_expr_eval(AVExpr* e, const double* const_values, void* opaque);
 
 /**
  * Free a parsed expression previously created with av_expr_parse().
  */
-void av_expr_free(AVExpr *e);
+void av_expr_free(AVExpr* e);
 
 /**
  * Parse the string in numstr and return its value as a double. If
@@ -108,6 +108,6 @@ void av_expr_free(AVExpr *e);
  * @param tail if non-NULL puts here the pointer to the char next
  * after the last parsed character
  */
-double av_strtod(const char *numstr, char **tail);
+double av_strtod(const char* numstr, char** tail);
 
 #endif /* AVUTIL_EVAL_H */

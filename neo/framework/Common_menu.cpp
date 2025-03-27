@@ -39,40 +39,34 @@ idCommonLocal::InitializeMPMapsModes
 void idCommonLocal::InitializeMPMapsModes()
 {
 
-	const char** gameModes = NULL;
-	const char** gameModesDisplay = NULL;
-	int numModes = game->GetMPGameModes( &gameModes, &gameModesDisplay );
-	mpGameModes.SetNum( numModes );
-	for( int i = 0; i < numModes; i++ )
-	{
-		mpGameModes[i] = gameModes[i];
-	}
-	mpDisplayGameModes.SetNum( numModes );
-	for( int i = 0; i < numModes; i++ )
-	{
-		mpDisplayGameModes[i] = gameModesDisplay[i];
-	}
-	int numMaps = declManager->GetNumDecls( DECL_MAPDEF );
-	mpGameMaps.Clear();
-	for( int i = 0; i < numMaps; i++ )
-	{
-		const idDeclEntityDef* mapDef = static_cast<const idDeclEntityDef*>( declManager->DeclByIndex( DECL_MAPDEF, i ) );
-		uint32 supportedModes = 0;
-		for( int j = 0; j < numModes; j++ )
-		{
-			if( mapDef->dict.GetBool( gameModes[j], false ) )
-			{
-				supportedModes |= BIT( j );
-			}
-		}
-		if( supportedModes != 0 )
-		{
-			mpMap_t& mpMap = mpGameMaps.Alloc();
-			mpMap.mapFile = mapDef->GetName();
-			mpMap.mapName = mapDef->dict.GetString( "name", mpMap.mapFile );
-			mpMap.supportedModes = supportedModes;
-		}
-	}
+    const char** gameModes = NULL;
+    const char** gameModesDisplay = NULL;
+    int numModes = game->GetMPGameModes(&gameModes, &gameModesDisplay);
+    mpGameModes.SetNum(numModes);
+    for (int i = 0; i < numModes; i++) {
+        mpGameModes[i] = gameModes[i];
+    }
+    mpDisplayGameModes.SetNum(numModes);
+    for (int i = 0; i < numModes; i++) {
+        mpDisplayGameModes[i] = gameModesDisplay[i];
+    }
+    int numMaps = declManager->GetNumDecls(DECL_MAPDEF);
+    mpGameMaps.Clear();
+    for (int i = 0; i < numMaps; i++) {
+        const idDeclEntityDef* mapDef = static_cast<const idDeclEntityDef*>(declManager->DeclByIndex(DECL_MAPDEF, i));
+        uint32 supportedModes = 0;
+        for (int j = 0; j < numModes; j++) {
+            if (mapDef->dict.GetBool(gameModes[j], false)) {
+                supportedModes |= BIT(j);
+            }
+        }
+        if (supportedModes != 0) {
+            mpMap_t& mpMap = mpGameMaps.Alloc();
+            mpMap.mapFile = mapDef->GetName();
+            mpMap.mapName = mapDef->dict.GetString("name", mpMap.mapFile);
+            mpMap.supportedModes = supportedModes;
+        }
+    }
 }
 
 /*
@@ -80,62 +74,49 @@ void idCommonLocal::InitializeMPMapsModes()
 idCommonLocal::OnStartHosting
 ==============
 */
-void idCommonLocal::OnStartHosting( idMatchParameters& parms )
+void idCommonLocal::OnStartHosting(idMatchParameters& parms)
 {
-	if( ( parms.matchFlags & MATCH_REQUIRE_PARTY_LOBBY ) == 0 )
-	{
-		return; // This is the party lobby or a SP match
-	}
-	
-	// If we were searching for a random match but didn't find one, we'll need to select parameters now
-	if( parms.gameMap < 0 )
-	{
-		if( parms.gameMode < 0 )
-		{
-			// Random mode means any map will do
-			parms.gameMap = idLib::frameNumber % mpGameMaps.Num();
-		}
-		else
-		{
-			// Select a map which supports the chosen mode
-			idList<int> supportedMaps;
-			uint32 supportedMode = BIT( parms.gameMode );
-			for( int i = 0; i < mpGameMaps.Num(); i++ )
-			{
-				if( mpGameMaps[i].supportedModes & supportedMode )
-				{
-					supportedMaps.Append( i );
-				}
-			}
-			if( supportedMaps.Num() == 0 )
-			{
-				// We don't have any maps which support the chosen mode...
-				parms.gameMap = idLib::frameNumber % mpGameMaps.Num();
-				parms.gameMode = -1;
-			}
-			else
-			{
-				parms.gameMap = supportedMaps[ idLib::frameNumber % supportedMaps.Num() ];
-			}
-		}
-	}
-	if( parms.gameMode < 0 )
-	{
-		uint32 supportedModes = mpGameMaps[parms.gameMap].supportedModes;
-		int8 supportedModeList[32] = {};
-		int numSupportedModes = 0;
-		for( int i = 0; i < 32; i++ )
-		{
-			if( supportedModes & BIT( i ) )
-			{
-				supportedModeList[numSupportedModes] = i;
-				numSupportedModes++;
-			}
-		}
-		parms.gameMode = supportedModeList[( idLib::frameNumber / mpGameMaps.Num() ) % numSupportedModes ];
-	}
-	parms.mapName = mpGameMaps[parms.gameMap].mapFile;
-	parms.numSlots = session->GetTitleStorageInt( "MAX_PLAYERS_ALLOWED", 4 );
+    if ((parms.matchFlags & MATCH_REQUIRE_PARTY_LOBBY) == 0) {
+        return; // This is the party lobby or a SP match
+    }
+
+    // If we were searching for a random match but didn't find one, we'll need to select parameters now
+    if (parms.gameMap < 0) {
+        if (parms.gameMode < 0) {
+            // Random mode means any map will do
+            parms.gameMap = idLib::frameNumber % mpGameMaps.Num();
+        } else {
+            // Select a map which supports the chosen mode
+            idList<int> supportedMaps;
+            uint32 supportedMode = BIT(parms.gameMode);
+            for (int i = 0; i < mpGameMaps.Num(); i++) {
+                if (mpGameMaps[i].supportedModes & supportedMode) {
+                    supportedMaps.Append(i);
+                }
+            }
+            if (supportedMaps.Num() == 0) {
+                // We don't have any maps which support the chosen mode...
+                parms.gameMap = idLib::frameNumber % mpGameMaps.Num();
+                parms.gameMode = -1;
+            } else {
+                parms.gameMap = supportedMaps[idLib::frameNumber % supportedMaps.Num()];
+            }
+        }
+    }
+    if (parms.gameMode < 0) {
+        uint32 supportedModes = mpGameMaps[parms.gameMap].supportedModes;
+        int8 supportedModeList[32] = {};
+        int numSupportedModes = 0;
+        for (int i = 0; i < 32; i++) {
+            if (supportedModes & BIT(i)) {
+                supportedModeList[numSupportedModes] = i;
+                numSupportedModes++;
+            }
+        }
+        parms.gameMode = supportedModeList[(idLib::frameNumber / mpGameMaps.Num()) % numSupportedModes];
+    }
+    parms.mapName = mpGameMaps[parms.gameMap].mapFile;
+    parms.numSlots = session->GetTitleStorageInt("MAX_PLAYERS_ALLOWED", 4);
 }
 
 /*
@@ -143,27 +124,23 @@ void idCommonLocal::OnStartHosting( idMatchParameters& parms )
 idCommonLocal::StartMainMenu
 ==============
 */
-void idCommonLocal::StartMenu( bool playIntro )
+void idCommonLocal::StartMenu(bool playIntro)
 {
-	if( game && game->Shell_IsActive() )
-	{
-		return;
-	}
-	
-	if( readDemo )
-	{
-		// if we're playing a demo, esc kills it
-		UnloadMap();
-	}
-	
-	if( game )
-	{
-		game->Shell_Show( true );
-		game->Shell_SyncWithSession();
-	}
-	
-	console->Close();
-	
+    if (game && game->Shell_IsActive()) {
+        return;
+    }
+
+    if (readDemo) {
+        // if we're playing a demo, esc kills it
+        UnloadMap();
+    }
+
+    if (game) {
+        game->Shell_Show(true);
+        game->Shell_SyncWithSession();
+    }
+
+    console->Close();
 }
 
 /*
@@ -173,10 +150,9 @@ idCommonLocal::ExitMenu
 */
 void idCommonLocal::ExitMenu()
 {
-	if( game )
-	{
-		game->Shell_Show( false );
-	}
+    if (game) {
+        game->Shell_Show(false);
+    }
 }
 
 /*
@@ -186,25 +162,22 @@ idCommonLocal::MenuEvent
 Executes any commands returned by the gui
 ==============
 */
-bool idCommonLocal::MenuEvent( const sysEvent_t* event )
+bool idCommonLocal::MenuEvent(const sysEvent_t* event)
 {
 
-	if( session->GetSignInManager().ProcessInputEvent( event ) )
-	{
-		return true;
-	}
-	
-	if( game && game->Shell_IsActive() )
-	{
-		return game->Shell_HandleGuiEvent( event );
-	}
-	
-	if( game )
-	{
-		return game->HandlePlayerGuiEvent( event );
-	}
-	
-	return false;
+    if (session->GetSignInManager().ProcessInputEvent(event)) {
+        return true;
+    }
+
+    if (game && game->Shell_IsActive()) {
+        return game->Shell_HandleGuiEvent(event);
+    }
+
+    if (game) {
+        return game->HandlePlayerGuiEvent(event);
+    }
+
+    return false;
 }
 
 /*
@@ -214,8 +187,7 @@ idCommonLocal::GuiFrameEvents
 */
 void idCommonLocal::GuiFrameEvents()
 {
-	if( game )
-	{
-		game->Shell_SyncWithSession();
-	}
+    if (game) {
+        game->Shell_SyncWithSession();
+    }
 }

@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idlib/precompiled.h"
 #include "../posix/posix_public.h"
 #include "../sys_local.h"
-//#include "local.h"
+// #include "local.h"
 
 #include <pthread.h>
 #include <errno.h>
@@ -49,9 +49,8 @@ static int cmdargc = 0;
 #include <mcheck.h>
 #endif
 
-static idStr	basepath;
-static idStr	savepath;
-
+static idStr basepath;
+static idStr savepath;
 
 /*
  ==============
@@ -60,9 +59,9 @@ static idStr	savepath;
  */
 const char* Sys_DefaultSavePath()
 {
-	sprintf( savepath, "%s/.rbdoom3bfg", getenv( "HOME" ) );
-	
-	return savepath.c_str();
+    sprintf(savepath, "%s/.rbdoom3bfg", getenv("HOME"));
+
+    return savepath.c_str();
 }
 /*
 ==============
@@ -71,21 +70,20 @@ Sys_EXEPath
 */
 const char* Sys_EXEPath()
 {
-	static char	buf[ 1024 ];
-	idStr		linkpath;
-	int			len;
-	
-	buf[ 0 ] = '\0';
-	sprintf( linkpath, "/proc/%d/exe", getpid() );
-	len = readlink( linkpath.c_str(), buf, sizeof( buf ) );
-	if( len == -1 )
-	{
-		Sys_Printf( "couldn't stat exe path link %s\n", linkpath.c_str() );
-		// RB: fixed array subscript is below array bounds
-		buf[ 0 ] = '\0';
-		// RB end
-	}
-	return buf;
+    static char buf[1024];
+    idStr linkpath;
+    int len;
+
+    buf[0] = '\0';
+    sprintf(linkpath, "/proc/%d/exe", getpid());
+    len = readlink(linkpath.c_str(), buf, sizeof(buf));
+    if (len == -1) {
+        Sys_Printf("couldn't stat exe path link %s\n", linkpath.c_str());
+        // RB: fixed array subscript is below array bounds
+        buf[0] = '\0';
+        // RB end
+    }
+    return buf;
 }
 
 /*
@@ -101,44 +99,34 @@ Try to be intelligent: if there is no BASE_GAMEDIR, try the next path
 */
 const char* Sys_DefaultBasePath()
 {
-	struct stat st;
-	idStr testbase;
-	basepath = Sys_EXEPath();
-	if( basepath.Length() )
-	{
-		basepath.StripFilename();
-		testbase = basepath;
-		testbase += "/";
-		testbase += BASE_GAMEDIR;
-		if( stat( testbase.c_str(), &st ) != -1 && S_ISDIR( st.st_mode ) )
-		{
-			return basepath.c_str();
-		}
-		else
-		{
-			common->Printf( "no '%s' directory in exe path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
-		}
-	}
-	if( basepath != Posix_Cwd() )
-	{
-		basepath = Posix_Cwd();
-		testbase = basepath;
-		testbase += "/";
-		testbase += BASE_GAMEDIR;
-		if( stat( testbase.c_str(), &st ) != -1 && S_ISDIR( st.st_mode ) )
-		{
-			return basepath.c_str();
-		}
-		else
-		{
-			common->Printf( "no '%s' directory in cwd path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
-		}
-	}
-	common->Printf( "WARNING: using hardcoded default base path\n" );
-	return LINUX_DEFAULT_PATH;
+    struct stat st;
+    idStr testbase;
+    basepath = Sys_EXEPath();
+    if (basepath.Length()) {
+        basepath.StripFilename();
+        testbase = basepath;
+        testbase += "/";
+        testbase += BASE_GAMEDIR;
+        if (stat(testbase.c_str(), &st) != -1 && S_ISDIR(st.st_mode)) {
+            return basepath.c_str();
+        } else {
+            common->Printf("no '%s' directory in exe path %s, skipping\n", BASE_GAMEDIR, basepath.c_str());
+        }
+    }
+    if (basepath != Posix_Cwd()) {
+        basepath = Posix_Cwd();
+        testbase = basepath;
+        testbase += "/";
+        testbase += BASE_GAMEDIR;
+        if (stat(testbase.c_str(), &st) != -1 && S_ISDIR(st.st_mode)) {
+            return basepath.c_str();
+        } else {
+            common->Printf("no '%s' directory in cwd path %s, skipping\n", BASE_GAMEDIR, basepath.c_str());
+        }
+    }
+    common->Printf("WARNING: using hardcoded default base path\n");
+    return LINUX_DEFAULT_PATH;
 }
-
-
 
 /*
 ===============
@@ -147,9 +135,9 @@ Sys_Shutdown
 */
 void Sys_Shutdown()
 {
-	basepath.Clear();
-	savepath.Clear();
-	Posix_Shutdown();
+    basepath.Clear();
+    savepath.Clear();
+    Posix_Shutdown();
 }
 
 /*
@@ -159,7 +147,7 @@ Sys_GetProcessorId
 */
 cpuid_t Sys_GetProcessorId()
 {
-	return CPUID_GENERIC;
+    return CPUID_GENERIC;
 }
 
 /*
@@ -169,7 +157,7 @@ Sys_GetProcessorString
 */
 const char* Sys_GetProcessorString()
 {
-	return "generic";
+    return "generic";
 }
 
 /*
@@ -177,19 +165,19 @@ const char* Sys_GetProcessorString()
 Sys_FPU_EnableExceptions
 ===============
 */
-//void Sys_FPU_EnableExceptions( int exceptions )
+// void Sys_FPU_EnableExceptions( int exceptions )
 //{
-//}
+// }
 
 /*
 ===============
 Sys_FPE_handler
 ===============
 */
-void Sys_FPE_handler( int signum, siginfo_t* info, void* context )
+void Sys_FPE_handler(int signum, siginfo_t* info, void* context)
 {
-	assert( signum == SIGFPE );
-	Sys_Printf( "FPE\n" );
+    assert(signum == SIGFPE);
+    Sys_Printf("FPE\n");
 }
 
 /*
@@ -199,25 +187,25 @@ Sys_GetClockticks
 */
 double Sys_GetClockTicks()
 {
-#if defined( __i386__ )
-	unsigned long lo, hi;
-	
-	__asm__ __volatile__(
-		"push %%ebx\n"			\
-		"xor %%eax,%%eax\n"		\
-		"cpuid\n"					\
-		"rdtsc\n"					\
-		"mov %%eax,%0\n"			\
-		"mov %%edx,%1\n"			\
-		"pop %%ebx\n"
-		: "=r"( lo ), "=r"( hi ) );
-	return ( double ) lo + ( double ) 0xFFFFFFFF * hi;
+#if defined(__i386__)
+    unsigned long lo, hi;
+
+    __asm__ __volatile__(
+        "push %%ebx\n"
+        "xor %%eax,%%eax\n"
+        "cpuid\n"
+        "rdtsc\n"
+        "mov %%eax,%0\n"
+        "mov %%edx,%1\n"
+        "pop %%ebx\n"
+        : "=r"(lo), "=r"(hi));
+    return (double)lo + (double)0xFFFFFFFF * hi;
 #else
-//#error unsupported CPU
-// RB begin
-	struct timespec now;
-	clock_gettime( CLOCK_MONOTONIC, &now );
-	return now.tv_sec * 1000000000LL + now.tv_nsec;
+    // #error unsupported CPU
+    //  RB begin
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return now.tv_sec * 1000000000LL + now.tv_nsec;
 // RB end
 #endif
 }
@@ -229,12 +217,12 @@ MeasureClockTicks
 */
 double MeasureClockTicks()
 {
-	double t0, t1;
-	
-	t0 = Sys_GetClockTicks( );
-	Sys_Sleep( 1000 );
-	t1 = Sys_GetClockTicks( );
-	return t1 - t0;
+    double t0, t1;
+
+    t0 = Sys_GetClockTicks();
+    Sys_Sleep(1000);
+    t1 = Sys_GetClockTicks();
+    return t1 - t0;
 }
 
 /*
@@ -244,60 +232,53 @@ Sys_ClockTicksPerSecond
 */
 double Sys_ClockTicksPerSecond()
 {
-	static bool		init = false;
-	static double	ret;
-	
-	int		fd, len, pos, end;
-	char	buf[ 4096 ];
-	
-	if( init )
-	{
-		return ret;
-	}
-	
-	fd = open( "/proc/cpuinfo", O_RDONLY );
-	if( fd == -1 )
-	{
-		common->Printf( "couldn't read /proc/cpuinfo\n" );
-		ret = MeasureClockTicks();
-		init = true;
-		common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
-		return ret;
-	}
-	len = read( fd, buf, 4096 );
-	close( fd );
-	pos = 0;
-	while( pos < len )
-	{
-		if( !idStr::Cmpn( buf + pos, "cpu MHz", 7 ) )
-		{
-			pos = strchr( buf + pos, ':' ) - buf + 2;
-			end = strchr( buf + pos, '\n' ) - buf;
-			if( pos < len && end < len )
-			{
-				buf[end] = '\0';
-				ret = atof( buf + pos );
-			}
-			else
-			{
-				common->Printf( "failed parsing /proc/cpuinfo\n" );
-				ret = MeasureClockTicks();
-				init = true;
-				common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
-				return ret;
-			}
-			common->Printf( "/proc/cpuinfo CPU frequency: %g MHz\n", ret );
-			ret *= 1000000;
-			init = true;
-			return ret;
-		}
-		pos = strchr( buf + pos, '\n' ) - buf + 1;
-	}
-	common->Printf( "failed parsing /proc/cpuinfo\n" );
-	ret = MeasureClockTicks();
-	init = true;
-	common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
-	return ret;
+    static bool init = false;
+    static double ret;
+
+    int fd, len, pos, end;
+    char buf[4096];
+
+    if (init) {
+        return ret;
+    }
+
+    fd = open("/proc/cpuinfo", O_RDONLY);
+    if (fd == -1) {
+        common->Printf("couldn't read /proc/cpuinfo\n");
+        ret = MeasureClockTicks();
+        init = true;
+        common->Printf("measured CPU frequency: %g MHz\n", ret / 1000000.0);
+        return ret;
+    }
+    len = read(fd, buf, 4096);
+    close(fd);
+    pos = 0;
+    while (pos < len) {
+        if (!idStr::Cmpn(buf + pos, "cpu MHz", 7)) {
+            pos = strchr(buf + pos, ':') - buf + 2;
+            end = strchr(buf + pos, '\n') - buf;
+            if (pos < len && end < len) {
+                buf[end] = '\0';
+                ret = atof(buf + pos);
+            } else {
+                common->Printf("failed parsing /proc/cpuinfo\n");
+                ret = MeasureClockTicks();
+                init = true;
+                common->Printf("measured CPU frequency: %g MHz\n", ret / 1000000.0);
+                return ret;
+            }
+            common->Printf("/proc/cpuinfo CPU frequency: %g MHz\n", ret);
+            ret *= 1000000;
+            init = true;
+            return ret;
+        }
+        pos = strchr(buf + pos, '\n') - buf + 1;
+    }
+    common->Printf("failed parsing /proc/cpuinfo\n");
+    ret = MeasureClockTicks();
+    init = true;
+    common->Printf("measured CPU frequency: %g MHz\n", ret / 1000000.0);
+    return ret;
 }
 
 /*
@@ -310,95 +291,81 @@ numCPUPackages		- the total number of packages (physical processors)
 ========================
 */
 // RB begin
-void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCPUPackages )
+void Sys_CPUCount(int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCPUPackages)
 {
-	static bool		init = false;
-	static double	ret;
-	
-	static int		s_numLogicalCPUCores;
-	static int		s_numPhysicalCPUCores;
-	static int		s_numCPUPackages;
-	
-	int		fd, len, pos, end;
-	char	buf[ 4096 ];
-	char	number[100];
-	
-	if( init )
-	{
-		numPhysicalCPUCores = s_numPhysicalCPUCores;
-		numLogicalCPUCores = s_numLogicalCPUCores;
-		numCPUPackages = s_numCPUPackages;
-	}
-	
-	s_numPhysicalCPUCores = 1;
-	s_numLogicalCPUCores = 1;
-	s_numCPUPackages = 1;
-	
-	fd = open( "/proc/cpuinfo", O_RDONLY );
-	if( fd != -1 )
-	{
-		len = read( fd, buf, 4096 );
-		close( fd );
-		pos = 0;
-		while( pos < len )
-		{
-			if( !idStr::Cmpn( buf + pos, "processor", 9 ) )
-			{
-				pos = strchr( buf + pos, ':' ) - buf + 2;
-				end = strchr( buf + pos, '\n' ) - buf;
-				if( pos < len && end < len )
-				{
-					idStr::Copynz( number, buf + pos, sizeof( number ) );
-					assert( ( end - pos ) > 0 && ( end - pos ) < sizeof( number ) );
-					number[ end - pos ] = '\0';
-					
-					int processor = atoi( number );
-					
-					if( ( processor + 1 ) > s_numPhysicalCPUCores )
-					{
-						s_numPhysicalCPUCores = processor + 1;
-					}
-				}
-				else
-				{
-					common->Printf( "failed parsing /proc/cpuinfo\n" );
-					break;
-				}
-			}
-			else if( !idStr::Cmpn( buf + pos, "core id", 7 ) )
-			{
-				pos = strchr( buf + pos, ':' ) - buf + 2;
-				end = strchr( buf + pos, '\n' ) - buf;
-				if( pos < len && end < len )
-				{
-					idStr::Copynz( number, buf + pos, sizeof( number ) );
-					assert( ( end - pos ) > 0 && ( end - pos ) < sizeof( number ) );
-					number[ end - pos ] = '\0';
-					
-					int coreId = atoi( number );
-					
-					if( ( coreId + 1 ) > s_numLogicalCPUCores )
-					{
-						s_numLogicalCPUCores = coreId + 1;
-					}
-				}
-				else
-				{
-					common->Printf( "failed parsing /proc/cpuinfo\n" );
-					break;
-				}
-			}
-			
-			pos = strchr( buf + pos, '\n' ) - buf + 1;
-		}
-	}
-	
-	common->Printf( "/proc/cpuinfo CPU processors: %d\n", s_numPhysicalCPUCores );
-	common->Printf( "/proc/cpuinfo CPU logical cores: %d\n", s_numLogicalCPUCores );
-	
-	numPhysicalCPUCores = s_numPhysicalCPUCores;
-	numLogicalCPUCores = s_numLogicalCPUCores;
-	numCPUPackages = s_numCPUPackages;
+    static bool init = false;
+    static double ret;
+
+    static int s_numLogicalCPUCores;
+    static int s_numPhysicalCPUCores;
+    static int s_numCPUPackages;
+
+    int fd, len, pos, end;
+    char buf[4096];
+    char number[100];
+
+    if (init) {
+        numPhysicalCPUCores = s_numPhysicalCPUCores;
+        numLogicalCPUCores = s_numLogicalCPUCores;
+        numCPUPackages = s_numCPUPackages;
+    }
+
+    s_numPhysicalCPUCores = 1;
+    s_numLogicalCPUCores = 1;
+    s_numCPUPackages = 1;
+
+    fd = open("/proc/cpuinfo", O_RDONLY);
+    if (fd != -1) {
+        len = read(fd, buf, 4096);
+        close(fd);
+        pos = 0;
+        while (pos < len) {
+            if (!idStr::Cmpn(buf + pos, "processor", 9)) {
+                pos = strchr(buf + pos, ':') - buf + 2;
+                end = strchr(buf + pos, '\n') - buf;
+                if (pos < len && end < len) {
+                    idStr::Copynz(number, buf + pos, sizeof(number));
+                    assert((end - pos) > 0 && (end - pos) < sizeof(number));
+                    number[end - pos] = '\0';
+
+                    int processor = atoi(number);
+
+                    if ((processor + 1) > s_numPhysicalCPUCores) {
+                        s_numPhysicalCPUCores = processor + 1;
+                    }
+                } else {
+                    common->Printf("failed parsing /proc/cpuinfo\n");
+                    break;
+                }
+            } else if (!idStr::Cmpn(buf + pos, "core id", 7)) {
+                pos = strchr(buf + pos, ':') - buf + 2;
+                end = strchr(buf + pos, '\n') - buf;
+                if (pos < len && end < len) {
+                    idStr::Copynz(number, buf + pos, sizeof(number));
+                    assert((end - pos) > 0 && (end - pos) < sizeof(number));
+                    number[end - pos] = '\0';
+
+                    int coreId = atoi(number);
+
+                    if ((coreId + 1) > s_numLogicalCPUCores) {
+                        s_numLogicalCPUCores = coreId + 1;
+                    }
+                } else {
+                    common->Printf("failed parsing /proc/cpuinfo\n");
+                    break;
+                }
+            }
+
+            pos = strchr(buf + pos, '\n') - buf + 1;
+        }
+    }
+
+    common->Printf("/proc/cpuinfo CPU processors: %d\n", s_numPhysicalCPUCores);
+    common->Printf("/proc/cpuinfo CPU logical cores: %d\n", s_numLogicalCPUCores);
+
+    numPhysicalCPUCores = s_numPhysicalCPUCores;
+    numLogicalCPUCores = s_numLogicalCPUCores;
+    numCPUPackages = s_numCPUPackages;
 }
 // RB end
 
@@ -410,28 +377,24 @@ returns in megabytes
 */
 int Sys_GetSystemRam()
 {
-	long	count, page_size;
-	int		mb;
-	
-	count = sysconf( _SC_PHYS_PAGES );
-	if( count == -1 )
-	{
-		common->Printf( "GetSystemRam: sysconf _SC_PHYS_PAGES failed\n" );
-		return 512;
-	}
-	page_size = sysconf( _SC_PAGE_SIZE );
-	if( page_size == -1 )
-	{
-		common->Printf( "GetSystemRam: sysconf _SC_PAGE_SIZE failed\n" );
-		return 512;
-	}
-	mb = ( int )( ( double )count * ( double )page_size / ( 1024 * 1024 ) );
-	// round to the nearest 16Mb
-	mb = ( mb + 8 ) & ~15;
-	return mb;
+    long count, page_size;
+    int mb;
+
+    count = sysconf(_SC_PHYS_PAGES);
+    if (count == -1) {
+        common->Printf("GetSystemRam: sysconf _SC_PHYS_PAGES failed\n");
+        return 512;
+    }
+    page_size = sysconf(_SC_PAGE_SIZE);
+    if (page_size == -1) {
+        common->Printf("GetSystemRam: sysconf _SC_PAGE_SIZE failed\n");
+        return 512;
+    }
+    mb = (int)((double)count * (double)page_size / (1024 * 1024));
+    // round to the nearest 16Mb
+    mb = (mb + 8) & ~15;
+    return mb;
 }
-
-
 
 /*
 ==================
@@ -442,70 +405,53 @@ the no-fork lets you keep the terminal when you're about to spawn an installer
 if the command contains spaces, system() is used. Otherwise the more straightforward execl ( system() blows though )
 ==================
 */
-void Sys_DoStartProcess( const char* exeName, bool dofork )
+void Sys_DoStartProcess(const char* exeName, bool dofork)
 {
-	bool use_system = false;
-	if( strchr( exeName, ' ' ) )
-	{
-		use_system = true;
-	}
-	else
-	{
-		// set exec rights when it's about a single file to execute
-		struct stat buf;
-		if( stat( exeName, &buf ) == -1 )
-		{
-			printf( "stat %s failed: %s\n", exeName, strerror( errno ) );
-		}
-		else
-		{
-			if( chmod( exeName, buf.st_mode | S_IXUSR ) == -1 )
-			{
-				printf( "cmod +x %s failed: %s\n", exeName, strerror( errno ) );
-			}
-		}
-	}
-	if( dofork )
-	{
-		switch( fork() )
-		{
-			case -1:
-				// main thread
-				break;
-			case 0:
-				if( use_system )
-				{
-					printf( "system %s\n", exeName );
-					system( exeName );
-					_exit( 0 );
-				}
-				else
-				{
-					printf( "execl %s\n", exeName );
-					execl( exeName, exeName, NULL );
-					printf( "execl failed: %s\n", strerror( errno ) );
-					_exit( -1 );
-				}
-				break;
-		}
-	}
-	else
-	{
-		if( use_system )
-		{
-			printf( "system %s\n", exeName );
-			system( exeName );
-			sleep( 1 );	// on some systems I've seen that starting the new process and exiting this one should not be too close
-		}
-		else
-		{
-			printf( "execl %s\n", exeName );
-			execl( exeName, exeName, NULL );
-			printf( "execl failed: %s\n", strerror( errno ) );
-		}
-		// terminate
-		_exit( 0 );
-	}
+    bool use_system = false;
+    if (strchr(exeName, ' ')) {
+        use_system = true;
+    } else {
+        // set exec rights when it's about a single file to execute
+        struct stat buf;
+        if (stat(exeName, &buf) == -1) {
+            printf("stat %s failed: %s\n", exeName, strerror(errno));
+        } else {
+            if (chmod(exeName, buf.st_mode | S_IXUSR) == -1) {
+                printf("cmod +x %s failed: %s\n", exeName, strerror(errno));
+            }
+        }
+    }
+    if (dofork) {
+        switch (fork()) {
+        case -1:
+            // main thread
+            break;
+        case 0:
+            if (use_system) {
+                printf("system %s\n", exeName);
+                system(exeName);
+                _exit(0);
+            } else {
+                printf("execl %s\n", exeName);
+                execl(exeName, exeName, NULL);
+                printf("execl failed: %s\n", strerror(errno));
+                _exit(-1);
+            }
+            break;
+        }
+    } else {
+        if (use_system) {
+            printf("system %s\n", exeName);
+            system(exeName);
+            sleep(1); // on some systems I've seen that starting the new process and exiting this one should not be too close
+        } else {
+            printf("execl %s\n", exeName);
+            execl(exeName, exeName, NULL);
+            printf("execl failed: %s\n", strerror(errno));
+        }
+        // terminate
+        _exit(0);
+    }
 }
 
 /*
@@ -513,51 +459,47 @@ void Sys_DoStartProcess( const char* exeName, bool dofork )
 Sys_OpenURL
 =================
 */
-void idSysLocal::OpenURL( const char* url, bool quit )
+void idSysLocal::OpenURL(const char* url, bool quit)
 {
-	const char*	script_path;
-	idFile*		script_file;
-	char		cmdline[ 1024 ];
-	
-	static bool	quit_spamguard = false;
-	
-	if( quit_spamguard )
-	{
-		common->DPrintf( "Sys_OpenURL: already in a doexit sequence, ignoring %s\n", url );
-		return;
-	}
-	
-	common->Printf( "Open URL: %s\n", url );
-	// opening an URL on *nix can mean a lot of things ..
-	// just spawn a script instead of deciding for the user :-)
-	
-	// look in the savepath first, then in the basepath
-	script_path = fileSystem->BuildOSPath( cvarSystem->GetCVarString( "fs_savepath" ), "", "openurl.sh" );
-	script_file = fileSystem->OpenExplicitFileRead( script_path );
-	if( !script_file )
-	{
-		script_path = fileSystem->BuildOSPath( cvarSystem->GetCVarString( "fs_basepath" ), "", "openurl.sh" );
-		script_file = fileSystem->OpenExplicitFileRead( script_path );
-	}
-	if( !script_file )
-	{
-		common->Printf( "Can't find URL script 'openurl.sh' in either savepath or basepath\n" );
-		common->Printf( "OpenURL '%s' failed\n", url );
-		return;
-	}
-	fileSystem->CloseFile( script_file );
-	
-	// if we are going to quit, only accept a single URL before quitting and spawning the script
-	if( quit )
-	{
-		quit_spamguard = true;
-	}
-	
-	common->Printf( "URL script: %s\n", script_path );
-	
-	// StartProcess is going to execute a system() call with that - hence the &
-	idStr::snPrintf( cmdline, 1024, "%s '%s' &",  script_path, url );
-	sys->StartProcess( cmdline, quit );
+    const char* script_path;
+    idFile* script_file;
+    char cmdline[1024];
+
+    static bool quit_spamguard = false;
+
+    if (quit_spamguard) {
+        common->DPrintf("Sys_OpenURL: already in a doexit sequence, ignoring %s\n", url);
+        return;
+    }
+
+    common->Printf("Open URL: %s\n", url);
+    // opening an URL on *nix can mean a lot of things ..
+    // just spawn a script instead of deciding for the user :-)
+
+    // look in the savepath first, then in the basepath
+    script_path = fileSystem->BuildOSPath(cvarSystem->GetCVarString("fs_savepath"), "", "openurl.sh");
+    script_file = fileSystem->OpenExplicitFileRead(script_path);
+    if (!script_file) {
+        script_path = fileSystem->BuildOSPath(cvarSystem->GetCVarString("fs_basepath"), "", "openurl.sh");
+        script_file = fileSystem->OpenExplicitFileRead(script_path);
+    }
+    if (!script_file) {
+        common->Printf("Can't find URL script 'openurl.sh' in either savepath or basepath\n");
+        common->Printf("OpenURL '%s' failed\n", url);
+        return;
+    }
+    fileSystem->CloseFile(script_file);
+
+    // if we are going to quit, only accept a single URL before quitting and spawning the script
+    if (quit) {
+        quit_spamguard = true;
+    }
+
+    common->Printf("URL script: %s\n", script_path);
+
+    // StartProcess is going to execute a system() call with that - hence the &
+    idStr::snPrintf(cmdline, 1024, "%s '%s' &", script_path, url);
+    sys->StartProcess(cmdline, quit);
 }
 
 /*
@@ -625,24 +567,22 @@ mem consistency stuff
 
 #ifdef ID_MCHECK
 
-const char* mcheckstrings[] =
-{
-	"MCHECK_DISABLED",
-	"MCHECK_OK",
-	"MCHECK_FREE",	// block freed twice
-	"MCHECK_HEAD",	// memory before the block was clobbered
-	"MCHECK_TAIL"	// memory after the block was clobbered
+const char* mcheckstrings[] = {
+    "MCHECK_DISABLED",
+    "MCHECK_OK",
+    "MCHECK_FREE", // block freed twice
+    "MCHECK_HEAD", // memory before the block was clobbered
+    "MCHECK_TAIL"  // memory after the block was clobbered
 };
 
-void abrt_func( mcheck_status status )
+void abrt_func(mcheck_status status)
 {
-	Sys_Printf( "memory consistency failure: %s\n", mcheckstrings[ status + 1 ] );
-	Posix_SetExit( EXIT_FAILURE );
-	common->Quit();
+    Sys_Printf("memory consistency failure: %s\n", mcheckstrings[status + 1]);
+    Posix_SetExit(EXIT_FAILURE);
+    common->Quit();
 }
 
 #endif
-
 
 /*
 ========================
@@ -651,8 +591,8 @@ Sys_GetCmdLine
 */
 const char* Sys_GetCmdLine()
 {
-	// DG: don't use this, use cmdargv and cmdargc instead!
-	return "TODO Sys_GetCmdLine";
+    // DG: don't use this, use cmdargv and cmdargc instead!
+    return "TODO Sys_GetCmdLine";
 }
 
 /*
@@ -662,78 +602,70 @@ Sys_ReLaunch
 */
 void Sys_ReLaunch()
 {
-	// DG: implementing this... basic old fork() exec() (+ setsid()) routine..
-	// NOTE: this function used to have parameters: the commandline arguments, but as one string..
-	//       for Linux/Unix we want one char* per argument so we'll just add the friggin'
-	//       " +set com_skipIntroVideos 1" to the other commandline arguments in this function.
-	
-	int ret = fork();
-	if( ret < 0 )
-		idLib::Error( "Sys_ReLaunch(): Couldn't fork(), reason: %s ", strerror( errno ) );
-		
-	if( ret == 0 )
-	{
-		// child process
-		
-		// get our own session so we don't depend on the (soon to be killed)
-		// parent process anymore - else we'll freeze
-		pid_t sId = setsid();
-		if( sId == ( pid_t ) - 1 )
-		{
-			idLib::Error( "Sys_ReLaunch(): setsid() failed! Reason: %s ", strerror( errno ) );
-		}
-		
-		// close all FDs (except for stdin/out/err) so we don't leak FDs
-		DIR* devfd = opendir( "/dev/fd" );
-		if( devfd != NULL )
-		{
-			struct dirent entry;
-			struct dirent* result;
-			while( readdir_r( devfd, &entry, &result ) == 0 )
-			{
-				const char* filename = result->d_name;
-				char* endptr = NULL;
-				long int fd = strtol( filename, &endptr, 0 );
-				if( endptr != filename && fd > STDERR_FILENO )
-					close( fd );
-			}
-		}
-		else
-		{
-			idLib::Warning( "Sys_ReLaunch(): Couldn't open /dev/fd/ - will leak file descriptors. Reason: %s", strerror( errno ) );
-		}
-		
-		// + 3 because "+set" "com_skipIntroVideos" "1" - and note that while we'll skip
-		// one (the first) cmdargv argument, we need one more pointer for NULL at the end.
-		int argc = cmdargc + 3;
-		const char** argv = ( const char** )calloc( argc, sizeof( char* ) );
-		
-		int i;
-		for( i = 0; i < cmdargc - 1; ++i )
-			argv[i] = cmdargv[i + 1]; // ignore cmdargv[0] == executable name
-			
-		// add +set com_skipIntroVideos 1
-		argv[i++] = "+set";
-		argv[i++] = "com_skipIntroVideos";
-		argv[i++] = "1";
-		// execv expects NULL terminated array
-		argv[i] = NULL;
-		
-		const char* exepath = Sys_EXEPath();
-		
-		errno = 0;
-		execv( exepath, ( char** )argv );
-		// we only get here if execv() fails, else the executable is restarted
-		idLib::Error( "Sys_ReLaunch(): WTF exec() failed! Reason: %s ", strerror( errno ) );
-		
-	}
-	else
-	{
-		// original process
-		// just do a clean shutdown
-		cmdSystem->AppendCommandText( "quit\n" );
-	}
-	// DG end
+    // DG: implementing this... basic old fork() exec() (+ setsid()) routine..
+    // NOTE: this function used to have parameters: the commandline arguments, but as one string..
+    //       for Linux/Unix we want one char* per argument so we'll just add the friggin'
+    //       " +set com_skipIntroVideos 1" to the other commandline arguments in this function.
+
+    int ret = fork();
+    if (ret < 0)
+        idLib::Error("Sys_ReLaunch(): Couldn't fork(), reason: %s ", strerror(errno));
+
+    if (ret == 0) {
+        // child process
+
+        // get our own session so we don't depend on the (soon to be killed)
+        // parent process anymore - else we'll freeze
+        pid_t sId = setsid();
+        if (sId == (pid_t)-1) {
+            idLib::Error("Sys_ReLaunch(): setsid() failed! Reason: %s ", strerror(errno));
+        }
+
+        // close all FDs (except for stdin/out/err) so we don't leak FDs
+        DIR* devfd = opendir("/dev/fd");
+        if (devfd != NULL) {
+            struct dirent entry;
+            struct dirent* result;
+            while (readdir_r(devfd, &entry, &result) == 0) {
+                const char* filename = result->d_name;
+                char* endptr = NULL;
+                long int fd = strtol(filename, &endptr, 0);
+                if (endptr != filename && fd > STDERR_FILENO)
+                    close(fd);
+            }
+        } else {
+            idLib::Warning("Sys_ReLaunch(): Couldn't open /dev/fd/ - will leak file descriptors. Reason: %s", strerror(errno));
+        }
+
+        // + 3 because "+set" "com_skipIntroVideos" "1" - and note that while we'll skip
+        // one (the first) cmdargv argument, we need one more pointer for NULL at the end.
+        int argc = cmdargc + 3;
+        const char** argv = (const char**)calloc(argc, sizeof(char*));
+
+        int i;
+        for (i = 0; i < cmdargc - 1; ++i)
+            argv[i] = cmdargv[i + 1]; // ignore cmdargv[0] == executable name
+
+        // add +set com_skipIntroVideos 1
+        argv[i++] = "+set";
+        argv[i++] = "com_skipIntroVideos";
+        argv[i++] = "1";
+        // execv expects NULL terminated array
+        argv[i] = NULL;
+
+        const char* exepath = Sys_EXEPath();
+
+        errno = 0;
+        execv(exepath, (char**)argv);
+        // we only get here if execv() fails, else the executable is restarted
+        idLib::Error("Sys_ReLaunch(): WTF exec() failed! Reason: %s ", strerror(errno));
+
+    } else {
+        // original process
+        // just do a clean shutdown
+        cmdSystem->AppendCommandText("quit\n");
+    }
+    // DG end
 }
 
 /*
@@ -741,33 +673,29 @@ void Sys_ReLaunch()
 main
 ===============
 */
-int main( int argc, const char** argv )
+int main(int argc, const char** argv)
 {
-	// DG: needed for Sys_ReLaunch()
-	cmdargc = argc;
-	cmdargv = argv;
-	// DG end
+    // DG: needed for Sys_ReLaunch()
+    cmdargc = argc;
+    cmdargv = argv;
+    // DG end
 #ifdef ID_MCHECK
-	// must have -lmcheck linkage
-	mcheck( abrt_func );
-	Sys_Printf( "memory consistency checking enabled\n" );
+    // must have -lmcheck linkage
+    mcheck(abrt_func);
+    Sys_Printf("memory consistency checking enabled\n");
 #endif
-	
-	Posix_EarlyInit( );
-	
-	if( argc > 1 )
-	{
-		common->Init( argc - 1, &argv[1], NULL );
-	}
-	else
-	{
-		common->Init( 0, NULL, NULL );
-	}
-	
-	Posix_LateInit( );
-	
-	while( 1 )
-	{
-		common->Frame();
-	}
+
+    Posix_EarlyInit();
+
+    if (argc > 1) {
+        common->Init(argc - 1, &argv[1], NULL);
+    } else {
+        common->Init(0, NULL, NULL);
+    }
+
+    Posix_LateInit();
+
+    while (1) {
+        common->Frame();
+    }
 }

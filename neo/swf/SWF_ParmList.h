@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef	__SWF_PARMLIST_H__
-#define	__SWF_PARMLIST_H__
+#ifndef __SWF_PARMLIST_H__
+#define __SWF_PARMLIST_H__
 
 // static list for script parameters
 static const int SWF_MAX_PARMS = 16;
@@ -38,26 +38,25 @@ idSWFParmList
 A static list for script parameters that reduces the number of SWF allocations dramatically.
 ================================================
 */
-class idSWFParmList : public idStaticList< idSWFScriptVar, SWF_MAX_PARMS >
-{
+class idSWFParmList : public idStaticList<idSWFScriptVar, SWF_MAX_PARMS> {
 public:
-	idSWFParmList()
-	{
-	}
-	explicit		idSWFParmList( const int num_ )
-	{
-		SetNum( num_ );
-	}
-	
-	void	Append( const idSWFScriptVar& other );
-	void	Append( idSWFScriptObject* o );
-	void	Append( idSWFScriptFunction* f );
-	void	Append( const char* s );
-	void	Append( const idStr& s );
-	void	Append( idSWFScriptString* s );
-	void	Append( const float f );
-	void	Append( const int32 i );
-	void	Append( const bool b );
+    idSWFParmList()
+    {
+    }
+    explicit idSWFParmList(const int num_)
+    {
+        SetNum(num_);
+    }
+
+    void Append(const idSWFScriptVar& other);
+    void Append(idSWFScriptObject* o);
+    void Append(idSWFScriptFunction* f);
+    void Append(const char* s);
+    void Append(const idStr& s);
+    void Append(idSWFScriptString* s);
+    void Append(const float f);
+    void Append(const int32 i);
+    void Append(const bool b);
 };
 
-#endif	// __SWF_PARMLIST_H__ 
+#endif // __SWF_PARMLIST_H__

@@ -1,4 +1,4 @@
-/* 
+/*
 
 TiMidity -- Experimental MIDI to WAVE converter
 Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
@@ -32,28 +32,28 @@ Functions to output RIFF WAVE format data to a file or stdout.
 
 static int open_output(void); /* 0=success, 1=warning, -1=fatal error */
 static void close_output(void);
-static void output_data(int *buf, int count, int* bytes_written);
+static void output_data(int* buf, int count, int* bytes_written);
 static void flush_output(void);
 static void purge_output(void);
 
-
 PlayMode dpm = {
-	DEFAULT_RATE, PE_16BIT|PE_SIGNED,
-		"SDL audio", 0, "d:\\out.wav",
+    DEFAULT_RATE, PE_16BIT | PE_SIGNED,
+    "SDL audio", 0, "d:\\out.wav",
 
-		open_output,
-		close_output,
-		output_data,
-		flush_output,
-		purge_output  
+    open_output,
+    close_output,
+    output_data,
+    flush_output,
+    purge_output
 };
 
 /* Dummies */
-static int open_output(void){
-	return 0;
+static int open_output(void)
+{
+    return 0;
 }
 
-static void output_data(int *buf, int count, int* bytes_written){}
-static void close_output(void){}
+static void output_data(int* buf, int count, int* bytes_written) { }
+static void close_output(void) { }
 static void flush_output(void) { }
 static void purge_output(void) { }

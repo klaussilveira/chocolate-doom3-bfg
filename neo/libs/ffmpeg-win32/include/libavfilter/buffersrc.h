@@ -72,8 +72,8 @@ enum {
  * @return            >= 0 in case of success, a negative AVERROR code
  *                    in case of failure
  */
-int av_buffersrc_add_ref(AVFilterContext *buffer_src,
-                         AVFilterBufferRef *picref, int flags);
+int av_buffersrc_add_ref(AVFilterContext* buffer_src,
+    AVFilterBufferRef* picref, int flags);
 
 /**
  * Get the number of failed requests.
@@ -82,7 +82,7 @@ int av_buffersrc_add_ref(AVFilterContext *buffer_src,
  * frame is present in the buffer.
  * The number is reset when a frame is added.
  */
-unsigned av_buffersrc_get_nb_failed_requests(AVFilterContext *buffer_src);
+unsigned av_buffersrc_get_nb_failed_requests(AVFilterContext* buffer_src);
 
 #if FF_API_AVFILTERBUFFER
 /**
@@ -95,8 +95,7 @@ unsigned av_buffersrc_get_nb_failed_requests(AVFilterContext *buffer_src);
  *
  * @deprecated use av_buffersrc_write_frame() or av_buffersrc_add_frame()
  */
-attribute_deprecated
-int av_buffersrc_buffer(AVFilterContext *ctx, AVFilterBufferRef *buf);
+attribute_deprecated int av_buffersrc_buffer(AVFilterContext* ctx, AVFilterBufferRef* buf);
 #endif
 
 /**
@@ -112,7 +111,7 @@ int av_buffersrc_buffer(AVFilterContext *ctx, AVFilterBufferRef *buf);
  * This function is equivalent to av_buffersrc_add_frame_flags() with the
  * AV_BUFFERSRC_FLAG_KEEP_REF flag.
  */
-int av_buffersrc_write_frame(AVFilterContext *ctx, const AVFrame *frame);
+int av_buffersrc_write_frame(AVFilterContext* ctx, const AVFrame* frame);
 
 /**
  * Add a frame to the buffer source.
@@ -132,7 +131,7 @@ int av_buffersrc_write_frame(AVFilterContext *ctx, const AVFrame *frame);
  * This function is equivalent to av_buffersrc_add_frame_flags() without the
  * AV_BUFFERSRC_FLAG_KEEP_REF flag.
  */
-int av_buffersrc_add_frame(AVFilterContext *ctx, AVFrame *frame);
+int av_buffersrc_add_frame(AVFilterContext* ctx, AVFrame* frame);
 
 /**
  * Add a frame to the buffer source.
@@ -149,9 +148,8 @@ int av_buffersrc_add_frame(AVFilterContext *ctx, AVFrame *frame);
  * @return            >= 0 in case of success, a negative AVERROR code
  *                    in case of failure
  */
-int av_buffersrc_add_frame_flags(AVFilterContext *buffer_src,
-                                 AVFrame *frame, int flags);
-
+int av_buffersrc_add_frame_flags(AVFilterContext* buffer_src,
+    AVFrame* frame, int flags);
 
 /**
  * @}

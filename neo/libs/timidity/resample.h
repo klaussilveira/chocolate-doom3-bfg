@@ -20,5 +20,5 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 resample.h
 */
 
-extern sample_t *resample_voice(int v,  int32_t  *countptr);
-extern void pre_resample(Sample *sp);
+extern sample_t* resample_voice(int v, int32_t* countptr);
+extern void pre_resample(Sample* sp);

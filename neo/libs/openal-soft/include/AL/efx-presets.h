@@ -28,7 +28,7 @@ typedef struct {
     float flHFReference;
     float flLFReference;
     float flRoomRolloffFactor;
-    int   iDecayHFLimit;
+    int iDecayHFLimit;
 } EFXEAXREVERBPROPERTIES, *LPEFXEAXREVERBPROPERTIES;
 #endif
 

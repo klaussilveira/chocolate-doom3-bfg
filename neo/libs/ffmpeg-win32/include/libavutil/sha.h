@@ -39,7 +39,7 @@ struct AVSHA;
 /**
  * Allocate an AVSHA context.
  */
-struct AVSHA *av_sha_alloc(void);
+struct AVSHA* av_sha_alloc(void);
 
 /**
  * Initialize SHA-1 or SHA-2 hashing.
@@ -65,7 +65,7 @@ void av_sha_update(struct AVSHA* context, const uint8_t* data, unsigned int len)
  * @param context hash function context
  * @param digest  buffer where output digest value is stored
  */
-void av_sha_final(struct AVSHA* context, uint8_t *digest);
+void av_sha_final(struct AVSHA* context, uint8_t* digest);
 
 /**
  * @}

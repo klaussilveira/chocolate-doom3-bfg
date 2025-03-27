@@ -35,9 +35,9 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 // DG: Note: On Linux you need at least (e)glibc 2.12 to be able to set the threadname
-//#define DEBUG_THREADS
+// #define DEBUG_THREADS
 
-typedef void* ( *pthread_function_t )( void* );
+typedef void* (*pthread_function_t)(void*);
 
 /*
 ========================
@@ -51,90 +51,84 @@ caedes: This should be seen as a helper-function for Sys_CreateThread() only.
 ========================
 */
 #ifdef DEBUG_THREADS
-static int Sys_SetThreadName( pthread_t handle, const char* name )
+static int Sys_SetThreadName(pthread_t handle, const char* name)
 {
-	int ret = 0;
+    int ret = 0;
 #ifdef __linux__
-	// NOTE: linux only supports threadnames up to 16chars *including* terminating NULL
-	// http://man7.org/linux/man-pages/man3/pthread_setname_np.3.html
-	// on my machine a longer name (eg "JobListProcessor_0") caused an ENOENT error (instead of ERANGE)
-	assert( strlen( name ) < 16 );
-	
-	ret = pthread_setname_np( handle, name );
-	if( ret != 0 )
-		idLib::common->Printf( "Setting threadname \"%s\" failed, reason: %s (%i)\n", name, strerror( errno ), errno );
+    // NOTE: linux only supports threadnames up to 16chars *including* terminating NULL
+    // http://man7.org/linux/man-pages/man3/pthread_setname_np.3.html
+    // on my machine a longer name (eg "JobListProcessor_0") caused an ENOENT error (instead of ERANGE)
+    assert(strlen(name) < 16);
+
+    ret = pthread_setname_np(handle, name);
+    if (ret != 0)
+        idLib::common->Printf("Setting threadname \"%s\" failed, reason: %s (%i)\n", name, strerror(errno), errno);
 #elif defined(__FreeBSD__)
-	// according to http://www.freebsd.org/cgi/man.cgi?query=pthread_set_name_np&sektion=3
-	// the interface is void pthread_set_name_np(pthread_t tid, const char *name);
-	pthread_set_name_np( handle, name ); // doesn't return anything
+    // according to http://www.freebsd.org/cgi/man.cgi?query=pthread_set_name_np&sektion=3
+    // the interface is void pthread_set_name_np(pthread_t tid, const char *name);
+    pthread_set_name_np(handle, name); // doesn't return anything
 #endif
-	/* TODO: OSX:
-		// according to http://stackoverflow.com/a/7989973
-		// this needs to be called in the thread to be named!
-		ret = pthread_setname_np(name);
-	
-		// so we'd have to wrap the xthread_t function in Sys_CreateThread and set the name in the wrapping function...
-	*/
-	
-	return ret;
+    /* TODO: OSX:
+            // according to http://stackoverflow.com/a/7989973
+            // this needs to be called in the thread to be named!
+            ret = pthread_setname_np(name);
+
+            // so we'd have to wrap the xthread_t function in Sys_CreateThread and set the name in the wrapping function...
+    */
+
+    return ret;
 }
 
-static int Sys_GetThreadName( pthread_t handle, char* namebuf, size_t buflen )
+static int Sys_GetThreadName(pthread_t handle, char* namebuf, size_t buflen)
 {
-	int ret = 0;
+    int ret = 0;
 #ifdef __linux__
-	ret = pthread_getname_np( handle, namebuf, buflen );
-	if( ret != 0 )
-		idLib::common->Printf( "Getting threadname failed, reason: %s (%i)\n", strerror( errno ), errno );
+    ret = pthread_getname_np(handle, namebuf, buflen);
+    if (ret != 0)
+        idLib::common->Printf("Getting threadname failed, reason: %s (%i)\n", strerror(errno), errno);
 #elif defined(__FreeBSD__)
-	// seems like there is no pthread_getname_np equivalent on FreeBSD
-	idStr::snPrintf( namebuf, buflen, "Can't read threadname on this platform!" );
+    // seems like there is no pthread_getname_np equivalent on FreeBSD
+    idStr::snPrintf(namebuf, buflen, "Can't read threadname on this platform!");
 #endif
-	/* TODO: OSX:
-		// int pthread_getname_np(pthread_t, char*, size_t);
-	*/
-	
-	return ret;
+    /* TODO: OSX:
+            // int pthread_getname_np(pthread_t, char*, size_t);
+    */
+
+    return ret;
 }
 
 #endif // DEBUG_THREADS
-
-
 
 /*
 ========================
 Sys_Createthread
 ========================
 */
-uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority priority, const char* name, core_t core, int stackSize, bool suspended )
+uintptr_t Sys_CreateThread(xthread_t function, void* parms, xthreadPriority priority, const char* name, core_t core, int stackSize, bool suspended)
 {
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	
-	if( pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_JOINABLE ) != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_attr_setdetachstate %s failed\n", name );
-		return ( uintptr_t )0;
-	}
-	
-	pthread_t handle;
-	if( pthread_create( ( pthread_t* )&handle, &attr, ( pthread_function_t )function, parms ) != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_create %s failed\n", name );
-		return ( uintptr_t )0;
-	}
-	
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+
+    if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE) != 0) {
+        idLib::common->FatalError("ERROR: pthread_attr_setdetachstate %s failed\n", name);
+        return (uintptr_t)0;
+    }
+
+    pthread_t handle;
+    if (pthread_create((pthread_t*)&handle, &attr, (pthread_function_t)function, parms) != 0) {
+        idLib::common->FatalError("ERROR: pthread_create %s failed\n", name);
+        return (uintptr_t)0;
+    }
+
 #if defined(DEBUG_THREADS)
-	if( Sys_SetThreadName( handle, name ) != 0 )
-	{
-		idLib::common->Warning( "Warning: pthread_setname_np %s failed\n", name );
-		return ( uintptr_t )0;
-	}
+    if (Sys_SetThreadName(handle, name) != 0) {
+        idLib::common->Warning("Warning: pthread_setname_np %s failed\n", name);
+        return (uintptr_t)0;
+    }
 #endif
-	
-	pthread_attr_destroy( &attr );
-	
-	
+
+    pthread_attr_destroy(&attr);
+
 #if 0
 	// RB: realtime policies require root privileges
 	
@@ -202,12 +196,11 @@ uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority pri
 		return ( uintptr_t )0;
 	}
 #endif
-	
-	// Under Linux, we don't set the thread affinity and let the OS deal with scheduling
-	
-	return ( uintptr_t )handle;
-}
 
+    // Under Linux, we don't set the thread affinity and let the OS deal with scheduling
+
+    return (uintptr_t)handle;
+}
 
 /*
 ========================
@@ -216,14 +209,14 @@ Sys_GetCurrentThreadID
 */
 uintptr_t Sys_GetCurrentThreadID()
 {
-	/*
-	 * This cast is safe because pthread_self()
-	 * returns a pointer and uintptr_t is
-	 * designed to hold a pointer. The compiler
-	 * is just too stupid to know. :)
-	 *  -- Yamagi
-	 */
-	return ( uintptr_t )pthread_self();
+    /*
+     * This cast is safe because pthread_self()
+     * returns a pointer and uintptr_t is
+     * designed to hold a pointer. The compiler
+     * is just too stupid to know. :)
+     *  -- Yamagi
+     */
+    return (uintptr_t)pthread_self();
 }
 
 /*
@@ -231,31 +224,29 @@ uintptr_t Sys_GetCurrentThreadID()
 Sys_DestroyThread
 ========================
 */
-void Sys_DestroyThread( uintptr_t threadHandle )
+void Sys_DestroyThread(uintptr_t threadHandle)
 {
-	if( threadHandle == 0 )
-	{
-		return;
-	}
-	
-	char	name[128];
-	name[0] = '\0';
-	
+    if (threadHandle == 0) {
+        return;
+    }
+
+    char name[128];
+    name[0] = '\0';
+
 #if defined(DEBUG_THREADS)
-	Sys_GetThreadName( ( pthread_t )threadHandle, name, sizeof( name ) );
+    Sys_GetThreadName((pthread_t)threadHandle, name, sizeof(name));
 #endif
-	
-#if 0 //!defined(__ANDROID__)
+
+#if 0 //! defined(__ANDROID__)
 	if( pthread_cancel( ( pthread_t )threadHandle ) != 0 )
 	{
 		idLib::common->FatalError( "ERROR: pthread_cancel %s failed\n", name );
 	}
 #endif
-	
-	if( pthread_join( ( pthread_t )threadHandle, NULL ) != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_join %s failed\n", name );
-	}
+
+    if (pthread_join((pthread_t)threadHandle, NULL) != 0) {
+        idLib::common->FatalError("ERROR: pthread_join %s failed\n", name);
+    }
 }
 
 /*
@@ -265,13 +256,13 @@ Sys_Yield
 */
 void Sys_Yield()
 {
-	pthread_yield();
+    pthread_yield();
 }
 
 /*
 ================================================================================================
 
-	Signal
+        Signal
 
 ================================================================================================
 */
@@ -281,18 +272,18 @@ void Sys_Yield()
 Sys_SignalCreate
 ========================
 */
-void Sys_SignalCreate( signalHandle_t& handle, bool manualReset )
+void Sys_SignalCreate(signalHandle_t& handle, bool manualReset)
 {
-	// handle = CreateEvent( NULL, manualReset, FALSE, NULL );
-	
-	handle.manualReset = manualReset;
-	// if this is true, the signal is only set to nonsignaled when Clear() is called,
-	// else it's "auto-reset" and the state is set to !signaled after a single waiting
-	// thread has been released
-	
-	// the inital state is always "not signaled"
-	handle.signaled = false;
-	handle.waiting = 0;
+    // handle = CreateEvent( NULL, manualReset, FALSE, NULL );
+
+    handle.manualReset = manualReset;
+    // if this is true, the signal is only set to nonsignaled when Clear() is called,
+    // else it's "auto-reset" and the state is set to !signaled after a single waiting
+    // thread has been released
+
+    // the inital state is always "not signaled"
+    handle.signaled = false;
+    handle.waiting = 0;
 #if 0
 	pthread_mutexattr_t attr;
 	
@@ -302,11 +293,10 @@ void Sys_SignalCreate( signalHandle_t& handle, bool manualReset )
 	pthread_mutex_init( &mutex, &attr );
 	pthread_mutexattr_destroy( &attr );
 #else
-	pthread_mutex_init( &handle.mutex, NULL );
+    pthread_mutex_init(&handle.mutex, NULL);
 #endif
-	
-	pthread_cond_init( &handle.cond, NULL );
-	
+
+    pthread_cond_init(&handle.cond, NULL);
 }
 
 /*
@@ -314,13 +304,13 @@ void Sys_SignalCreate( signalHandle_t& handle, bool manualReset )
 Sys_SignalDestroy
 ========================
 */
-void Sys_SignalDestroy( signalHandle_t& handle )
+void Sys_SignalDestroy(signalHandle_t& handle)
 {
-	// CloseHandle( handle );
-	handle.signaled = false;
-	handle.waiting = 0;
-	pthread_mutex_destroy( &handle.mutex );
-	pthread_cond_destroy( &handle.cond );
+    // CloseHandle( handle );
+    handle.signaled = false;
+    handle.waiting = 0;
+    pthread_mutex_destroy(&handle.mutex);
+    pthread_cond_destroy(&handle.cond);
 }
 
 /*
@@ -328,39 +318,33 @@ void Sys_SignalDestroy( signalHandle_t& handle )
 Sys_SignalRaise
 ========================
 */
-void Sys_SignalRaise( signalHandle_t& handle )
+void Sys_SignalRaise(signalHandle_t& handle)
 {
-	// SetEvent( handle );
-	pthread_mutex_lock( &handle.mutex );
-	
-	if( handle.manualReset )
-	{
-		// signaled until reset
-		handle.signaled = true;
-		// wake *all* threads waiting on this cond
-		pthread_cond_broadcast( &handle.cond );
-	}
-	else
-	{
-		// automode: signaled until first thread is released
-		if( handle.waiting > 0 )
-		{
-			// there are waiting threads => release one
-			pthread_cond_signal( &handle.cond );
-		}
-		else
-		{
-			// no waiting threads, save signal
-			handle.signaled = true;
-			// while the MSDN documentation is a bit unspecific about what happens
-			// when SetEvent() is called n times without a wait inbetween
-			// (will only one wait be successful afterwards or n waits?)
-			// it seems like the signaled state is a flag, not a counter.
-			// http://stackoverflow.com/a/13703585 claims the same.
-		}
-	}
-	
-	pthread_mutex_unlock( &handle.mutex );
+    // SetEvent( handle );
+    pthread_mutex_lock(&handle.mutex);
+
+    if (handle.manualReset) {
+        // signaled until reset
+        handle.signaled = true;
+        // wake *all* threads waiting on this cond
+        pthread_cond_broadcast(&handle.cond);
+    } else {
+        // automode: signaled until first thread is released
+        if (handle.waiting > 0) {
+            // there are waiting threads => release one
+            pthread_cond_signal(&handle.cond);
+        } else {
+            // no waiting threads, save signal
+            handle.signaled = true;
+            // while the MSDN documentation is a bit unspecific about what happens
+            // when SetEvent() is called n times without a wait inbetween
+            // (will only one wait be successful afterwards or n waits?)
+            // it seems like the signaled state is a flag, not a counter.
+            // http://stackoverflow.com/a/13703585 claims the same.
+        }
+    }
+
+    pthread_mutex_unlock(&handle.mutex);
 }
 
 /*
@@ -368,76 +352,70 @@ void Sys_SignalRaise( signalHandle_t& handle )
 Sys_SignalClear
 ========================
 */
-void Sys_SignalClear( signalHandle_t& handle )
+void Sys_SignalClear(signalHandle_t& handle)
 {
-	// ResetEvent( handle );
-	pthread_mutex_lock( &handle.mutex );
-	
-	// TODO: probably signaled could be atomically changed?
-	handle.signaled = false;
-	
-	pthread_mutex_unlock( &handle.mutex );
-}
+    // ResetEvent( handle );
+    pthread_mutex_lock(&handle.mutex);
 
+    // TODO: probably signaled could be atomically changed?
+    handle.signaled = false;
+
+    pthread_mutex_unlock(&handle.mutex);
+}
 
 /*
 ========================
 Sys_SignalWait
 ========================
 */
-bool Sys_SignalWait( signalHandle_t& handle, int timeout )
+bool Sys_SignalWait(signalHandle_t& handle, int timeout)
 {
-	//DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
-	//assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
-	//return ( result == WAIT_OBJECT_0 );
-	
-	int status;
-	pthread_mutex_lock( &handle.mutex );
-	
-	if( handle.signaled ) // there is a signal that hasn't been used yet
-	{
-		if( ! handle.manualReset ) // for auto-mode only one thread may be released - this one.
-			handle.signaled = false;
-			
-		status = 0; // success!
-	}
-	else // we'll have to wait for a signal
-	{
-		++handle.waiting;
-		if( timeout == idSysSignal::WAIT_INFINITE )
-		{
-			status = pthread_cond_wait( &handle.cond, &handle.mutex );
-		}
-		else
-		{
-			timespec ts;
-			clock_gettime( CLOCK_REALTIME, &ts );
-			// DG: handle timeouts > 1s better
-			ts.tv_nsec += ( timeout % 1000 ) * 1000000; // millisec to nanosec
-			ts.tv_sec  += timeout / 1000;
-			if( ts.tv_nsec >= 1000000000 ) // nanoseconds are more than one second
-			{
-				ts.tv_nsec -= 1000000000; // remove one second in nanoseconds
-				ts.tv_sec += 1; // add one second to seconds
-			}
-			// DG end
-			status = pthread_cond_timedwait( &handle.cond, &handle.mutex, &ts );
-		}
-		--handle.waiting;
-	}
-	
-	pthread_mutex_unlock( &handle.mutex );
-	
-	assert( status == 0 || ( timeout != idSysSignal::WAIT_INFINITE && status == ETIMEDOUT ) );
-	
-	return ( status == 0 );
-	
+    // DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
+    // assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
+    // return ( result == WAIT_OBJECT_0 );
+
+    int status;
+    pthread_mutex_lock(&handle.mutex);
+
+    if (handle.signaled) // there is a signal that hasn't been used yet
+    {
+        if (!handle.manualReset) // for auto-mode only one thread may be released - this one.
+            handle.signaled = false;
+
+        status = 0; // success!
+    } else          // we'll have to wait for a signal
+    {
+        ++handle.waiting;
+        if (timeout == idSysSignal::WAIT_INFINITE) {
+            status = pthread_cond_wait(&handle.cond, &handle.mutex);
+        } else {
+            timespec ts;
+            clock_gettime(CLOCK_REALTIME, &ts);
+            // DG: handle timeouts > 1s better
+            ts.tv_nsec += (timeout % 1000) * 1000000; // millisec to nanosec
+            ts.tv_sec += timeout / 1000;
+            if (ts.tv_nsec >= 1000000000) // nanoseconds are more than one second
+            {
+                ts.tv_nsec -= 1000000000; // remove one second in nanoseconds
+                ts.tv_sec += 1;           // add one second to seconds
+            }
+            // DG end
+            status = pthread_cond_timedwait(&handle.cond, &handle.mutex, &ts);
+        }
+        --handle.waiting;
+    }
+
+    pthread_mutex_unlock(&handle.mutex);
+
+    assert(status == 0 || (timeout != idSysSignal::WAIT_INFINITE && status == ETIMEDOUT));
+
+    return (status == 0);
 }
 
 /*
 ================================================================================================
 
-	Mutex
+        Mutex
 
 ================================================================================================
 */
@@ -447,15 +425,15 @@ bool Sys_SignalWait( signalHandle_t& handle, int timeout )
 Sys_MutexCreate
 ========================
 */
-void Sys_MutexCreate( mutexHandle_t& handle )
+void Sys_MutexCreate(mutexHandle_t& handle)
 {
-	pthread_mutexattr_t attr;
-	
-	pthread_mutexattr_init( &attr );
-	pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_ERRORCHECK );
-	pthread_mutex_init( &handle, &attr );
-	
-	pthread_mutexattr_destroy( &attr );
+    pthread_mutexattr_t attr;
+
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&handle, &attr);
+
+    pthread_mutexattr_destroy(&attr);
 }
 
 /*
@@ -463,9 +441,9 @@ void Sys_MutexCreate( mutexHandle_t& handle )
 Sys_MutexDestroy
 ========================
 */
-void Sys_MutexDestroy( mutexHandle_t& handle )
+void Sys_MutexDestroy(mutexHandle_t& handle)
 {
-	pthread_mutex_destroy( &handle );
+    pthread_mutex_destroy(&handle);
 }
 
 /*
@@ -473,17 +451,15 @@ void Sys_MutexDestroy( mutexHandle_t& handle )
 Sys_MutexLock
 ========================
 */
-bool Sys_MutexLock( mutexHandle_t& handle, bool blocking )
+bool Sys_MutexLock(mutexHandle_t& handle, bool blocking)
 {
-	if( pthread_mutex_trylock( &handle ) != 0 )
-	{
-		if( !blocking )
-		{
-			return false;
-		}
-		pthread_mutex_lock( &handle );
-	}
-	return true;
+    if (pthread_mutex_trylock(&handle) != 0) {
+        if (!blocking) {
+            return false;
+        }
+        pthread_mutex_lock(&handle);
+    }
+    return true;
 }
 
 /*
@@ -491,15 +467,15 @@ bool Sys_MutexLock( mutexHandle_t& handle, bool blocking )
 Sys_MutexUnlock
 ========================
 */
-void Sys_MutexUnlock( mutexHandle_t& handle )
+void Sys_MutexUnlock(mutexHandle_t& handle)
 {
-	pthread_mutex_unlock( & handle );
+    pthread_mutex_unlock(&handle);
 }
 
 /*
 ================================================================================================
 
-	Interlocked Integer
+        Interlocked Integer
 
 ================================================================================================
 */
@@ -509,10 +485,10 @@ void Sys_MutexUnlock( mutexHandle_t& handle )
 Sys_InterlockedIncrement
 ========================
 */
-interlockedInt_t Sys_InterlockedIncrement( interlockedInt_t& value )
+interlockedInt_t Sys_InterlockedIncrement(interlockedInt_t& value)
 {
-	// return InterlockedIncrementAcquire( & value );
-	return __sync_add_and_fetch( &value, 1 );
+    // return InterlockedIncrementAcquire( & value );
+    return __sync_add_and_fetch(&value, 1);
 }
 
 /*
@@ -520,10 +496,10 @@ interlockedInt_t Sys_InterlockedIncrement( interlockedInt_t& value )
 Sys_InterlockedDecrement
 ========================
 */
-interlockedInt_t Sys_InterlockedDecrement( interlockedInt_t& value )
+interlockedInt_t Sys_InterlockedDecrement(interlockedInt_t& value)
 {
-	// return InterlockedDecrementRelease( & value );
-	return __sync_sub_and_fetch( &value, 1 );
+    // return InterlockedDecrementRelease( & value );
+    return __sync_sub_and_fetch(&value, 1);
 }
 
 /*
@@ -531,10 +507,10 @@ interlockedInt_t Sys_InterlockedDecrement( interlockedInt_t& value )
 Sys_InterlockedAdd
 ========================
 */
-interlockedInt_t Sys_InterlockedAdd( interlockedInt_t& value, interlockedInt_t i )
+interlockedInt_t Sys_InterlockedAdd(interlockedInt_t& value, interlockedInt_t i)
 {
-	//return InterlockedExchangeAdd( & value, i ) + i;
-	return __sync_add_and_fetch( &value, i );
+    // return InterlockedExchangeAdd( & value, i ) + i;
+    return __sync_add_and_fetch(&value, i);
 }
 
 /*
@@ -542,10 +518,10 @@ interlockedInt_t Sys_InterlockedAdd( interlockedInt_t& value, interlockedInt_t i
 Sys_InterlockedSub
 ========================
 */
-interlockedInt_t Sys_InterlockedSub( interlockedInt_t& value, interlockedInt_t i )
+interlockedInt_t Sys_InterlockedSub(interlockedInt_t& value, interlockedInt_t i)
 {
-	//return InterlockedExchangeAdd( & value, - i ) - i;
-	return __sync_sub_and_fetch( &value, i );
+    // return InterlockedExchangeAdd( & value, - i ) - i;
+    return __sync_sub_and_fetch(&value, i);
 }
 
 /*
@@ -553,13 +529,13 @@ interlockedInt_t Sys_InterlockedSub( interlockedInt_t& value, interlockedInt_t i
 Sys_InterlockedExchange
 ========================
 */
-interlockedInt_t Sys_InterlockedExchange( interlockedInt_t& value, interlockedInt_t exchange )
+interlockedInt_t Sys_InterlockedExchange(interlockedInt_t& value, interlockedInt_t exchange)
 {
-	//return InterlockedExchange( & value, exchange );
-	
-	// source: http://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html
-	// These builtins perform an atomic compare and swap. That is, if the current value of *ptr is oldval, then write newval into *ptr.
-	return __sync_val_compare_and_swap( &value, value, exchange );
+    // return InterlockedExchange( & value, exchange );
+
+    // source: http://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html
+    // These builtins perform an atomic compare and swap. That is, if the current value of *ptr is oldval, then write newval into *ptr.
+    return __sync_val_compare_and_swap(&value, value, exchange);
 }
 
 /*
@@ -567,16 +543,16 @@ interlockedInt_t Sys_InterlockedExchange( interlockedInt_t& value, interlockedIn
 Sys_InterlockedCompareExchange
 ========================
 */
-interlockedInt_t Sys_InterlockedCompareExchange( interlockedInt_t& value, interlockedInt_t comparand, interlockedInt_t exchange )
+interlockedInt_t Sys_InterlockedCompareExchange(interlockedInt_t& value, interlockedInt_t comparand, interlockedInt_t exchange)
 {
-	//return InterlockedCompareExchange( & value, exchange, comparand );
-	return __sync_val_compare_and_swap( &value, comparand, exchange );
+    // return InterlockedCompareExchange( & value, exchange, comparand );
+    return __sync_val_compare_and_swap(&value, comparand, exchange);
 }
 
 /*
 ================================================================================================
 
-	Interlocked Pointer
+        Interlocked Pointer
 
 ================================================================================================
 */
@@ -586,10 +562,10 @@ interlockedInt_t Sys_InterlockedCompareExchange( interlockedInt_t& value, interl
 Sys_InterlockedExchangePointer
 ========================
 */
-void* Sys_InterlockedExchangePointer( void*& ptr, void* exchange )
+void* Sys_InterlockedExchangePointer(void*& ptr, void* exchange)
 {
-	//return InterlockedExchangePointer( & ptr, exchange );
-	return __sync_val_compare_and_swap( &ptr, ptr, exchange );
+    // return InterlockedExchangePointer( & ptr, exchange );
+    return __sync_val_compare_and_swap(&ptr, ptr, exchange);
 }
 
 /*
@@ -597,8 +573,8 @@ void* Sys_InterlockedExchangePointer( void*& ptr, void* exchange )
 Sys_InterlockedCompareExchangePointer
 ========================
 */
-void* Sys_InterlockedCompareExchangePointer( void*& ptr, void* comparand, void* exchange )
+void* Sys_InterlockedCompareExchangePointer(void*& ptr, void* comparand, void* exchange)
 {
-	//return InterlockedCompareExchangePointer( & ptr, exchange, comparand );
-	return __sync_val_compare_and_swap( &ptr, comparand, exchange );
+    // return InterlockedCompareExchangePointer( & ptr, exchange, comparand );
+    return __sync_val_compare_and_swap(&ptr, comparand, exchange);
 }

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 extern idCVar achievements_Verbose;
 
-#define STEAM_ACHIEVEMENT_PREFIX		"ach_"
+#define STEAM_ACHIEVEMENT_PREFIX "ach_"
 
 /*
 ========================
@@ -51,7 +51,7 @@ idAchievementSystemWin::IsInitialized
 */
 bool idAchievementSystemWin::IsInitialized()
 {
-	return false;
+    return false;
 }
 
 /*
@@ -59,7 +59,7 @@ bool idAchievementSystemWin::IsInitialized()
 idAchievementSystemWin::AchievementUnlock
 ================================
 */
-void idAchievementSystemWin::AchievementUnlock( idLocalUser* user, int achievementID )
+void idAchievementSystemWin::AchievementUnlock(idLocalUser* user, int achievementID)
 {
 }
 
@@ -68,7 +68,7 @@ void idAchievementSystemWin::AchievementUnlock( idLocalUser* user, int achieveme
 idAchievementSystemWin::AchievementLock
 ========================
 */
-void idAchievementSystemWin::AchievementLock( idLocalUser* user, const int achievementID )
+void idAchievementSystemWin::AchievementLock(idLocalUser* user, const int achievementID)
 {
 }
 
@@ -77,7 +77,7 @@ void idAchievementSystemWin::AchievementLock( idLocalUser* user, const int achie
 idAchievementSystemWin::AchievementLockAll
 ========================
 */
-void idAchievementSystemWin::AchievementLockAll( idLocalUser* user, const int maxId )
+void idAchievementSystemWin::AchievementLockAll(idLocalUser* user, const int maxId)
 {
 }
 
@@ -86,9 +86,9 @@ void idAchievementSystemWin::AchievementLockAll( idLocalUser* user, const int ma
 idAchievementSystemWin::GetAchievementDescription
 ========================
 */
-bool idAchievementSystemWin::GetAchievementDescription( idLocalUser* user, const int achievementID, achievementDescription_t& data ) const
+bool idAchievementSystemWin::GetAchievementDescription(idLocalUser* user, const int achievementID, achievementDescription_t& data) const
 {
-	return false;
+    return false;
 }
 
 /*
@@ -96,9 +96,9 @@ bool idAchievementSystemWin::GetAchievementDescription( idLocalUser* user, const
 idAchievementSystemWin::GetAchievementState
 ========================
 */
-bool idAchievementSystemWin::GetAchievementState( idLocalUser* user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS >& achievements ) const
+bool idAchievementSystemWin::GetAchievementState(idLocalUser* user, idArray<bool, idAchievementSystem::MAX_ACHIEVEMENTS>& achievements) const
 {
-	return false;
+    return false;
 }
 
 /*

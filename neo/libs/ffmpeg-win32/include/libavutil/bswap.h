@@ -34,23 +34,23 @@
 
 #include "config.h"
 
-#if   ARCH_AARCH64
-#   include "aarch64/bswap.h"
+#if ARCH_AARCH64
+#include "aarch64/bswap.h"
 #elif ARCH_ARM
-#   include "arm/bswap.h"
+#include "arm/bswap.h"
 #elif ARCH_AVR32
-#   include "avr32/bswap.h"
+#include "avr32/bswap.h"
 #elif ARCH_BFIN
-#   include "bfin/bswap.h"
+#include "bfin/bswap.h"
 #elif ARCH_SH4
-#   include "sh4/bswap.h"
+#include "sh4/bswap.h"
 #elif ARCH_X86
-#   include "x86/bswap.h"
+#include "x86/bswap.h"
 #endif
 
 #endif /* HAVE_AV_CONFIG_H */
 
-#define AV_BSWAP16C(x) (((x) << 8 & 0xff00)  | ((x) >> 8 & 0x00ff))
+#define AV_BSWAP16C(x) (((x) << 8 & 0xff00) | ((x) >> 8 & 0x00ff))
 #define AV_BSWAP32C(x) (AV_BSWAP16C(x) << 16 | AV_BSWAP16C((x) >> 16))
 #define AV_BSWAP64C(x) (AV_BSWAP32C(x) << 32 | AV_BSWAP32C((x) >> 32))
 
@@ -59,7 +59,7 @@
 #ifndef av_bswap16
 static av_always_inline av_const uint16_t av_bswap16(uint16_t x)
 {
-    x= (x>>8) | (x<<8);
+    x = (x >> 8) | (x << 8);
     return x;
 }
 #endif

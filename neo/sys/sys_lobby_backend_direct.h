@@ -25,50 +25,48 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef	__SYS_LOBBY_BACKEND_DIRECT_H__
-#define	__SYS_LOBBY_BACKEND_DIRECT_H__
+#ifndef __SYS_LOBBY_BACKEND_DIRECT_H__
+#define __SYS_LOBBY_BACKEND_DIRECT_H__
 
 /*
 ========================
 idLobbyBackendDirect
 ========================
 */
-class idLobbyBackendDirect : public idLobbyBackend
-{
+class idLobbyBackendDirect : public idLobbyBackend {
 public:
-	idLobbyBackendDirect();
-	
-	// idLobbyBackend interface
-	virtual void				StartHosting( const idMatchParameters& p, float skillLevel, lobbyBackendType_t type );
-	virtual void				StartFinding( const idMatchParameters& p, int numPartyUsers, float skillLevel );
-	virtual void				JoinFromConnectInfo( const lobbyConnectInfo_t& connectInfo );
-	virtual void				GetSearchResults( idList< lobbyConnectInfo_t >& searchResults );
-	virtual void				FillMsgWithPostConnectInfo( idBitMsg& msg ) {}
-	virtual void				PostConnectFromMsg( idBitMsg& msg ) {}
-	virtual void				Shutdown();
-	virtual void				GetOwnerAddress( lobbyAddress_t& outAddr );
-	virtual void				SetIsJoinable( bool joinable );
-	virtual lobbyConnectInfo_t	GetConnectInfo();
-	virtual bool				IsOwnerOfConnectInfo( const lobbyConnectInfo_t& connectInfo ) const;
-	virtual void				Pump();
-	virtual void				UpdateMatchParms( const idMatchParameters& p );
-	virtual void				UpdateLobbySkill( float lobbySkill );
-	virtual void				SetInGame( bool value );
-	virtual lobbyBackendState_t	GetState()
-	{
-		return state;
-	}
-	
-	virtual void				BecomeHost( int numInvites );
-	virtual void				FinishBecomeHost();
-	
-	virtual void			RegisterUser( lobbyUser_t* user, bool isLocal );
-	virtual void			UnregisterUser( lobbyUser_t* user, bool isLocal );
-	
-private:
+    idLobbyBackendDirect();
 
-	lobbyBackendState_t		state;
-	netadr_t				address;
+    // idLobbyBackend interface
+    virtual void StartHosting(const idMatchParameters& p, float skillLevel, lobbyBackendType_t type);
+    virtual void StartFinding(const idMatchParameters& p, int numPartyUsers, float skillLevel);
+    virtual void JoinFromConnectInfo(const lobbyConnectInfo_t& connectInfo);
+    virtual void GetSearchResults(idList<lobbyConnectInfo_t>& searchResults);
+    virtual void FillMsgWithPostConnectInfo(idBitMsg& msg) { }
+    virtual void PostConnectFromMsg(idBitMsg& msg) { }
+    virtual void Shutdown();
+    virtual void GetOwnerAddress(lobbyAddress_t& outAddr);
+    virtual void SetIsJoinable(bool joinable);
+    virtual lobbyConnectInfo_t GetConnectInfo();
+    virtual bool IsOwnerOfConnectInfo(const lobbyConnectInfo_t& connectInfo) const;
+    virtual void Pump();
+    virtual void UpdateMatchParms(const idMatchParameters& p);
+    virtual void UpdateLobbySkill(float lobbySkill);
+    virtual void SetInGame(bool value);
+    virtual lobbyBackendState_t GetState()
+    {
+        return state;
+    }
+
+    virtual void BecomeHost(int numInvites);
+    virtual void FinishBecomeHost();
+
+    virtual void RegisterUser(lobbyUser_t* user, bool isLocal);
+    virtual void UnregisterUser(lobbyUser_t* user, bool isLocal);
+
+private:
+    lobbyBackendState_t state;
+    netadr_t address;
 };
 
-#endif	// __SYS_LOBBY_BACKEND_DIRECT_H__ 
+#endif // __SYS_LOBBY_BACKEND_DIRECT_H__

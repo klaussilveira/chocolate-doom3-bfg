@@ -99,12 +99,12 @@
 #include "libswresample/version.h"
 
 #if LIBSWRESAMPLE_VERSION_MAJOR < 1
-#define SWR_CH_MAX 32   ///< Maximum number of channels
+#define SWR_CH_MAX 32 ///< Maximum number of channels
 #endif
 
 #define SWR_FLAG_RESAMPLE 1 ///< Force resampling even if equal sample rate
-//TODO use int resample ?
-//long term TODO can we enable this dynamically?
+// TODO use int resample ?
+// long term TODO can we enable this dynamically?
 
 enum SwrDitherType {
     SWR_DITHER_NONE = 0,
@@ -112,7 +112,7 @@ enum SwrDitherType {
     SWR_DITHER_TRIANGULAR,
     SWR_DITHER_TRIANGULAR_HIGHPASS,
 
-    SWR_DITHER_NS = 64,         ///< not part of API/ABI
+    SWR_DITHER_NS = 64, ///< not part of API/ABI
     SWR_DITHER_NS_LIPSHITZ,
     SWR_DITHER_NS_F_WEIGHTED,
     SWR_DITHER_NS_MODIFIED_E_WEIGHTED,
@@ -120,21 +120,21 @@ enum SwrDitherType {
     SWR_DITHER_NS_SHIBATA,
     SWR_DITHER_NS_LOW_SHIBATA,
     SWR_DITHER_NS_HIGH_SHIBATA,
-    SWR_DITHER_NB,              ///< not part of API/ABI
+    SWR_DITHER_NB, ///< not part of API/ABI
 };
 
 /** Resampling Engines */
 enum SwrEngine {
-    SWR_ENGINE_SWR,             /**< SW Resampler */
-    SWR_ENGINE_SOXR,            /**< SoX Resampler */
-    SWR_ENGINE_NB,              ///< not part of API/ABI
+    SWR_ENGINE_SWR,  /**< SW Resampler */
+    SWR_ENGINE_SOXR, /**< SoX Resampler */
+    SWR_ENGINE_NB,   ///< not part of API/ABI
 };
 
 /** Resampling Filter Types */
 enum SwrFilterType {
-    SWR_FILTER_TYPE_CUBIC,              /**< Cubic */
-    SWR_FILTER_TYPE_BLACKMAN_NUTTALL,   /**< Blackman Nuttall Windowed Sinc */
-    SWR_FILTER_TYPE_KAISER,             /**< Kaiser Windowed Sinc */
+    SWR_FILTER_TYPE_CUBIC,            /**< Cubic */
+    SWR_FILTER_TYPE_BLACKMAN_NUTTALL, /**< Blackman Nuttall Windowed Sinc */
+    SWR_FILTER_TYPE_KAISER,           /**< Kaiser Windowed Sinc */
 };
 
 typedef struct SwrContext SwrContext;
@@ -145,7 +145,7 @@ typedef struct SwrContext SwrContext;
  *
  * @see av_opt_find().
  */
-const AVClass *swr_get_class(void);
+const AVClass* swr_get_class(void);
 
 /**
  * Allocate SwrContext.
@@ -156,21 +156,21 @@ const AVClass *swr_get_class(void);
  * @see swr_alloc_set_opts(), swr_init(), swr_free()
  * @return NULL on error, allocated context otherwise
  */
-struct SwrContext *swr_alloc(void);
+struct SwrContext* swr_alloc(void);
 
 /**
  * Initialize context after user parameters have been set.
  *
  * @return AVERROR error code in case of failure.
  */
-int swr_init(struct SwrContext *s);
+int swr_init(struct SwrContext* s);
 
 /**
  * Check whether an swr context has been initialized or not.
  *
  * @return positive if it has been initialized, 0 if not initialized
  */
-int swr_is_initialized(struct SwrContext *s);
+int swr_is_initialized(struct SwrContext* s);
 
 /**
  * Allocate SwrContext if needed and set/reset common parameters.
@@ -192,15 +192,15 @@ int swr_is_initialized(struct SwrContext *s);
  * @see swr_init(), swr_free()
  * @return NULL on error, allocated context otherwise
  */
-struct SwrContext *swr_alloc_set_opts(struct SwrContext *s,
-                                      int64_t out_ch_layout, enum AVSampleFormat out_sample_fmt, int out_sample_rate,
-                                      int64_t  in_ch_layout, enum AVSampleFormat  in_sample_fmt, int  in_sample_rate,
-                                      int log_offset, void *log_ctx);
+struct SwrContext* swr_alloc_set_opts(struct SwrContext* s,
+    int64_t out_ch_layout, enum AVSampleFormat out_sample_fmt, int out_sample_rate,
+    int64_t in_ch_layout, enum AVSampleFormat in_sample_fmt, int in_sample_rate,
+    int log_offset, void* log_ctx);
 
 /**
  * Free the given SwrContext and set the pointer to NULL.
  */
-void swr_free(struct SwrContext **s);
+void swr_free(struct SwrContext** s);
 
 /**
  * Convert audio.
@@ -220,8 +220,8 @@ void swr_free(struct SwrContext **s);
  *
  * @return number of samples output per channel, negative value on error
  */
-int swr_convert(struct SwrContext *s, uint8_t **out, int out_count,
-                                const uint8_t **in , int in_count);
+int swr_convert(struct SwrContext* s, uint8_t** out, int out_count,
+    const uint8_t** in, int in_count);
 
 /**
  * Convert the next timestamp from input to output
@@ -236,12 +236,12 @@ int swr_convert(struct SwrContext *s, uint8_t **out, int out_count,
  * @param pts   timestamp for the next input sample, INT64_MIN if unknown
  * @return the output timestamp for the next output sample
  */
-int64_t swr_next_pts(struct SwrContext *s, int64_t pts);
+int64_t swr_next_pts(struct SwrContext* s, int64_t pts);
 
 /**
  * Activate resampling compensation.
  */
-int swr_set_compensation(struct SwrContext *s, int sample_delta, int compensation_distance);
+int swr_set_compensation(struct SwrContext* s, int sample_delta, int compensation_distance);
 
 /**
  * Set a customized input channel mapping.
@@ -251,7 +251,7 @@ int swr_set_compensation(struct SwrContext *s, int sample_delta, int compensatio
  *                    indexes, -1 for a muted channel)
  * @return AVERROR error code in case of failure.
  */
-int swr_set_channel_mapping(struct SwrContext *s, const int *channel_map);
+int swr_set_channel_mapping(struct SwrContext* s, const int* channel_map);
 
 /**
  * Set a customized remix matrix.
@@ -262,17 +262,17 @@ int swr_set_channel_mapping(struct SwrContext *s, const int *channel_map);
  * @param stride  offset between lines of the matrix
  * @return  AVERROR error code in case of failure.
  */
-int swr_set_matrix(struct SwrContext *s, const double *matrix, int stride);
+int swr_set_matrix(struct SwrContext* s, const double* matrix, int stride);
 
 /**
  * Drops the specified number of output samples.
  */
-int swr_drop_output(struct SwrContext *s, int count);
+int swr_drop_output(struct SwrContext* s, int count);
 
 /**
  * Injects the specified number of silence samples.
  */
-int swr_inject_silence(struct SwrContext *s, int count);
+int swr_inject_silence(struct SwrContext* s, int count);
 
 /**
  * Gets the delay the next input sample will experience relative to the next output sample.
@@ -294,7 +294,7 @@ int swr_inject_silence(struct SwrContext *s, int count);
  *              an exact rounding free delay can be found by using LCM(in_sample_rate, out_sample_rate)
  * @returns     the delay in 1/base units.
  */
-int64_t swr_get_delay(struct SwrContext *s, int64_t base);
+int64_t swr_get_delay(struct SwrContext* s, int64_t base);
 
 /**
  * Return the LIBSWRESAMPLE_VERSION_INT constant.
@@ -304,12 +304,12 @@ unsigned swresample_version(void);
 /**
  * Return the swr build-time configuration.
  */
-const char *swresample_configuration(void);
+const char* swresample_configuration(void);
 
 /**
  * Return the swr license.
  */
-const char *swresample_license(void);
+const char* swresample_license(void);
 
 /**
  * @}

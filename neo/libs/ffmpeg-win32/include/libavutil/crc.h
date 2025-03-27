@@ -38,10 +38,10 @@ typedef enum {
     AV_CRC_16_ANSI,
     AV_CRC_16_CCITT,
     AV_CRC_32_IEEE,
-    AV_CRC_32_IEEE_LE,  /*< reversed bitorder version of AV_CRC_32_IEEE */
+    AV_CRC_32_IEEE_LE, /*< reversed bitorder version of AV_CRC_32_IEEE */
     AV_CRC_24_IEEE = 12,
-    AV_CRC_MAX,         /*< Not part of public API! Do not use outside libavutil. */
-}AVCRCId;
+    AV_CRC_MAX, /*< Not part of public API! Do not use outside libavutil. */
+} AVCRCId;
 
 /**
  * Initialize a CRC table.
@@ -59,14 +59,14 @@ typedef enum {
  * @param ctx_size size of ctx in bytes
  * @return <0 on failure
  */
-int av_crc_init(AVCRC *ctx, int le, int bits, uint32_t poly, int ctx_size);
+int av_crc_init(AVCRC* ctx, int le, int bits, uint32_t poly, int ctx_size);
 
 /**
  * Get an initialized standard CRC table.
  * @param crc_id ID of a standard CRC
  * @return a pointer to the CRC table or NULL on failure
  */
-const AVCRC *av_crc_get_table(AVCRCId crc_id);
+const AVCRC* av_crc_get_table(AVCRCId crc_id);
 
 /**
  * Calculate the CRC of a block.
@@ -75,8 +75,8 @@ const AVCRC *av_crc_get_table(AVCRCId crc_id);
  *
  * @see av_crc_init() "le" parameter
  */
-uint32_t av_crc(const AVCRC *ctx, uint32_t crc,
-                const uint8_t *buffer, size_t length) av_pure;
+uint32_t av_crc(const AVCRC* ctx, uint32_t crc,
+    const uint8_t* buffer, size_t length) av_pure;
 
 /**
  * @}

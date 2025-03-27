@@ -41,93 +41,95 @@ NOTE: due to the temporary memory pool idVecX cannot be used by multiple threads
 ===============================================================================
 */
 
-#define VECX_MAX_TEMP		1024
-#define VECX_QUAD( x )		( ( ( ( x ) + 3 ) & ~3 ) * sizeof( float ) )
-#define VECX_CLEAREND()		int s = size; while( s < ( ( s + 3) & ~3 ) ) { p[s++] = 0.0f; }
-#define VECX_ALLOCA( n )	( (float *) _alloca16( VECX_QUAD( n ) ) )
+#define VECX_MAX_TEMP 1024
+#define VECX_QUAD(x) ((((x) + 3) & ~3) * sizeof(float))
+#define VECX_CLEAREND()          \
+    int s = size;                \
+    while (s < ((s + 3) & ~3)) { \
+        p[s++] = 0.0f;           \
+    }
+#define VECX_ALLOCA(n) ((float*)_alloca16(VECX_QUAD(n)))
 
 #if defined(USE_INTRINSICS)
 #define VECX_SIMD
 #endif
 
-class idVecX
-{
-	friend class idMatX;
-	
-public:
-	ID_INLINE					idVecX();
-	ID_INLINE					explicit idVecX( int length );
-	ID_INLINE					explicit idVecX( int length, float* data );
-	ID_INLINE					~idVecX();
-	
-	ID_INLINE	float			Get( int index ) const;
-	ID_INLINE	float& 			Get( int index );
-	
-	ID_INLINE	float			operator[]( const int index ) const;
-	ID_INLINE	float& 			operator[]( const int index );
-	ID_INLINE	idVecX			operator-() const;
-	ID_INLINE	idVecX& 		operator=( const idVecX& a );
-	ID_INLINE	idVecX			operator*( const float a ) const;
-	ID_INLINE	idVecX			operator/( const float a ) const;
-	ID_INLINE	float			operator*( const idVecX& a ) const;
-	ID_INLINE	idVecX			operator-( const idVecX& a ) const;
-	ID_INLINE	idVecX			operator+( const idVecX& a ) const;
-	ID_INLINE	idVecX& 		operator*=( const float a );
-	ID_INLINE	idVecX& 		operator/=( const float a );
-	ID_INLINE	idVecX& 		operator+=( const idVecX& a );
-	ID_INLINE	idVecX& 		operator-=( const idVecX& a );
-	
-	friend ID_INLINE	idVecX	operator*( const float a, const idVecX& b );
-	
-	ID_INLINE	bool			Compare( const idVecX& a ) const;							// exact compare, no epsilon
-	ID_INLINE	bool			Compare( const idVecX& a, const float epsilon ) const;		// compare with epsilon
-	ID_INLINE	bool			operator==(	const idVecX& a ) const;						// exact compare, no epsilon
-	ID_INLINE	bool			operator!=(	const idVecX& a ) const;						// exact compare, no epsilon
-	
-	ID_INLINE	void			SetSize( int size );
-	ID_INLINE	void			ChangeSize( int size, bool makeZero = false );
-	ID_INLINE	int				GetSize() const
-	{
-		return size;
-	}
-	ID_INLINE	void			SetData( int length, float* data );
-	ID_INLINE	void			Zero();
-	ID_INLINE	void			Zero( int length );
-	ID_INLINE	void			Random( int seed, float l = 0.0f, float u = 1.0f );
-	ID_INLINE	void			Random( int length, int seed, float l = 0.0f, float u = 1.0f );
-	ID_INLINE	void			Negate();
-	ID_INLINE	void			Clamp( float min, float max );
-	ID_INLINE	idVecX& 		SwapElements( int e1, int e2 );
-	
-	ID_INLINE	float			Length() const;
-	ID_INLINE	float			LengthSqr() const;
-	ID_INLINE	idVecX			Normalize() const;
-	ID_INLINE	float			NormalizeSelf();
-	
-	ID_INLINE	int				GetDimension() const;
-	
-	ID_INLINE	void			AddScaleAdd( const float scale, const idVecX& v0, const idVecX& v1 );
-	
-	ID_INLINE	const idVec3& 	SubVec3( int index ) const;
-	ID_INLINE	idVec3& 		SubVec3( int index );
-	ID_INLINE	const idVec6& 	SubVec6( int index = 0 ) const;
-	ID_INLINE	idVec6& 		SubVec6( int index = 0 );
-	ID_INLINE	const float* 	ToFloatPtr() const;
-	ID_INLINE	float* 			ToFloatPtr();
-	const char* 	ToString( int precision = 2 ) const;
-	
-private:
-	int				size;					// size of the vector
-	int				alloced;				// if -1 p points to data set with SetData
-	float* 			p;						// memory the vector is stored
-	
-	static float	temp[VECX_MAX_TEMP + 4];	// used to store intermediate results
-	static float* 	tempPtr;				// pointer to 16 byte aligned temporary memory
-	static int		tempIndex;				// index into memory pool, wraps around
-	
-	ID_INLINE void	SetTempSize( int size );
-};
+class idVecX {
+    friend class idMatX;
 
+public:
+    ID_INLINE idVecX();
+    ID_INLINE explicit idVecX(int length);
+    ID_INLINE explicit idVecX(int length, float* data);
+    ID_INLINE ~idVecX();
+
+    ID_INLINE float Get(int index) const;
+    ID_INLINE float& Get(int index);
+
+    ID_INLINE float operator[](const int index) const;
+    ID_INLINE float& operator[](const int index);
+    ID_INLINE idVecX operator-() const;
+    ID_INLINE idVecX& operator=(const idVecX& a);
+    ID_INLINE idVecX operator*(const float a) const;
+    ID_INLINE idVecX operator/(const float a) const;
+    ID_INLINE float operator*(const idVecX& a) const;
+    ID_INLINE idVecX operator-(const idVecX& a) const;
+    ID_INLINE idVecX operator+(const idVecX& a) const;
+    ID_INLINE idVecX& operator*=(const float a);
+    ID_INLINE idVecX& operator/=(const float a);
+    ID_INLINE idVecX& operator+=(const idVecX& a);
+    ID_INLINE idVecX& operator-=(const idVecX& a);
+
+    friend ID_INLINE idVecX operator*(const float a, const idVecX& b);
+
+    ID_INLINE bool Compare(const idVecX& a) const;                      // exact compare, no epsilon
+    ID_INLINE bool Compare(const idVecX& a, const float epsilon) const; // compare with epsilon
+    ID_INLINE bool operator==(const idVecX& a) const;                   // exact compare, no epsilon
+    ID_INLINE bool operator!=(const idVecX& a) const;                   // exact compare, no epsilon
+
+    ID_INLINE void SetSize(int size);
+    ID_INLINE void ChangeSize(int size, bool makeZero = false);
+    ID_INLINE int GetSize() const
+    {
+        return size;
+    }
+    ID_INLINE void SetData(int length, float* data);
+    ID_INLINE void Zero();
+    ID_INLINE void Zero(int length);
+    ID_INLINE void Random(int seed, float l = 0.0f, float u = 1.0f);
+    ID_INLINE void Random(int length, int seed, float l = 0.0f, float u = 1.0f);
+    ID_INLINE void Negate();
+    ID_INLINE void Clamp(float min, float max);
+    ID_INLINE idVecX& SwapElements(int e1, int e2);
+
+    ID_INLINE float Length() const;
+    ID_INLINE float LengthSqr() const;
+    ID_INLINE idVecX Normalize() const;
+    ID_INLINE float NormalizeSelf();
+
+    ID_INLINE int GetDimension() const;
+
+    ID_INLINE void AddScaleAdd(const float scale, const idVecX& v0, const idVecX& v1);
+
+    ID_INLINE const idVec3& SubVec3(int index) const;
+    ID_INLINE idVec3& SubVec3(int index);
+    ID_INLINE const idVec6& SubVec6(int index = 0) const;
+    ID_INLINE idVec6& SubVec6(int index = 0);
+    ID_INLINE const float* ToFloatPtr() const;
+    ID_INLINE float* ToFloatPtr();
+    const char* ToString(int precision = 2) const;
+
+private:
+    int size;    // size of the vector
+    int alloced; // if -1 p points to data set with SetData
+    float* p;    // memory the vector is stored
+
+    static float temp[VECX_MAX_TEMP + 4]; // used to store intermediate results
+    static float* tempPtr;                // pointer to 16 byte aligned temporary memory
+    static int tempIndex;                 // index into memory pool, wraps around
+
+    ID_INLINE void SetTempSize(int size);
+};
 
 /*
 ========================
@@ -136,8 +138,8 @@ idVecX::idVecX
 */
 ID_INLINE idVecX::idVecX()
 {
-	size = alloced = 0;
-	p = NULL;
+    size = alloced = 0;
+    p = NULL;
 }
 
 /*
@@ -145,11 +147,11 @@ ID_INLINE idVecX::idVecX()
 idVecX::idVecX
 ========================
 */
-ID_INLINE idVecX::idVecX( int length )
+ID_INLINE idVecX::idVecX(int length)
 {
-	size = alloced = 0;
-	p = NULL;
-	SetSize( length );
+    size = alloced = 0;
+    p = NULL;
+    SetSize(length);
 }
 
 /*
@@ -157,11 +159,11 @@ ID_INLINE idVecX::idVecX( int length )
 idVecX::idVecX
 ========================
 */
-ID_INLINE idVecX::idVecX( int length, float* data )
+ID_INLINE idVecX::idVecX(int length, float* data)
 {
-	size = alloced = 0;
-	p = NULL;
-	SetData( length, data );
+    size = alloced = 0;
+    p = NULL;
+    SetData(length, data);
 }
 
 /*
@@ -171,11 +173,10 @@ idVecX::~idVecX
 */
 ID_INLINE idVecX::~idVecX()
 {
-	// if not temp memory
-	if( p && ( p < idVecX::tempPtr || p >= idVecX::tempPtr + VECX_MAX_TEMP ) && alloced != -1 )
-	{
-		Mem_Free16( p );
-	}
+    // if not temp memory
+    if (p && (p < idVecX::tempPtr || p >= idVecX::tempPtr + VECX_MAX_TEMP) && alloced != -1) {
+        Mem_Free16(p);
+    }
 }
 
 /*
@@ -183,10 +184,10 @@ ID_INLINE idVecX::~idVecX()
 idVecX::Get
 ========================
 */
-ID_INLINE float idVecX::Get( int index ) const
+ID_INLINE float idVecX::Get(int index) const
 {
-	assert( index >= 0 && index < size );
-	return p[index];
+    assert(index >= 0 && index < size);
+    return p[index];
 }
 
 /*
@@ -194,10 +195,10 @@ ID_INLINE float idVecX::Get( int index ) const
 idVecX::Get
 ========================
 */
-ID_INLINE float& idVecX::Get( int index )
+ID_INLINE float& idVecX::Get(int index)
 {
-	assert( index >= 0 && index < size );
-	return p[index];
+    assert(index >= 0 && index < size);
+    return p[index];
 }
 
 /*
@@ -205,9 +206,9 @@ ID_INLINE float& idVecX::Get( int index )
 idVecX::operator[]
 ========================
 */
-ID_INLINE float idVecX::operator[]( int index ) const
+ID_INLINE float idVecX::operator[](int index) const
 {
-	return Get( index );
+    return Get(index);
 }
 
 /*
@@ -215,9 +216,9 @@ ID_INLINE float idVecX::operator[]( int index ) const
 idVecX::operator[]
 ========================
 */
-ID_INLINE float& idVecX::operator[]( int index )
+ID_INLINE float& idVecX::operator[](int index)
 {
-	return Get( index );
+    return Get(index);
 }
 
 /*
@@ -227,22 +228,20 @@ idVecX::operator-
 */
 ID_INLINE idVecX idVecX::operator-() const
 {
-	idVecX m;
-	
-	m.SetTempSize( size );
+    idVecX m;
+
+    m.SetTempSize(size);
 #ifdef VECX_SIMD
-	ALIGN16( unsigned int signBit[4] ) = { IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK };
-	for( int i = 0; i < size; i += 4 )
-	{
-		_mm_store_ps( m.p + i, _mm_xor_ps( _mm_load_ps( p + i ), ( __m128& ) signBit[0] ) );
-	}
+    ALIGN16(unsigned int signBit[4]) = { IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK };
+    for (int i = 0; i < size; i += 4) {
+        _mm_store_ps(m.p + i, _mm_xor_ps(_mm_load_ps(p + i), (__m128&)signBit[0]));
+    }
 #else
-	for( int i = 0; i < size; i++ )
-	{
-		m.p[i] = -p[i];
-	}
+    for (int i = 0; i < size; i++) {
+        m.p[i] = -p[i];
+    }
 #endif
-	return m;
+    return m;
 }
 
 /*
@@ -250,19 +249,18 @@ ID_INLINE idVecX idVecX::operator-() const
 idVecX::operator=
 ========================
 */
-ID_INLINE idVecX& idVecX::operator=( const idVecX& a )
+ID_INLINE idVecX& idVecX::operator=(const idVecX& a)
 {
-	SetSize( a.size );
+    SetSize(a.size);
 #ifdef VECX_SIMD
-	for( int i = 0; i < a.size; i += 4 )
-	{
-		_mm_store_ps( p + i, _mm_load_ps( a.p + i ) );
-	}
+    for (int i = 0; i < a.size; i += 4) {
+        _mm_store_ps(p + i, _mm_load_ps(a.p + i));
+    }
 #else
-	memcpy( p, a.p, a.size * sizeof( float ) );
+    memcpy(p, a.p, a.size * sizeof(float));
 #endif
-	idVecX::tempIndex = 0;
-	return *this;
+    idVecX::tempIndex = 0;
+    return *this;
 }
 
 /*
@@ -270,24 +268,22 @@ ID_INLINE idVecX& idVecX::operator=( const idVecX& a )
 idVecX::operator+
 ========================
 */
-ID_INLINE idVecX idVecX::operator+( const idVecX& a ) const
+ID_INLINE idVecX idVecX::operator+(const idVecX& a) const
 {
-	idVecX m;
-	
-	assert( size == a.size );
-	m.SetTempSize( size );
+    idVecX m;
+
+    assert(size == a.size);
+    m.SetTempSize(size);
 #ifdef VECX_SIMD
-	for( int i = 0; i < size; i += 4 )
-	{
-		_mm_store_ps( m.p + i, _mm_add_ps( _mm_load_ps( p + i ), _mm_load_ps( a.p + i ) ) );
-	}
+    for (int i = 0; i < size; i += 4) {
+        _mm_store_ps(m.p + i, _mm_add_ps(_mm_load_ps(p + i), _mm_load_ps(a.p + i)));
+    }
 #else
-	for( int i = 0; i < size; i++ )
-	{
-		m.p[i] = p[i] + a.p[i];
-	}
+    for (int i = 0; i < size; i++) {
+        m.p[i] = p[i] + a.p[i];
+    }
 #endif
-	return m;
+    return m;
 }
 
 /*
@@ -295,24 +291,22 @@ ID_INLINE idVecX idVecX::operator+( const idVecX& a ) const
 idVecX::operator-
 ========================
 */
-ID_INLINE idVecX idVecX::operator-( const idVecX& a ) const
+ID_INLINE idVecX idVecX::operator-(const idVecX& a) const
 {
-	idVecX m;
-	
-	assert( size == a.size );
-	m.SetTempSize( size );
+    idVecX m;
+
+    assert(size == a.size);
+    m.SetTempSize(size);
 #ifdef VECX_SIMD
-	for( int i = 0; i < size; i += 4 )
-	{
-		_mm_store_ps( m.p + i, _mm_sub_ps( _mm_load_ps( p + i ), _mm_load_ps( a.p + i ) ) );
-	}
+    for (int i = 0; i < size; i += 4) {
+        _mm_store_ps(m.p + i, _mm_sub_ps(_mm_load_ps(p + i), _mm_load_ps(a.p + i)));
+    }
 #else
-	for( int i = 0; i < size; i++ )
-	{
-		m.p[i] = p[i] - a.p[i];
-	}
+    for (int i = 0; i < size; i++) {
+        m.p[i] = p[i] - a.p[i];
+    }
 #endif
-	return m;
+    return m;
 }
 
 /*
@@ -320,22 +314,20 @@ ID_INLINE idVecX idVecX::operator-( const idVecX& a ) const
 idVecX::operator+=
 ========================
 */
-ID_INLINE idVecX& idVecX::operator+=( const idVecX& a )
+ID_INLINE idVecX& idVecX::operator+=(const idVecX& a)
 {
-	assert( size == a.size );
+    assert(size == a.size);
 #ifdef VECX_SIMD
-	for( int i = 0; i < size; i += 4 )
-	{
-		_mm_store_ps( p + i, _mm_add_ps( _mm_load_ps( p + i ), _mm_load_ps( a.p + i ) ) );
-	}
+    for (int i = 0; i < size; i += 4) {
+        _mm_store_ps(p + i, _mm_add_ps(_mm_load_ps(p + i), _mm_load_ps(a.p + i)));
+    }
 #else
-	for( int i = 0; i < size; i++ )
-	{
-		p[i] += a.p[i];
-	}
+    for (int i = 0; i < size; i++) {
+        p[i] += a.p[i];
+    }
 #endif
-	idVecX::tempIndex = 0;
-	return *this;
+    idVecX::tempIndex = 0;
+    return *this;
 }
 
 /*
@@ -343,22 +335,20 @@ ID_INLINE idVecX& idVecX::operator+=( const idVecX& a )
 idVecX::operator-=
 ========================
 */
-ID_INLINE idVecX& idVecX::operator-=( const idVecX& a )
+ID_INLINE idVecX& idVecX::operator-=(const idVecX& a)
 {
-	assert( size == a.size );
+    assert(size == a.size);
 #ifdef VECX_SIMD
-	for( int i = 0; i < size; i += 4 )
-	{
-		_mm_store_ps( p + i, _mm_sub_ps( _mm_load_ps( p + i ), _mm_load_ps( a.p + i ) ) );
-	}
+    for (int i = 0; i < size; i += 4) {
+        _mm_store_ps(p + i, _mm_sub_ps(_mm_load_ps(p + i), _mm_load_ps(a.p + i)));
+    }
 #else
-	for( int i = 0; i < size; i++ )
-	{
-		p[i] -= a.p[i];
-	}
+    for (int i = 0; i < size; i++) {
+        p[i] -= a.p[i];
+    }
 #endif
-	idVecX::tempIndex = 0;
-	return *this;
+    idVecX::tempIndex = 0;
+    return *this;
 }
 
 /*
@@ -366,24 +356,22 @@ ID_INLINE idVecX& idVecX::operator-=( const idVecX& a )
 idVecX::operator*
 ========================
 */
-ID_INLINE idVecX idVecX::operator*( const float a ) const
+ID_INLINE idVecX idVecX::operator*(const float a) const
 {
-	idVecX m;
-	
-	m.SetTempSize( size );
+    idVecX m;
+
+    m.SetTempSize(size);
 #ifdef VECX_SIMD
-	__m128 va = _mm_load1_ps( & a );
-	for( int i = 0; i < size; i += 4 )
-	{
-		_mm_store_ps( m.p + i, _mm_mul_ps( _mm_load_ps( p + i ), va ) );
-	}
+    __m128 va = _mm_load1_ps(&a);
+    for (int i = 0; i < size; i += 4) {
+        _mm_store_ps(m.p + i, _mm_mul_ps(_mm_load_ps(p + i), va));
+    }
 #else
-	for( int i = 0; i < size; i++ )
-	{
-		m.p[i] = p[i] * a;
-	}
+    for (int i = 0; i < size; i++) {
+        m.p[i] = p[i] * a;
+    }
 #endif
-	return m;
+    return m;
 }
 
 /*
@@ -391,21 +379,19 @@ ID_INLINE idVecX idVecX::operator*( const float a ) const
 idVecX::operator*=
 ========================
 */
-ID_INLINE idVecX& idVecX::operator*=( const float a )
+ID_INLINE idVecX& idVecX::operator*=(const float a)
 {
 #ifdef VECX_SIMD
-	__m128 va = _mm_load1_ps( & a );
-	for( int i = 0; i < size; i += 4 )
-	{
-		_mm_store_ps( p + i, _mm_mul_ps( _mm_load_ps( p + i ), va ) );
-	}
+    __m128 va = _mm_load1_ps(&a);
+    for (int i = 0; i < size; i += 4) {
+        _mm_store_ps(p + i, _mm_mul_ps(_mm_load_ps(p + i), va));
+    }
 #else
-	for( int i = 0; i < size; i++ )
-	{
-		p[i] *= a;
-	}
+    for (int i = 0; i < size; i++) {
+        p[i] *= a;
+    }
 #endif
-	return *this;
+    return *this;
 }
 
 /*
@@ -413,10 +399,10 @@ ID_INLINE idVecX& idVecX::operator*=( const float a )
 idVecX::operator/
 ========================
 */
-ID_INLINE idVecX idVecX::operator/( const float a ) const
+ID_INLINE idVecX idVecX::operator/(const float a) const
 {
-	assert( fabs( a ) > idMath::FLT_SMALLEST_NON_DENORMAL );
-	return ( *this ) * ( 1.0f / a );
+    assert(fabs(a) > idMath::FLT_SMALLEST_NON_DENORMAL);
+    return (*this) * (1.0f / a);
 }
 
 /*
@@ -424,11 +410,11 @@ ID_INLINE idVecX idVecX::operator/( const float a ) const
 idVecX::operator/=
 ========================
 */
-ID_INLINE idVecX& idVecX::operator/=( const float a )
+ID_INLINE idVecX& idVecX::operator/=(const float a)
 {
-	assert( fabs( a ) > idMath::FLT_SMALLEST_NON_DENORMAL );
-	( *this ) *= ( 1.0f / a );
-	return *this;
+    assert(fabs(a) > idMath::FLT_SMALLEST_NON_DENORMAL);
+    (*this) *= (1.0f / a);
+    return *this;
 }
 
 /*
@@ -436,9 +422,9 @@ ID_INLINE idVecX& idVecX::operator/=( const float a )
 operator*
 ========================
 */
-ID_INLINE idVecX operator*( const float a, const idVecX& b )
+ID_INLINE idVecX operator*(const float a, const idVecX& b)
 {
-	return b * a;
+    return b * a;
 }
 
 /*
@@ -446,15 +432,14 @@ ID_INLINE idVecX operator*( const float a, const idVecX& b )
 idVecX::operator*
 ========================
 */
-ID_INLINE float idVecX::operator*( const idVecX& a ) const
+ID_INLINE float idVecX::operator*(const idVecX& a) const
 {
-	assert( size == a.size );
-	float sum = 0.0f;
-	for( int i = 0; i < size; i++ )
-	{
-		sum += p[i] * a.p[i];
-	}
-	return sum;
+    assert(size == a.size);
+    float sum = 0.0f;
+    for (int i = 0; i < size; i++) {
+        sum += p[i] * a.p[i];
+    }
+    return sum;
 }
 
 /*
@@ -462,17 +447,15 @@ ID_INLINE float idVecX::operator*( const idVecX& a ) const
 idVecX::Compare
 ========================
 */
-ID_INLINE bool idVecX::Compare( const idVecX& a ) const
+ID_INLINE bool idVecX::Compare(const idVecX& a) const
 {
-	assert( size == a.size );
-	for( int i = 0; i < size; i++ )
-	{
-		if( p[i] != a.p[i] )
-		{
-			return false;
-		}
-	}
-	return true;
+    assert(size == a.size);
+    for (int i = 0; i < size; i++) {
+        if (p[i] != a.p[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /*
@@ -480,17 +463,15 @@ ID_INLINE bool idVecX::Compare( const idVecX& a ) const
 idVecX::Compare
 ========================
 */
-ID_INLINE bool idVecX::Compare( const idVecX& a, const float epsilon ) const
+ID_INLINE bool idVecX::Compare(const idVecX& a, const float epsilon) const
 {
-	assert( size == a.size );
-	for( int i = 0; i < size; i++ )
-	{
-		if( idMath::Fabs( p[i] - a.p[i] ) > epsilon )
-		{
-			return false;
-		}
-	}
-	return true;
+    assert(size == a.size);
+    for (int i = 0; i < size; i++) {
+        if (idMath::Fabs(p[i] - a.p[i]) > epsilon) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /*
@@ -498,9 +479,9 @@ ID_INLINE bool idVecX::Compare( const idVecX& a, const float epsilon ) const
 idVecX::operator==
 ========================
 */
-ID_INLINE bool idVecX::operator==( const idVecX& a ) const
+ID_INLINE bool idVecX::operator==(const idVecX& a) const
 {
-	return Compare( a );
+    return Compare(a);
 }
 
 /*
@@ -508,9 +489,9 @@ ID_INLINE bool idVecX::operator==( const idVecX& a ) const
 idVecX::operator!=
 ========================
 */
-ID_INLINE bool idVecX::operator!=( const idVecX& a ) const
+ID_INLINE bool idVecX::operator!=(const idVecX& a) const
 {
-	return !Compare( a );
+    return !Compare(a);
 }
 
 /*
@@ -518,24 +499,21 @@ ID_INLINE bool idVecX::operator!=( const idVecX& a ) const
 idVecX::SetSize
 ========================
 */
-ID_INLINE void idVecX::SetSize( int newSize )
+ID_INLINE void idVecX::SetSize(int newSize)
 {
-	//assert( p < idVecX::tempPtr || p > idVecX::tempPtr + VECX_MAX_TEMP );
-	if( newSize != size || p == NULL )
-	{
-		int alloc = ( newSize + 3 ) & ~3;
-		if( alloc > alloced && alloced != -1 )
-		{
-			if( p )
-			{
-				Mem_Free16( p );
-			}
-			p = ( float* ) Mem_Alloc16( alloc * sizeof( float ), TAG_MATH );
-			alloced = alloc;
-		}
-		size = newSize;
-		VECX_CLEAREND();
-	}
+    // assert( p < idVecX::tempPtr || p > idVecX::tempPtr + VECX_MAX_TEMP );
+    if (newSize != size || p == NULL) {
+        int alloc = (newSize + 3) & ~3;
+        if (alloc > alloced && alloced != -1) {
+            if (p) {
+                Mem_Free16(p);
+            }
+            p = (float*)Mem_Alloc16(alloc * sizeof(float), TAG_MATH);
+            alloced = alloc;
+        }
+        size = newSize;
+        VECX_CLEAREND();
+    }
 }
 
 /*
@@ -543,36 +521,30 @@ ID_INLINE void idVecX::SetSize( int newSize )
 idVecX::ChangeSize
 ========================
 */
-ID_INLINE void idVecX::ChangeSize( int newSize, bool makeZero )
+ID_INLINE void idVecX::ChangeSize(int newSize, bool makeZero)
 {
-	if( newSize != size )
-	{
-		int alloc = ( newSize + 3 ) & ~3;
-		if( alloc > alloced && alloced != -1 )
-		{
-			float* oldVec = p;
-			p = ( float* ) Mem_Alloc16( alloc * sizeof( float ), TAG_MATH );
-			alloced = alloc;
-			if( oldVec )
-			{
-				for( int i = 0; i < size; i++ )
-				{
-					p[i] = oldVec[i];
-				}
-				Mem_Free16( oldVec );
-			}
-			if( makeZero )
-			{
-				// zero any new elements
-				for( int i = size; i < newSize; i++ )
-				{
-					p[i] = 0.0f;
-				}
-			}
-		}
-		size = newSize;
-		VECX_CLEAREND();
-	}
+    if (newSize != size) {
+        int alloc = (newSize + 3) & ~3;
+        if (alloc > alloced && alloced != -1) {
+            float* oldVec = p;
+            p = (float*)Mem_Alloc16(alloc * sizeof(float), TAG_MATH);
+            alloced = alloc;
+            if (oldVec) {
+                for (int i = 0; i < size; i++) {
+                    p[i] = oldVec[i];
+                }
+                Mem_Free16(oldVec);
+            }
+            if (makeZero) {
+                // zero any new elements
+                for (int i = size; i < newSize; i++) {
+                    p[i] = 0.0f;
+                }
+            }
+        }
+        size = newSize;
+        VECX_CLEAREND();
+    }
 }
 
 /*
@@ -580,18 +552,17 @@ ID_INLINE void idVecX::ChangeSize( int newSize, bool makeZero )
 idVecX::SetTempSize
 ========================
 */
-ID_INLINE void idVecX::SetTempSize( int newSize )
+ID_INLINE void idVecX::SetTempSize(int newSize)
 {
-	size = newSize;
-	alloced = ( newSize + 3 ) & ~3;
-	assert( alloced < VECX_MAX_TEMP );
-	if( idVecX::tempIndex + alloced > VECX_MAX_TEMP )
-	{
-		idVecX::tempIndex = 0;
-	}
-	p = idVecX::tempPtr + idVecX::tempIndex;
-	idVecX::tempIndex += alloced;
-	VECX_CLEAREND();
+    size = newSize;
+    alloced = (newSize + 3) & ~3;
+    assert(alloced < VECX_MAX_TEMP);
+    if (idVecX::tempIndex + alloced > VECX_MAX_TEMP) {
+        idVecX::tempIndex = 0;
+    }
+    p = idVecX::tempPtr + idVecX::tempIndex;
+    idVecX::tempIndex += alloced;
+    VECX_CLEAREND();
 }
 
 /*
@@ -599,17 +570,16 @@ ID_INLINE void idVecX::SetTempSize( int newSize )
 idVecX::SetData
 ========================
 */
-ID_INLINE void idVecX::SetData( int length, float* data )
+ID_INLINE void idVecX::SetData(int length, float* data)
 {
-	if( p != NULL && ( p < idVecX::tempPtr || p >= idVecX::tempPtr + VECX_MAX_TEMP ) && alloced != -1 )
-	{
-		Mem_Free16( p );
-	}
-	assert_16_byte_aligned( data ); // data must be 16 byte aligned
-	p = data;
-	size = length;
-	alloced = -1;
-	VECX_CLEAREND();
+    if (p != NULL && (p < idVecX::tempPtr || p >= idVecX::tempPtr + VECX_MAX_TEMP) && alloced != -1) {
+        Mem_Free16(p);
+    }
+    assert_16_byte_aligned(data); // data must be 16 byte aligned
+    p = data;
+    size = length;
+    alloced = -1;
+    VECX_CLEAREND();
 }
 
 /*
@@ -620,12 +590,11 @@ idVecX::Zero
 ID_INLINE void idVecX::Zero()
 {
 #ifdef VECX_SIMD
-	for( int i = 0; i < size; i += 4 )
-	{
-		_mm_store_ps( p + i, _mm_setzero_ps() );
-	}
+    for (int i = 0; i < size; i += 4) {
+        _mm_store_ps(p + i, _mm_setzero_ps());
+    }
 #else
-	memset( p, 0, size * sizeof( float ) );
+    memset(p, 0, size * sizeof(float));
 #endif
 }
 
@@ -634,16 +603,15 @@ ID_INLINE void idVecX::Zero()
 idVecX::Zero
 ========================
 */
-ID_INLINE void idVecX::Zero( int length )
+ID_INLINE void idVecX::Zero(int length)
 {
-	SetSize( length );
+    SetSize(length);
 #ifdef VECX_SIMD
-	for( int i = 0; i < length; i += 4 )
-	{
-		_mm_store_ps( p + i, _mm_setzero_ps() );
-	}
+    for (int i = 0; i < length; i += 4) {
+        _mm_store_ps(p + i, _mm_setzero_ps());
+    }
 #else
-	memset( p, 0, length * sizeof( float ) );
+    memset(p, 0, length * sizeof(float));
 #endif
 }
 
@@ -652,15 +620,14 @@ ID_INLINE void idVecX::Zero( int length )
 idVecX::Random
 ========================
 */
-ID_INLINE void idVecX::Random( int seed, float l, float u )
+ID_INLINE void idVecX::Random(int seed, float l, float u)
 {
-	idRandom rnd( seed );
-	
-	float c = u - l;
-	for( int i = 0; i < size; i++ )
-	{
-		p[i] = l + rnd.RandomFloat() * c;
-	}
+    idRandom rnd(seed);
+
+    float c = u - l;
+    for (int i = 0; i < size; i++) {
+        p[i] = l + rnd.RandomFloat() * c;
+    }
 }
 
 /*
@@ -668,16 +635,15 @@ ID_INLINE void idVecX::Random( int seed, float l, float u )
 idVecX::Random
 ========================
 */
-ID_INLINE void idVecX::Random( int length, int seed, float l, float u )
+ID_INLINE void idVecX::Random(int length, int seed, float l, float u)
 {
-	idRandom rnd( seed );
-	
-	SetSize( length );
-	float c = u - l;
-	for( int i = 0; i < size; i++ )
-	{
-		p[i] = l + rnd.RandomFloat() * c;
-	}
+    idRandom rnd(seed);
+
+    SetSize(length);
+    float c = u - l;
+    for (int i = 0; i < size; i++) {
+        p[i] = l + rnd.RandomFloat() * c;
+    }
 }
 
 /*
@@ -688,16 +654,14 @@ idVecX::Negate
 ID_INLINE void idVecX::Negate()
 {
 #ifdef VECX_SIMD
-	ALIGN16( const unsigned int signBit[4] ) = { IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK };
-	for( int i = 0; i < size; i += 4 )
-	{
-		_mm_store_ps( p + i, _mm_xor_ps( _mm_load_ps( p + i ), ( __m128& ) signBit[0] ) );
-	}
+    ALIGN16(const unsigned int signBit[4]) = { IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK };
+    for (int i = 0; i < size; i += 4) {
+        _mm_store_ps(p + i, _mm_xor_ps(_mm_load_ps(p + i), (__m128&)signBit[0]));
+    }
 #else
-	for( int i = 0; i < size; i++ )
-	{
-		p[i] = -p[i];
-	}
+    for (int i = 0; i < size; i++) {
+        p[i] = -p[i];
+    }
 #endif
 }
 
@@ -706,19 +670,15 @@ ID_INLINE void idVecX::Negate()
 idVecX::Clamp
 ========================
 */
-ID_INLINE void idVecX::Clamp( float min, float max )
+ID_INLINE void idVecX::Clamp(float min, float max)
 {
-	for( int i = 0; i < size; i++ )
-	{
-		if( p[i] < min )
-		{
-			p[i] = min;
-		}
-		else if( p[i] > max )
-		{
-			p[i] = max;
-		}
-	}
+    for (int i = 0; i < size; i++) {
+        if (p[i] < min) {
+            p[i] = min;
+        } else if (p[i] > max) {
+            p[i] = max;
+        }
+    }
 }
 
 /*
@@ -726,13 +686,13 @@ ID_INLINE void idVecX::Clamp( float min, float max )
 idVecX::SwapElements
 ========================
 */
-ID_INLINE idVecX& idVecX::SwapElements( int e1, int e2 )
+ID_INLINE idVecX& idVecX::SwapElements(int e1, int e2)
 {
-	float tmp;
-	tmp = p[e1];
-	p[e1] = p[e2];
-	p[e2] = tmp;
-	return *this;
+    float tmp;
+    tmp = p[e1];
+    p[e1] = p[e2];
+    p[e2] = tmp;
+    return *this;
 }
 
 /*
@@ -742,12 +702,11 @@ idVecX::Length
 */
 ID_INLINE float idVecX::Length() const
 {
-	float sum = 0.0f;
-	for( int i = 0; i < size; i++ )
-	{
-		sum += p[i] * p[i];
-	}
-	return idMath::Sqrt( sum );
+    float sum = 0.0f;
+    for (int i = 0; i < size; i++) {
+        sum += p[i] * p[i];
+    }
+    return idMath::Sqrt(sum);
 }
 
 /*
@@ -757,12 +716,11 @@ idVecX::LengthSqr
 */
 ID_INLINE float idVecX::LengthSqr() const
 {
-	float sum = 0.0f;
-	for( int i = 0; i < size; i++ )
-	{
-		sum += p[i] * p[i];
-	}
-	return sum;
+    float sum = 0.0f;
+    for (int i = 0; i < size; i++) {
+        sum += p[i] * p[i];
+    }
+    return sum;
 }
 
 /*
@@ -772,20 +730,18 @@ idVecX::Normalize
 */
 ID_INLINE idVecX idVecX::Normalize() const
 {
-	idVecX m;
-	
-	m.SetTempSize( size );
-	float sum = 0.0f;
-	for( int i = 0; i < size; i++ )
-	{
-		sum += p[i] * p[i];
-	}
-	float invSqrt = idMath::InvSqrt( sum );
-	for( int i = 0; i < size; i++ )
-	{
-		m.p[i] = p[i] * invSqrt;
-	}
-	return m;
+    idVecX m;
+
+    m.SetTempSize(size);
+    float sum = 0.0f;
+    for (int i = 0; i < size; i++) {
+        sum += p[i] * p[i];
+    }
+    float invSqrt = idMath::InvSqrt(sum);
+    for (int i = 0; i < size; i++) {
+        m.p[i] = p[i] * invSqrt;
+    }
+    return m;
 }
 
 /*
@@ -795,17 +751,15 @@ idVecX::NormalizeSelf
 */
 ID_INLINE float idVecX::NormalizeSelf()
 {
-	float sum = 0.0f;
-	for( int i = 0; i < size; i++ )
-	{
-		sum += p[i] * p[i];
-	}
-	float invSqrt = idMath::InvSqrt( sum );
-	for( int i = 0; i < size; i++ )
-	{
-		p[i] *= invSqrt;
-	}
-	return invSqrt * sum;
+    float sum = 0.0f;
+    for (int i = 0; i < size; i++) {
+        sum += p[i] * p[i];
+    }
+    float invSqrt = idMath::InvSqrt(sum);
+    for (int i = 0; i < size; i++) {
+        p[i] *= invSqrt;
+    }
+    return invSqrt * sum;
 }
 
 /*
@@ -815,7 +769,7 @@ idVecX::GetDimension
 */
 ID_INLINE int idVecX::GetDimension() const
 {
-	return size;
+    return size;
 }
 
 /*
@@ -823,10 +777,10 @@ ID_INLINE int idVecX::GetDimension() const
 idVecX::SubVec3
 ========================
 */
-ID_INLINE idVec3& idVecX::SubVec3( int index )
+ID_INLINE idVec3& idVecX::SubVec3(int index)
 {
-	assert( index >= 0 && index * 3 + 3 <= size );
-	return *reinterpret_cast<idVec3*>( p + index * 3 );
+    assert(index >= 0 && index * 3 + 3 <= size);
+    return *reinterpret_cast<idVec3*>(p + index * 3);
 }
 
 /*
@@ -834,10 +788,10 @@ ID_INLINE idVec3& idVecX::SubVec3( int index )
 idVecX::SubVec3
 ========================
 */
-ID_INLINE const idVec3& idVecX::SubVec3( int index ) const
+ID_INLINE const idVec3& idVecX::SubVec3(int index) const
 {
-	assert( index >= 0 && index * 3 + 3 <= size );
-	return *reinterpret_cast<const idVec3*>( p + index * 3 );
+    assert(index >= 0 && index * 3 + 3 <= size);
+    return *reinterpret_cast<const idVec3*>(p + index * 3);
 }
 
 /*
@@ -845,10 +799,10 @@ ID_INLINE const idVec3& idVecX::SubVec3( int index ) const
 idVecX::SubVec6
 ========================
 */
-ID_INLINE idVec6& idVecX::SubVec6( int index )
+ID_INLINE idVec6& idVecX::SubVec6(int index)
 {
-	assert( index >= 0 && index * 6 + 6 <= size );
-	return *reinterpret_cast<idVec6*>( p + index * 6 );
+    assert(index >= 0 && index * 6 + 6 <= size);
+    return *reinterpret_cast<idVec6*>(p + index * 6);
 }
 
 /*
@@ -856,10 +810,10 @@ ID_INLINE idVec6& idVecX::SubVec6( int index )
 idVecX::SubVec6
 ========================
 */
-ID_INLINE const idVec6& idVecX::SubVec6( int index ) const
+ID_INLINE const idVec6& idVecX::SubVec6(int index) const
 {
-	assert( index >= 0 && index * 6 + 6 <= size );
-	return *reinterpret_cast<const idVec6*>( p + index * 6 );
+    assert(index >= 0 && index * 6 + 6 <= size);
+    return *reinterpret_cast<const idVec6*>(p + index * 6);
 }
 
 /*
@@ -869,7 +823,7 @@ idVecX::ToFloatPtr
 */
 ID_INLINE const float* idVecX::ToFloatPtr() const
 {
-	return p;
+    return p;
 }
 
 /*
@@ -879,7 +833,7 @@ idVecX::ToFloatPtr
 */
 ID_INLINE float* idVecX::ToFloatPtr()
 {
-	return p;
+    return p;
 }
 
 /*
@@ -887,19 +841,18 @@ ID_INLINE float* idVecX::ToFloatPtr()
 idVecX::AddScaleAdd
 ========================
 */
-ID_INLINE void idVecX::AddScaleAdd( const float scale, const idVecX& v0, const idVecX& v1 )
+ID_INLINE void idVecX::AddScaleAdd(const float scale, const idVecX& v0, const idVecX& v1)
 {
-	assert( GetSize() == v0.GetSize() );
-	assert( GetSize() == v1.GetSize() );
-	
-	const float* v0Ptr = v0.ToFloatPtr();
-	const float* v1Ptr = v1.ToFloatPtr();
-	float* dstPtr = ToFloatPtr();
-	
-	for( int i = 0; i < size; i++ )
-	{
-		dstPtr[i] += scale * ( v0Ptr[i] + v1Ptr[i] );
-	}
+    assert(GetSize() == v0.GetSize());
+    assert(GetSize() == v1.GetSize());
+
+    const float* v0Ptr = v0.ToFloatPtr();
+    const float* v1Ptr = v1.ToFloatPtr();
+    float* dstPtr = ToFloatPtr();
+
+    for (int i = 0; i < size; i++) {
+        dstPtr[i] += scale * (v0Ptr[i] + v1Ptr[i]);
+    }
 }
 
 #endif // !__MATH_VECTORX_H__

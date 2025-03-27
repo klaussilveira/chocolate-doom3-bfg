@@ -33,18 +33,17 @@ If you have questions concerning this license or the applicable additional terms
 idAchievementSystemWin
 ================================================
 */
-class idAchievementSystemWin : public idAchievementSystem
-{
+class idAchievementSystemWin : public idAchievementSystem {
 public:
-	idAchievementSystemWin();
-	
-	bool	IsInitialized();
-	void	AchievementUnlock( idLocalUser* user, const int achievementID );
-	void	AchievementLock( idLocalUser* user, const int achievementID );
-	void	AchievementLockAll( idLocalUser* user, const int maxId );
-	void	Pump();
-	bool	GetAchievementDescription( idLocalUser* user, const int id, achievementDescription_t& data ) const;
-	bool	GetAchievementState( idLocalUser* user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS >& achievements ) const;
+    idAchievementSystemWin();
+
+    bool IsInitialized();
+    void AchievementUnlock(idLocalUser* user, const int achievementID);
+    void AchievementLock(idLocalUser* user, const int achievementID);
+    void AchievementLockAll(idLocalUser* user, const int maxId);
+    void Pump();
+    bool GetAchievementDescription(idLocalUser* user, const int id, achievementDescription_t& data) const;
+    bool GetAchievementState(idLocalUser* user, idArray<bool, idAchievementSystem::MAX_ACHIEVEMENTS>& achievements) const;
 };
 
 #endif // __WIN_ACHIEVEMENTS_H__

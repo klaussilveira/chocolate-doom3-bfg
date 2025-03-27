@@ -12,8 +12,8 @@
 
 #include "jpeglib.h"
 
-
-int LoadJPG( const char * filename, unsigned char ** pic, int * width, int * height ) {
+int LoadJPG(const char* filename, unsigned char** pic, int* width, int* height)
+{
     /* This struct contains the JPEG decompression parameters and pointers to
      * working space (which is allocated as needed by the JPEG library).
      */
@@ -32,10 +32,10 @@ int LoadJPG( const char * filename, unsigned char ** pic, int * width, int * hei
      */
     struct jpeg_error_mgr jerr;
     /* More stuff */
-    fileHandle_t infile;    /* source file */
-    JSAMPARRAY buffer;      /* Output row buffer */
-    int row_stride;     /* physical row width in output buffer */
-    unsigned char * out;
+    fileHandle_t infile; /* source file */
+    JSAMPARRAY buffer;   /* Output row buffer */
+    int row_stride;      /* physical row width in output buffer */
+    unsigned char* out;
 
     /* In this example we want to open the input file before doing anything else,
      * so that the setjmp() error recovery below can assume the file is open.
@@ -43,8 +43,8 @@ int LoadJPG( const char * filename, unsigned char ** pic, int * width, int * hei
      * requires it in order to read binary files.
      */
 
-    FS_FOpenFileRead( filename, &infile, qfalse );
-    if ( infile == 0 ) {
+    FS_FOpenFileRead(filename, &infile, qfalse);
+    if (infile == 0) {
         return 0;
     }
 
@@ -55,18 +55,18 @@ int LoadJPG( const char * filename, unsigned char ** pic, int * width, int * hei
      * This routine fills in the contents of struct jerr, and returns jerr's
      * address which we place into the link field in cinfo.
      */
-    cinfo.err = jpeg_std_error( &jerr );
+    cinfo.err = jpeg_std_error(&jerr);
 
     /* Now we can initialize the JPEG decompression object. */
-    jpeg_create_decompress( &cinfo );
+    jpeg_create_decompress(&cinfo);
 
     /* Step 2: specify data source (eg, a file) */
 
-    jpeg_stdio_src( &cinfo, infile );
+    jpeg_stdio_src(&cinfo, infile);
 
     /* Step 3: read file parameters with jpeg_read_header() */
 
-    (void) jpeg_read_header( &cinfo, TRUE );
+    (void)jpeg_read_header(&cinfo, TRUE);
     /* We can ignore the return value from jpeg_read_header since
      *   (a) suspension is not possible with the stdio data source, and
      *   (b) we passed TRUE to reject a tables-only JPEG file as an error.
@@ -81,7 +81,7 @@ int LoadJPG( const char * filename, unsigned char ** pic, int * width, int * hei
 
     /* Step 5: Start decompressor */
 
-    (void) jpeg_start_decompress( &cinfo );
+    (void)jpeg_start_decompress(&cinfo);
     /* We can ignore the return value since suspension is not possible
      * with the stdio data source.
      */
@@ -95,7 +95,7 @@ int LoadJPG( const char * filename, unsigned char ** pic, int * width, int * hei
     /* JSAMPLEs per row in output buffer */
     row_stride = cinfo.output_width * cinfo.output_components;
 
-    out = Z_Malloc( cinfo.output_width * cinfo.output_height * cinfo.output_components );
+    out = Z_Malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
 
     *pic = out;
     *width = cinfo.output_width;
@@ -107,18 +107,18 @@ int LoadJPG( const char * filename, unsigned char ** pic, int * width, int * hei
     /* Here we use the library's state variable cinfo.output_scanline as the
      * loop counter, so that we don't have to keep track ourselves.
      */
-    while ( cinfo.output_scanline < cinfo.output_height ) {
+    while (cinfo.output_scanline < cinfo.output_height) {
         /* jpeg_read_scanlines expects an array of pointers to scanlines.
          * Here the array is only one element long, but you could ask for
          * more than one scanline at a time if that's more convenient.
          */
-        buffer = (JSAMPARRAY)out + ( row_stride * cinfo.output_scanline );
-        (void) jpeg_read_scanlines( &cinfo, buffer, 1 );
+        buffer = (JSAMPARRAY)out + (row_stride * cinfo.output_scanline);
+        (void)jpeg_read_scanlines(&cinfo, buffer, 1);
     }
 
     /* Step 7: Finish decompression */
 
-    (void) jpeg_finish_decompress( &cinfo );
+    (void)jpeg_finish_decompress(&cinfo);
     /* We can ignore the return value since suspension is not possible
      * with the stdio data source.
      */
@@ -126,14 +126,14 @@ int LoadJPG( const char * filename, unsigned char ** pic, int * width, int * hei
     /* Step 8: Release JPEG decompression object */
 
     /* This is an important step since it will release a good deal of memory. */
-    jpeg_destroy_decompress( &cinfo );
+    jpeg_destroy_decompress(&cinfo);
 
     /* After finish_decompress, we can close the input file.
      * Here we postpone it until after no more JPEG errors are possible,
      * so as to simplify the setjmp error logic above.  (Actually, I don't
      * think that jpeg_destroy can do an error exit, but why assume anything...)
      */
-    FS_FCloseFile( infile );
+    FS_FCloseFile(infile);
 
     /* At this point you may want to check to see whether any corrupt-data
      * warnings occurred (test whether jerr.pub.num_warnings is nonzero).
@@ -142,4 +142,3 @@ int LoadJPG( const char * filename, unsigned char ** pic, int * width, int * hei
     /* And we're done! */
     return 1;
 }
-

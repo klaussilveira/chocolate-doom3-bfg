@@ -19,20 +19,18 @@
 #include "jpeglib.h"
 #include "jerror.h"
 
-
 /* Expanded data destination object for stdio output */
 
 typedef struct {
-    struct jpeg_destination_mgr pub;/* public fields */
+    struct jpeg_destination_mgr pub; /* public fields */
 
-    FILE *   outfile;   /* target stream */
-    JOCTET * buffer;    /* start of buffer */
+    FILE* outfile;  /* target stream */
+    JOCTET* buffer; /* start of buffer */
 } my_destination_mgr;
 
-typedef my_destination_mgr * my_dest_ptr;
+typedef my_destination_mgr* my_dest_ptr;
 
-#define OUTPUT_BUF_SIZE  4096   /* choose an efficiently fwrite'able size */
-
+#define OUTPUT_BUF_SIZE 4096 /* choose an efficiently fwrite'able size */
 
 /*
  * Initialize destination --- called by jpeg_start_compress
@@ -40,18 +38,17 @@ typedef my_destination_mgr * my_dest_ptr;
  */
 
 METHODDEF void
-init_destination( j_compress_ptr cinfo ) {
-    my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+init_destination(j_compress_ptr cinfo)
+{
+    my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
 
     /* Allocate the output buffer --- it will be released when done with image */
-    dest->buffer = (JOCTET *)
-                   ( *cinfo->mem->alloc_small )( (j_common_ptr) cinfo, JPOOL_IMAGE,
-                                                OUTPUT_BUF_SIZE * SIZEOF( JOCTET ) );
+    dest->buffer = (JOCTET*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
+        OUTPUT_BUF_SIZE * SIZEOF(JOCTET));
 
     dest->pub.next_output_byte = dest->buffer;
     dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
 }
-
 
 /*
  * Empty the output buffer --- called whenever buffer fills up.
@@ -77,12 +74,12 @@ init_destination( j_compress_ptr cinfo ) {
  */
 
 METHODDEF boolean
-empty_output_buffer( j_compress_ptr cinfo ) {
-    my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+empty_output_buffer(j_compress_ptr cinfo)
+{
+    my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
 
-    if ( JFWRITE( dest->outfile, dest->buffer, OUTPUT_BUF_SIZE ) !=
-         (size_t) OUTPUT_BUF_SIZE ) {
-        ERREXIT( cinfo, JERR_FILE_WRITE );
+    if (JFWRITE(dest->outfile, dest->buffer, OUTPUT_BUF_SIZE) != (size_t)OUTPUT_BUF_SIZE) {
+        ERREXIT(cinfo, JERR_FILE_WRITE);
     }
 
     dest->pub.next_output_byte = dest->buffer;
@@ -90,7 +87,6 @@ empty_output_buffer( j_compress_ptr cinfo ) {
 
     return TRUE;
 }
-
 
 /*
  * Terminate destination --- called by jpeg_finish_compress
@@ -102,23 +98,23 @@ empty_output_buffer( j_compress_ptr cinfo ) {
  */
 
 METHODDEF void
-term_destination( j_compress_ptr cinfo ) {
-    my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+term_destination(j_compress_ptr cinfo)
+{
+    my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
     size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
 
     /* Write any data remaining in the buffer */
-    if ( datacount > 0 ) {
-        if ( JFWRITE( dest->outfile, dest->buffer, datacount ) != datacount ) {
-            ERREXIT( cinfo, JERR_FILE_WRITE );
+    if (datacount > 0) {
+        if (JFWRITE(dest->outfile, dest->buffer, datacount) != datacount) {
+            ERREXIT(cinfo, JERR_FILE_WRITE);
         }
     }
-    fflush( dest->outfile );
+    fflush(dest->outfile);
     /* Make sure we wrote the output file OK */
-    if ( ferror( dest->outfile ) ) {
-        ERREXIT( cinfo, JERR_FILE_WRITE );
+    if (ferror(dest->outfile)) {
+        ERREXIT(cinfo, JERR_FILE_WRITE);
     }
 }
-
 
 /*
  * Prepare for output to a stdio stream.
@@ -127,7 +123,8 @@ term_destination( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_stdio_dest( j_compress_ptr cinfo, FILE * outfile ) {
+jpeg_stdio_dest(j_compress_ptr cinfo, FILE* outfile)
+{
     my_dest_ptr dest;
 
     /* The destination object is made permanent so that multiple JPEG images
@@ -136,13 +133,12 @@ jpeg_stdio_dest( j_compress_ptr cinfo, FILE * outfile ) {
      * manager serially with the same JPEG object, because their private object
      * sizes may be different.  Caveat programmer.
      */
-    if ( cinfo->dest == NULL ) {/* first time for this JPEG object? */
-        cinfo->dest = (struct jpeg_destination_mgr *)
-                      ( * cinfo->mem->alloc_small )( (j_common_ptr) cinfo, JPOOL_PERMANENT,
-                                                    SIZEOF( my_destination_mgr ) );
+    if (cinfo->dest == NULL) { /* first time for this JPEG object? */
+        cinfo->dest = (struct jpeg_destination_mgr*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT,
+            SIZEOF(my_destination_mgr));
     }
 
-    dest = (my_dest_ptr) cinfo->dest;
+    dest = (my_dest_ptr)cinfo->dest;
     dest->pub.init_destination = init_destination;
     dest->pub.empty_output_buffer = empty_output_buffer;
     dest->pub.term_destination = term_destination;

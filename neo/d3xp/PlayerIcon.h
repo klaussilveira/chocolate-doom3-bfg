@@ -26,42 +26,36 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef	__PLAYERICON_H__
-#define	__PLAYERICON_H__
+#ifndef __PLAYERICON_H__
+#define __PLAYERICON_H__
 
-typedef enum
-{
-	ICON_LAG,
-	ICON_CHAT,
-	ICON_TEAM_RED,
-	ICON_TEAM_BLUE,
-	ICON_NONE
+typedef enum {
+    ICON_LAG,
+    ICON_CHAT,
+    ICON_TEAM_RED,
+    ICON_TEAM_BLUE,
+    ICON_NONE
 } playerIconType_t;
 
-class idPlayerIcon
-{
+class idPlayerIcon {
 public:
+public:
+    idPlayerIcon();
+    ~idPlayerIcon();
+
+    void Draw(idPlayer* player, jointHandle_t joint);
+    void Draw(idPlayer* player, const idVec3& origin);
 
 public:
-	idPlayerIcon();
-	~idPlayerIcon();
-	
-	void	Draw( idPlayer* player, jointHandle_t joint );
-	void	Draw( idPlayer* player, const idVec3& origin );
-	
+    playerIconType_t iconType;
+    renderEntity_t renderEnt;
+    qhandle_t iconHandle;
+
 public:
-	playerIconType_t	iconType;
-	renderEntity_t		renderEnt;
-	qhandle_t			iconHandle;
-	
-public:
-	void	FreeIcon();
-	bool	CreateIcon( idPlayer* player, playerIconType_t type, const char* mtr, const idVec3& origin, const idMat3& axis );
-	bool	CreateIcon( idPlayer* player, playerIconType_t type, const idVec3& origin, const idMat3& axis );
-	void	UpdateIcon( idPlayer* player, const idVec3& origin, const idMat3& axis );
-	
+    void FreeIcon();
+    bool CreateIcon(idPlayer* player, playerIconType_t type, const char* mtr, const idVec3& origin, const idMat3& axis);
+    bool CreateIcon(idPlayer* player, playerIconType_t type, const idVec3& origin, const idMat3& axis);
+    void UpdateIcon(idPlayer* player, const idVec3& origin, const idMat3& axis);
 };
 
-
-#endif	/* !_PLAYERICON_H_ */
-
+#endif /* !_PLAYERICON_H_ */

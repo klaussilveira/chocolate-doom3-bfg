@@ -31,9 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../Game_local.h"
 
-ABSTRACT_DECLARATION( idClass, idPhysics )
+ABSTRACT_DECLARATION(idClass, idPhysics)
 END_CLASS
-
 
 /*
 ================
@@ -49,7 +48,7 @@ idPhysics::~idPhysics()
 idPhysics::Save
 ================
 */
-void idPhysics::Save( idSaveGame* savefile ) const
+void idPhysics::Save(idSaveGame* savefile) const
 {
 }
 
@@ -58,7 +57,7 @@ void idPhysics::Save( idSaveGame* savefile ) const
 idPhysics::Restore
 ================
 */
-void idPhysics::Restore( idRestoreGame* savefile )
+void idPhysics::Restore(idRestoreGame* savefile)
 {
 }
 
@@ -67,9 +66,9 @@ void idPhysics::Restore( idRestoreGame* savefile )
 idPhysics::SetClipBox
 ================
 */
-void idPhysics::SetClipBox( const idBounds& bounds, float density )
+void idPhysics::SetClipBox(const idBounds& bounds, float density)
 {
-	SetClipModel( new( TAG_PHYSICS_CLIP ) idClipModel( idTraceModel( bounds ) ), density );
+    SetClipModel(new (TAG_PHYSICS_CLIP) idClipModel(idTraceModel(bounds)), density);
 }
 
 /*
@@ -77,7 +76,7 @@ void idPhysics::SetClipBox( const idBounds& bounds, float density )
 idPhysics::SnapTimeToPhysicsFrame
 ================
 */
-int idPhysics::SnapTimeToPhysicsFrame( int t )
+int idPhysics::SnapTimeToPhysicsFrame(int t)
 {
-	return MSEC_ALIGN_TO_FRAME( t );
+    return MSEC_ALIGN_TO_FRAME(t);
 }

@@ -153,7 +153,6 @@
  * @}
  */
 
-
 /**
  * @addtogroup lavu_ver
  * @{
@@ -167,12 +166,12 @@ unsigned avutil_version(void);
 /**
  * Return the libavutil build-time configuration.
  */
-const char *avutil_configuration(void);
+const char* avutil_configuration(void);
 
 /**
  * Return the libavutil license.
  */
-const char *avutil_license(void);
+const char* avutil_license(void);
 
 /**
  * @}
@@ -184,12 +183,12 @@ const char *avutil_license(void);
  */
 
 enum AVMediaType {
-    AVMEDIA_TYPE_UNKNOWN = -1,  ///< Usually treated as AVMEDIA_TYPE_DATA
+    AVMEDIA_TYPE_UNKNOWN = -1, ///< Usually treated as AVMEDIA_TYPE_DATA
     AVMEDIA_TYPE_VIDEO,
     AVMEDIA_TYPE_AUDIO,
-    AVMEDIA_TYPE_DATA,          ///< Opaque data information usually continuous
+    AVMEDIA_TYPE_DATA, ///< Opaque data information usually continuous
     AVMEDIA_TYPE_SUBTITLE,
-    AVMEDIA_TYPE_ATTACHMENT,    ///< Opaque data information usually sparse
+    AVMEDIA_TYPE_ATTACHMENT, ///< Opaque data information usually sparse
     AVMEDIA_TYPE_NB
 };
 
@@ -197,7 +196,7 @@ enum AVMediaType {
  * Return a string describing the media_type enum, NULL if media_type
  * is unknown.
  */
-const char *av_get_media_type_string(enum AVMediaType media_type);
+const char* av_get_media_type_string(enum AVMediaType media_type);
 
 /**
  * @defgroup lavu_const Constants
@@ -210,11 +209,11 @@ const char *av_get_media_type_string(enum AVMediaType media_type);
  */
 
 #define FF_LAMBDA_SHIFT 7
-#define FF_LAMBDA_SCALE (1<<FF_LAMBDA_SHIFT)
+#define FF_LAMBDA_SCALE (1 << FF_LAMBDA_SHIFT)
 #define FF_QP2LAMBDA 118 ///< factor to convert from H.263 QP to lambda
-#define FF_LAMBDA_MAX (256*128-1)
+#define FF_LAMBDA_MAX (256 * 128 - 1)
 
-#define FF_QUALITY_SCALE FF_LAMBDA_SCALE //FIXME maybe remove
+#define FF_QUALITY_SCALE FF_LAMBDA_SCALE // FIXME maybe remove
 
 /**
  * @}
@@ -232,19 +231,20 @@ const char *av_get_media_type_string(enum AVMediaType media_type);
  * either pts or dts.
  */
 
-#define AV_NOPTS_VALUE          ((int64_t)UINT64_C(0x8000000000000000))
+#define AV_NOPTS_VALUE ((int64_t)UINT64_C(0x8000000000000000))
 
 /**
  * Internal time base represented as integer
  */
 
-#define AV_TIME_BASE            1000000
+#define AV_TIME_BASE 1000000
 
 /**
  * Internal time base represented as fractional value
  */
 
-#define AV_TIME_BASE_Q          (AVRational){1, AV_TIME_BASE}
+#define AV_TIME_BASE_Q \
+    (AVRational) { 1, AV_TIME_BASE }
 
 /**
  * @}
@@ -258,13 +258,13 @@ const char *av_get_media_type_string(enum AVMediaType media_type);
 
 enum AVPictureType {
     AV_PICTURE_TYPE_NONE = 0, ///< Undefined
-    AV_PICTURE_TYPE_I,     ///< Intra
-    AV_PICTURE_TYPE_P,     ///< Predicted
-    AV_PICTURE_TYPE_B,     ///< Bi-dir predicted
-    AV_PICTURE_TYPE_S,     ///< S(GMC)-VOP MPEG4
-    AV_PICTURE_TYPE_SI,    ///< Switching Intra
-    AV_PICTURE_TYPE_SP,    ///< Switching Predicted
-    AV_PICTURE_TYPE_BI,    ///< BI type
+    AV_PICTURE_TYPE_I,        ///< Intra
+    AV_PICTURE_TYPE_P,        ///< Predicted
+    AV_PICTURE_TYPE_B,        ///< Bi-dir predicted
+    AV_PICTURE_TYPE_S,        ///< S(GMC)-VOP MPEG4
+    AV_PICTURE_TYPE_SI,       ///< Switching Intra
+    AV_PICTURE_TYPE_SP,       ///< Switching Predicted
+    AV_PICTURE_TYPE_BI,       ///< BI type
 };
 
 /**
@@ -292,9 +292,9 @@ char av_get_picture_type_char(enum AVPictureType pict_type);
 /**
  * Return x default pointer in case p is NULL.
  */
-static inline void *av_x_if_null(const void *p, const void *x)
+static inline void* av_x_if_null(const void* p, const void* x)
 {
-    return (void *)(intptr_t)(p ? p : x);
+    return (void*)(intptr_t)(p ? p : x);
 }
 
 /**
@@ -306,7 +306,7 @@ static inline void *av_x_if_null(const void *p, const void *x)
  * @return  length of the list, in elements, not counting the terminator
  */
 unsigned av_int_list_length_for_size(unsigned elsize,
-                                     const void *list, uint64_t term) av_pure;
+    const void* list, uint64_t term) av_pure;
 
 /**
  * Compute the length of an integer list.
@@ -323,7 +323,7 @@ unsigned av_int_list_length_for_size(unsigned elsize,
  * The API of this function matches POSIX fopen(), errors are returned through
  * errno.
  */
-FILE *av_fopen_utf8(const char *path, const char *mode);
+FILE* av_fopen_utf8(const char* path, const char* mode);
 
 /**
  * @}

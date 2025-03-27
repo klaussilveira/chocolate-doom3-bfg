@@ -17,18 +17,18 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-readmidi.h 
+readmidi.h
 
 */
 
 class idFile;
 
 typedef struct {
-	MidiEvent event;
-	void *next;
+    MidiEvent event;
+    void* next;
 } MidiEventList;
 
-extern  int32_t quietchannels;
+extern int32_t quietchannels;
 
-extern MidiEvent *read_midi_file(idFile * mfp,  int32_t *count,  int32_t *sp);
-extern MidiEvent *read_midi_buffer(unsigned char* buffer, size_t length,  int32_t *count,  int32_t *sp);
+extern MidiEvent* read_midi_file(idFile* mfp, int32_t* count, int32_t* sp);
+extern MidiEvent* read_midi_buffer(unsigned char* buffer, size_t length, int32_t* count, int32_t* sp);

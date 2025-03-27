@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ===============================================================================
 
-	idStrList
+        idStrList
 
 ===============================================================================
 */
@@ -43,26 +43,26 @@ typedef idStr* idStrPtr;
 
 ///*
 //================
-//idListSortCompare<idStrPtr>
+// idListSortCompare<idStrPtr>
 //
-//Compares two pointers to strings. Used to sort a list of string pointers alphabetically in idList<idStr>::Sort.
+// Compares two pointers to strings. Used to sort a list of string pointers alphabetically in idList<idStr>::Sort.
 //================
 //*/
-//template<>
-//ID_INLINE int idListSortCompare<idStrPtr, memTag_t _tag_ >( const idStrPtr *a, const idStrPtr *b ) {
+// template<>
+// ID_INLINE int idListSortCompare<idStrPtr, memTag_t _tag_ >( const idStrPtr *a, const idStrPtr *b ) {
 //	return ( *a )->Icmp( **b );
 //}
 
 ///*
 //================
-//idStrList::Sort
+// idStrList::Sort
 //
-//Sorts the list of strings alphabetically. Creates a list of pointers to the actual strings and sorts the
-//pointer list. Then copies the strings into another list using the ordered list of pointers.
+// Sorts the list of strings alphabetically. Creates a list of pointers to the actual strings and sorts the
+// pointer list. Then copies the strings into another list using the ordered list of pointers.
 //================
 //*/
-//template<>
-//ID_INLINE void idStrList::Sort( cmp_t *compare ) {
+// template<>
+// ID_INLINE void idStrList::Sort( cmp_t *compare ) {
 //	int i;
 //
 //	if ( !num ) {
@@ -90,13 +90,13 @@ typedef idStr* idStrPtr;
 
 ///*
 //================
-//idStrList::SortSubSection
+// idStrList::SortSubSection
 //
-//Sorts a subsection of the list of strings alphabetically.
+// Sorts a subsection of the list of strings alphabetically.
 //================
 //*/
-//template<>
-//ID_INLINE void idStrList::SortSubSection( int startIndex, int endIndex, cmp_t *compare ) {
+// template<>
+// ID_INLINE void idStrList::SortSubSection( int startIndex, int endIndex, cmp_t *compare ) {
 //	int i, s;
 //
 //	if ( !num ) {
@@ -135,49 +135,48 @@ typedef idStr* idStrPtr;
 idStrList::Size
 ================
 */
-template<>
+template <>
 ID_INLINE size_t idStrList::Size() const
 {
-	size_t s;
-	int i;
-	
-	s = sizeof( *this );
-	for( i = 0; i < Num(); i++ )
-	{
-		s += ( *this )[ i ].Size();
-	}
-	
-	return s;
+    size_t s;
+    int i;
+
+    s = sizeof(*this);
+    for (i = 0; i < Num(); i++) {
+        s += (*this)[i].Size();
+    }
+
+    return s;
 }
 
 /*
 ===============================================================================
 
-	idStrList path sorting
+        idStrList path sorting
 
 ===============================================================================
 */
 //
 ///*
 //================
-//idListSortComparePaths
+// idListSortComparePaths
 //
-//Compares two pointers to strings. Used to sort a list of string pointers alphabetically in idList<idStr>::Sort.
+// Compares two pointers to strings. Used to sort a list of string pointers alphabetically in idList<idStr>::Sort.
 //================
 //*/
-//template<class idStrPtr>
-//ID_INLINE int idListSortComparePaths( const idStrPtr *a, const idStrPtr *b ) {
+// template<class idStrPtr>
+// ID_INLINE int idListSortComparePaths( const idStrPtr *a, const idStrPtr *b ) {
 //	return ( *a )->IcmpPath( **b );
 //}
 
 ///*
 //================
-//idStrListSortPaths
+// idStrListSortPaths
 //
-//Sorts the list of path strings alphabetically and makes sure folders come first.
+// Sorts the list of path strings alphabetically and makes sure folders come first.
 //================
 //*/
-//ID_INLINE void idStrListSortPaths( idStrList &list ) {
+// ID_INLINE void idStrListSortPaths( idStrList &list ) {
 //	int i;
 //
 //	if ( !list.Num() ) {

@@ -35,22 +35,17 @@ extern idCVar swf_debugShowAddress;
 idSWFScriptVar::idSWFScriptVar
 ========================
 */
-idSWFScriptVar::idSWFScriptVar( const idSWFScriptVar& other )
+idSWFScriptVar::idSWFScriptVar(const idSWFScriptVar& other)
 {
-	type = other.type;
-	value = other.value;
-	if( other.type == SWF_VAR_STRING )
-	{
-		other.value.string->AddRef();
-	}
-	else if( other.type == SWF_VAR_OBJECT )
-	{
-		other.value.object->AddRef();
-	}
-	else if( other.type == SWF_VAR_FUNCTION )
-	{
-		other.value.function->AddRef();
-	}
+    type = other.type;
+    value = other.value;
+    if (other.type == SWF_VAR_STRING) {
+        other.value.string->AddRef();
+    } else if (other.type == SWF_VAR_OBJECT) {
+        other.value.object->AddRef();
+    } else if (other.type == SWF_VAR_FUNCTION) {
+        other.value.function->AddRef();
+    }
 }
 
 /*
@@ -58,27 +53,21 @@ idSWFScriptVar::idSWFScriptVar( const idSWFScriptVar& other )
 idSWFScriptVar::operator=
 ========================
 */
-idSWFScriptVar& idSWFScriptVar::operator=( const idSWFScriptVar& other )
+idSWFScriptVar& idSWFScriptVar::operator=(const idSWFScriptVar& other)
 {
-	if( this != &other )
-	{
-		Free();
-		type = other.type;
-		value = other.value;
-		if( other.type == SWF_VAR_STRING )
-		{
-			other.value.string->AddRef();
-		}
-		else if( other.type == SWF_VAR_OBJECT )
-		{
-			other.value.object->AddRef();
-		}
-		else if( other.type == SWF_VAR_FUNCTION )
-		{
-			other.value.function->AddRef();
-		}
-	}
-	return *this;
+    if (this != &other) {
+        Free();
+        type = other.type;
+        value = other.value;
+        if (other.type == SWF_VAR_STRING) {
+            other.value.string->AddRef();
+        } else if (other.type == SWF_VAR_OBJECT) {
+            other.value.object->AddRef();
+        } else if (other.type == SWF_VAR_FUNCTION) {
+            other.value.function->AddRef();
+        }
+    }
+    return *this;
 }
 
 /*
@@ -88,7 +77,7 @@ idSWFScriptVar::~idSWFScriptVar
 */
 idSWFScriptVar::~idSWFScriptVar()
 {
-	Free();
+    Free();
 }
 
 /*
@@ -98,22 +87,17 @@ idSWFScriptVar::Free
 */
 void idSWFScriptVar::Free()
 {
-	if( type == SWF_VAR_STRING )
-	{
-		value.string->Release();
-	}
-	else if( type == SWF_VAR_OBJECT )
-	{
-		value.object->Release();
-	}
-	else if( type == SWF_VAR_FUNCTION )
-	{
-		value.function->Release();
-	}
-	value.string = NULL;
-	value.function = NULL;
-	value.object = NULL;
-	type = SWF_VAR_UNDEF;
+    if (type == SWF_VAR_STRING) {
+        value.string->Release();
+    } else if (type == SWF_VAR_OBJECT) {
+        value.object->Release();
+    } else if (type == SWF_VAR_FUNCTION) {
+        value.function->Release();
+    }
+    value.string = NULL;
+    value.function = NULL;
+    value.object = NULL;
+    type = SWF_VAR_UNDEF;
 }
 
 /*
@@ -121,19 +105,16 @@ void idSWFScriptVar::Free()
 idSWFScriptVar::SetObject
 ========================
 */
-void idSWFScriptVar::SetObject( idSWFScriptObject* o )
+void idSWFScriptVar::SetObject(idSWFScriptObject* o)
 {
-	Free();
-	if( o == NULL )
-	{
-		type = SWF_VAR_NULL;
-	}
-	else
-	{
-		type = SWF_VAR_OBJECT;
-		value.object = o;
-		o->AddRef();
-	}
+    Free();
+    if (o == NULL) {
+        type = SWF_VAR_NULL;
+    } else {
+        type = SWF_VAR_OBJECT;
+        value.object = o;
+        o->AddRef();
+    }
 }
 
 /*
@@ -141,19 +122,16 @@ void idSWFScriptVar::SetObject( idSWFScriptObject* o )
 idSWFScriptVar::SetFunction
 ========================
 */
-void idSWFScriptVar::SetFunction( idSWFScriptFunction* f )
+void idSWFScriptVar::SetFunction(idSWFScriptFunction* f)
 {
-	Free();
-	if( f == NULL )
-	{
-		type = SWF_VAR_NULL;
-	}
-	else
-	{
-		type = SWF_VAR_FUNCTION;
-		value.function = f;
-		f->AddRef();
-	}
+    Free();
+    if (f == NULL) {
+        type = SWF_VAR_NULL;
+    } else {
+        type = SWF_VAR_FUNCTION;
+        value.function = f;
+        f->AddRef();
+    }
 }
 
 /*
@@ -161,36 +139,34 @@ void idSWFScriptVar::SetFunction( idSWFScriptFunction* f )
 idSWFScriptVar::StrictEquals
 ========================
 */
-bool idSWFScriptVar::StrictEquals( const idSWFScriptVar& other )
+bool idSWFScriptVar::StrictEquals(const idSWFScriptVar& other)
 {
-	if( type != other.type )
-	{
-		return false;
-	}
-	switch( type )
-	{
-		case SWF_VAR_STRINGID:
-			return ( value.i == other.value.i );
-		case SWF_VAR_STRING:
-			return ( *value.string == *other.value.string );
-		case SWF_VAR_FLOAT:
-			return ( value.f == other.value.f );
-		case SWF_VAR_BOOL:
-			return ( value.b == other.value.b );
-		case SWF_VAR_INTEGER:
-			return ( value.i == other.value.i );
-		case SWF_VAR_NULL:
-			return true;
-		case SWF_VAR_UNDEF:
-			return true;
-		case SWF_VAR_OBJECT:
-			return ( value.object == other.value.object );
-		case SWF_VAR_FUNCTION:
-			return ( value.function == other.value.function );
-		default:
-			assert( false );
-			return false;
-	}
+    if (type != other.type) {
+        return false;
+    }
+    switch (type) {
+    case SWF_VAR_STRINGID:
+        return (value.i == other.value.i);
+    case SWF_VAR_STRING:
+        return (*value.string == *other.value.string);
+    case SWF_VAR_FLOAT:
+        return (value.f == other.value.f);
+    case SWF_VAR_BOOL:
+        return (value.b == other.value.b);
+    case SWF_VAR_INTEGER:
+        return (value.i == other.value.i);
+    case SWF_VAR_NULL:
+        return true;
+    case SWF_VAR_UNDEF:
+        return true;
+    case SWF_VAR_OBJECT:
+        return (value.object == other.value.object);
+    case SWF_VAR_FUNCTION:
+        return (value.function == other.value.function);
+    default:
+        assert(false);
+        return false;
+    }
 }
 
 /*
@@ -198,85 +174,80 @@ bool idSWFScriptVar::StrictEquals( const idSWFScriptVar& other )
 idSWFScriptVar::AbstractEquals
 ========================
 */
-bool idSWFScriptVar::AbstractEquals( const idSWFScriptVar& other )
+bool idSWFScriptVar::AbstractEquals(const idSWFScriptVar& other)
 {
-	if( type == other.type )
-	{
-		switch( type )
-		{
-			case SWF_VAR_STRINGID:
-				return ( value.i == other.value.i );
-			case SWF_VAR_STRING:
-				return ( *value.string == *other.value.string );
-			case SWF_VAR_FLOAT:
-				return ( value.f == other.value.f );
-			case SWF_VAR_BOOL:
-				return ( value.b == other.value.b );
-			case SWF_VAR_INTEGER:
-				return ( value.i == other.value.i );
-			case SWF_VAR_NULL:
-				return true;
-			case SWF_VAR_UNDEF:
-				return true;
-			case SWF_VAR_OBJECT:
-				return ( value.object == other.value.object );
-			case SWF_VAR_FUNCTION:
-				return ( value.function == other.value.function );
-			default:
-				assert( false );
-				return false;
-		}
-	}
-	switch( type )
-	{
-		case SWF_VAR_STRINGID:
-			return ToString() == other.ToString();
-		case SWF_VAR_STRING:
-			switch( other.type )
-			{
-				case SWF_VAR_STRINGID:
-					return *value.string == other.ToString();
-				case SWF_VAR_FLOAT:
-					return ToFloat() == other.value.f;
-				case SWF_VAR_BOOL:
-					return ToBool() == other.value.b;
-				case SWF_VAR_INTEGER:
-					return ToInteger() == other.value.i;
-				case SWF_VAR_OBJECT:
-					return *value.string == other.ToString();
-				default:
-					return false;
-			}
-		case SWF_VAR_FLOAT:
-			return ( other.ToFloat() == value.f );
-		case SWF_VAR_BOOL:
-			return ( other.ToBool() == value.b );
-		case SWF_VAR_INTEGER:
-			return ( other.ToInteger() == value.i );
-		case SWF_VAR_NULL:
-			return ( other.type == SWF_VAR_UNDEF );
-		case SWF_VAR_UNDEF:
-			return ( other.type == SWF_VAR_NULL );
-		case SWF_VAR_OBJECT:
-			switch( other.type )
-			{
-				case SWF_VAR_STRING:
-					return ToString() == *other.value.string;
-				case SWF_VAR_FLOAT:
-					return ToFloat() == other.value.f;
-				case SWF_VAR_BOOL:
-					return ToBool() == other.value.b;
-				case SWF_VAR_INTEGER:
-					return ToInteger() == other.value.i;
-				default:
-					return false;
-			}
-		case SWF_VAR_FUNCTION:
-			return false;
-		default:
-			assert( false );
-			return false;
-	}
+    if (type == other.type) {
+        switch (type) {
+        case SWF_VAR_STRINGID:
+            return (value.i == other.value.i);
+        case SWF_VAR_STRING:
+            return (*value.string == *other.value.string);
+        case SWF_VAR_FLOAT:
+            return (value.f == other.value.f);
+        case SWF_VAR_BOOL:
+            return (value.b == other.value.b);
+        case SWF_VAR_INTEGER:
+            return (value.i == other.value.i);
+        case SWF_VAR_NULL:
+            return true;
+        case SWF_VAR_UNDEF:
+            return true;
+        case SWF_VAR_OBJECT:
+            return (value.object == other.value.object);
+        case SWF_VAR_FUNCTION:
+            return (value.function == other.value.function);
+        default:
+            assert(false);
+            return false;
+        }
+    }
+    switch (type) {
+    case SWF_VAR_STRINGID:
+        return ToString() == other.ToString();
+    case SWF_VAR_STRING:
+        switch (other.type) {
+        case SWF_VAR_STRINGID:
+            return *value.string == other.ToString();
+        case SWF_VAR_FLOAT:
+            return ToFloat() == other.value.f;
+        case SWF_VAR_BOOL:
+            return ToBool() == other.value.b;
+        case SWF_VAR_INTEGER:
+            return ToInteger() == other.value.i;
+        case SWF_VAR_OBJECT:
+            return *value.string == other.ToString();
+        default:
+            return false;
+        }
+    case SWF_VAR_FLOAT:
+        return (other.ToFloat() == value.f);
+    case SWF_VAR_BOOL:
+        return (other.ToBool() == value.b);
+    case SWF_VAR_INTEGER:
+        return (other.ToInteger() == value.i);
+    case SWF_VAR_NULL:
+        return (other.type == SWF_VAR_UNDEF);
+    case SWF_VAR_UNDEF:
+        return (other.type == SWF_VAR_NULL);
+    case SWF_VAR_OBJECT:
+        switch (other.type) {
+        case SWF_VAR_STRING:
+            return ToString() == *other.value.string;
+        case SWF_VAR_FLOAT:
+            return ToFloat() == other.value.f;
+        case SWF_VAR_BOOL:
+            return ToBool() == other.value.b;
+        case SWF_VAR_INTEGER:
+            return ToInteger() == other.value.i;
+        default:
+            return false;
+        }
+    case SWF_VAR_FUNCTION:
+        return false;
+    default:
+        assert(false);
+        return false;
+    }
 }
 
 /*
@@ -286,39 +257,35 @@ idSWFScriptVar::ToString
 */
 idStr idSWFScriptVar::ToString() const
 {
-	switch( type )
-	{
-		case SWF_VAR_STRINGID:
-			return idStrId( value.i ).GetLocalizedString();
-		case SWF_VAR_STRING:
-			return *value.string;
-			
-		case SWF_VAR_FLOAT:
-			return va( "%g", value.f );
-		case SWF_VAR_BOOL:
-			return value.b ? "true" : "false";
-		case SWF_VAR_INTEGER:
-			return va( "%i", value.i );
-			
-		case SWF_VAR_NULL:
-			return "[null]";
-		case SWF_VAR_UNDEF:
-			return "[undefined]";
-		case SWF_VAR_OBJECT:
-			return value.object->DefaultValue( true ).ToString();
-		case SWF_VAR_FUNCTION:
-			if( swf_debugShowAddress.GetBool() )
-			{
-				return va( "[function:%p]", value.function );
-			}
-			else
-			{
-				return "[function]";
-			}
-		default:
-			assert( false );
-			return "";
-	}
+    switch (type) {
+    case SWF_VAR_STRINGID:
+        return idStrId(value.i).GetLocalizedString();
+    case SWF_VAR_STRING:
+        return *value.string;
+
+    case SWF_VAR_FLOAT:
+        return va("%g", value.f);
+    case SWF_VAR_BOOL:
+        return value.b ? "true" : "false";
+    case SWF_VAR_INTEGER:
+        return va("%i", value.i);
+
+    case SWF_VAR_NULL:
+        return "[null]";
+    case SWF_VAR_UNDEF:
+        return "[undefined]";
+    case SWF_VAR_OBJECT:
+        return value.object->DefaultValue(true).ToString();
+    case SWF_VAR_FUNCTION:
+        if (swf_debugShowAddress.GetBool()) {
+            return va("[function:%p]", value.function);
+        } else {
+            return "[function]";
+        }
+    default:
+        assert(false);
+        return "";
+    }
 }
 
 /*
@@ -328,29 +295,28 @@ idSWFScriptVar::ToFloat
 */
 float idSWFScriptVar::ToFloat() const
 {
-	switch( type )
-	{
-		case SWF_VAR_STRING:
-			return atof( *value.string );
-			
-		case SWF_VAR_FLOAT:
-			return value.f;
-		case SWF_VAR_BOOL:
-			return ( float )value.b;
-		case SWF_VAR_INTEGER:
-			return ( float )value.i;
-			
-		case SWF_VAR_OBJECT:
-			return value.object->DefaultValue( false ).ToFloat();
-			
-		case SWF_VAR_FUNCTION:
-		case SWF_VAR_NULL:
-		case SWF_VAR_UNDEF:
-			return 0.0f;
-		default:
-			assert( false );
-			return 0.0f;
-	}
+    switch (type) {
+    case SWF_VAR_STRING:
+        return atof(*value.string);
+
+    case SWF_VAR_FLOAT:
+        return value.f;
+    case SWF_VAR_BOOL:
+        return (float)value.b;
+    case SWF_VAR_INTEGER:
+        return (float)value.i;
+
+    case SWF_VAR_OBJECT:
+        return value.object->DefaultValue(false).ToFloat();
+
+    case SWF_VAR_FUNCTION:
+    case SWF_VAR_NULL:
+    case SWF_VAR_UNDEF:
+        return 0.0f;
+    default:
+        assert(false);
+        return 0.0f;
+    }
 }
 
 /*
@@ -360,29 +326,28 @@ idSWFScriptVar::ToBool
 */
 bool idSWFScriptVar::ToBool() const
 {
-	switch( type )
-	{
-		case SWF_VAR_STRING:
-			return ( value.string->Icmp( "true" ) == 0 || value.string->Icmp( "1" ) == 0 );
-			
-		case SWF_VAR_FLOAT:
-			return ( value.f != 0.0f );
-		case SWF_VAR_BOOL:
-			return value.b;
-		case SWF_VAR_INTEGER:
-			return value.i != 0;
-			
-		case SWF_VAR_OBJECT:
-			return value.object->DefaultValue( false ).ToBool();
-			
-		case SWF_VAR_FUNCTION:
-		case SWF_VAR_NULL:
-		case SWF_VAR_UNDEF:
-			return false;
-		default:
-			assert( false );
-			return false;
-	}
+    switch (type) {
+    case SWF_VAR_STRING:
+        return (value.string->Icmp("true") == 0 || value.string->Icmp("1") == 0);
+
+    case SWF_VAR_FLOAT:
+        return (value.f != 0.0f);
+    case SWF_VAR_BOOL:
+        return value.b;
+    case SWF_VAR_INTEGER:
+        return value.i != 0;
+
+    case SWF_VAR_OBJECT:
+        return value.object->DefaultValue(false).ToBool();
+
+    case SWF_VAR_FUNCTION:
+    case SWF_VAR_NULL:
+    case SWF_VAR_UNDEF:
+        return false;
+    default:
+        assert(false);
+        return false;
+    }
 }
 
 /*
@@ -392,30 +357,29 @@ idSWFScriptVar::ToInteger
 */
 int32 idSWFScriptVar::ToInteger() const
 {
-	switch( type )
-	{
-		case SWF_VAR_STRING:
-			return atoi( *value.string );
-			
-		case SWF_VAR_FLOAT:
-			return idMath::Ftoi( value.f );
-			
-		case SWF_VAR_BOOL:
-			return value.b ? 1 : 0;
-		case SWF_VAR_INTEGER:
-			return value.i;
-			
-		case SWF_VAR_OBJECT:
-			return value.object->DefaultValue( false ).ToInteger();
-			
-		case SWF_VAR_FUNCTION:
-		case SWF_VAR_NULL:
-		case SWF_VAR_UNDEF:
-			return 0;
-		default:
-			assert( false );
-			return 0;
-	}
+    switch (type) {
+    case SWF_VAR_STRING:
+        return atoi(*value.string);
+
+    case SWF_VAR_FLOAT:
+        return idMath::Ftoi(value.f);
+
+    case SWF_VAR_BOOL:
+        return value.b ? 1 : 0;
+    case SWF_VAR_INTEGER:
+        return value.i;
+
+    case SWF_VAR_OBJECT:
+        return value.object->DefaultValue(false).ToInteger();
+
+    case SWF_VAR_FUNCTION:
+    case SWF_VAR_NULL:
+    case SWF_VAR_UNDEF:
+        return 0;
+    default:
+        assert(false);
+        return 0;
+    }
 }
 
 /*
@@ -425,12 +389,11 @@ idSWFScriptVar::ToSprite
 */
 idSWFSpriteInstance* idSWFScriptVar::ToSprite()
 {
-	if( IsObject() && value.object != NULL )
-	{
-		return value.object->GetSprite();
-	}
-	
-	return NULL;
+    if (IsObject() && value.object != NULL) {
+        return value.object->GetSprite();
+    }
+
+    return NULL;
 }
 
 /*
@@ -440,12 +403,11 @@ idSWFScriptVar::ToText
 */
 idSWFTextInstance* idSWFScriptVar::ToText()
 {
-	if( IsObject() && value.object != NULL )
-	{
-		return value.object->GetText();
-	}
-	
-	return NULL;
+    if (IsObject() && value.object != NULL) {
+        return value.object->GetText();
+    }
+
+    return NULL;
 }
 
 /*
@@ -453,14 +415,13 @@ idSWFTextInstance* idSWFScriptVar::ToText()
 idSWFScriptVar::GetNestedVar
 ========================
 */
-idSWFScriptVar idSWFScriptVar::GetNestedVar( const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5, const char* arg6 )
+idSWFScriptVar idSWFScriptVar::GetNestedVar(const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5, const char* arg6)
 {
-	if( !IsObject() )
-	{
-		return idSWFScriptVar();
-	}
-	
-	return GetObject()->GetNestedVar( arg1, arg2, arg3, arg4, arg5, arg6 );
+    if (!IsObject()) {
+        return idSWFScriptVar();
+    }
+
+    return GetObject()->GetNestedVar(arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
 /*
@@ -468,14 +429,13 @@ idSWFScriptVar idSWFScriptVar::GetNestedVar( const char* arg1, const char* arg2,
 idSWFScriptVar::GetNestedObj
 ========================
 */
-idSWFScriptObject* idSWFScriptVar::GetNestedObj( const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5, const char* arg6 )
+idSWFScriptObject* idSWFScriptVar::GetNestedObj(const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5, const char* arg6)
 {
-	if( !IsObject() )
-	{
-		return NULL;
-	}
-	
-	return GetObject()->GetNestedObj( arg1, arg2, arg3, arg4, arg5, arg6 );
+    if (!IsObject()) {
+        return NULL;
+    }
+
+    return GetObject()->GetNestedObj(arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
 /*
@@ -483,14 +443,13 @@ idSWFScriptObject* idSWFScriptVar::GetNestedObj( const char* arg1, const char* a
 idSWFScriptVar::GetNestedSprite
 ========================
 */
-idSWFSpriteInstance* idSWFScriptVar::GetNestedSprite( const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5, const char* arg6 )
+idSWFSpriteInstance* idSWFScriptVar::GetNestedSprite(const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5, const char* arg6)
 {
-	if( !IsObject() )
-	{
-		return NULL;
-	}
-	
-	return GetObject()->GetNestedSprite( arg1, arg2, arg3, arg4, arg5, arg6 );
+    if (!IsObject()) {
+        return NULL;
+    }
+
+    return GetObject()->GetNestedSprite(arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
 /*
@@ -498,14 +457,13 @@ idSWFSpriteInstance* idSWFScriptVar::GetNestedSprite( const char* arg1, const ch
 idSWFScriptVar::GetNestedSprite
 ========================
 */
-idSWFTextInstance* idSWFScriptVar::GetNestedText( const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5, const char* arg6 )
+idSWFTextInstance* idSWFScriptVar::GetNestedText(const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5, const char* arg6)
 {
-	if( !IsObject() )
-	{
-		return NULL;
-	}
-	
-	return GetObject()->GetNestedText( arg1, arg2, arg3, arg4, arg5, arg6 );
+    if (!IsObject()) {
+        return NULL;
+    }
+
+    return GetObject()->GetNestedText(arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
 /*
@@ -515,44 +473,38 @@ idSWFScriptVar::TypeOf
 */
 const char* idSWFScriptVar::TypeOf() const
 {
-	switch( type )
-	{
-		case SWF_VAR_STRINGID:
-			return "stringid";
-		case SWF_VAR_STRING:
-			return "string";
-			
-		case SWF_VAR_FLOAT:
-			return "number";
-		case SWF_VAR_BOOL:
-			return "boolean";
-		case SWF_VAR_INTEGER:
-			return "number";
-			
-		case SWF_VAR_OBJECT:
-			if( value.object->GetSprite() != NULL )
-			{
-				return "movieclip";
-			}
-			else if( value.object->GetText() != NULL )
-			{
-				return "text";
-			}
-			else
-			{
-				return "object";
-			}
-			
-		case SWF_VAR_FUNCTION:
-			return "function";
-		case SWF_VAR_NULL:
-			return "null";
-		case SWF_VAR_UNDEF:
-			return "undefined";
-		default:
-			assert( false );
-			return "";
-	}
+    switch (type) {
+    case SWF_VAR_STRINGID:
+        return "stringid";
+    case SWF_VAR_STRING:
+        return "string";
+
+    case SWF_VAR_FLOAT:
+        return "number";
+    case SWF_VAR_BOOL:
+        return "boolean";
+    case SWF_VAR_INTEGER:
+        return "number";
+
+    case SWF_VAR_OBJECT:
+        if (value.object->GetSprite() != NULL) {
+            return "movieclip";
+        } else if (value.object->GetText() != NULL) {
+            return "text";
+        } else {
+            return "object";
+        }
+
+    case SWF_VAR_FUNCTION:
+        return "function";
+    case SWF_VAR_NULL:
+        return "null";
+    case SWF_VAR_UNDEF:
+        return "undefined";
+    default:
+        assert(false);
+        return "";
+    }
 }
 
 /*
@@ -562,22 +514,15 @@ idSWFScriptVar::PrintToConsole
 */
 void idSWFScriptVar::PrintToConsole() const
 {
-	idLib::Printf( "Object type: %s\n", TypeOf() );
-	
-	if( IsObject() )
-	{
-		GetObject()->PrintToConsole();
-	}
-	else if( IsNumeric() )
-	{
-		idLib::Printf( "%d\n", ToInteger() );
-	}
-	else if( IsString() )
-	{
-		idLib::Printf( "%s\n", ToString().c_str() );
-	}
-	else
-	{
-		idLib::Printf( "unknown\n" );
-	}
+    idLib::Printf("Object type: %s\n", TypeOf());
+
+    if (IsObject()) {
+        GetObject()->PrintToConsole();
+    } else if (IsNumeric()) {
+        idLib::Printf("%d\n", ToInteger());
+    } else if (IsString()) {
+        idLib::Printf("%s\n", ToString().c_str());
+    } else {
+        idLib::Printf("unknown\n");
+    }
 }

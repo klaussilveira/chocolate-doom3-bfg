@@ -32,65 +32,63 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ===============================================================================
 
-	Demo file
+        Demo file
 
 ===============================================================================
 */
 
-typedef enum
-{
-	DS_FINISHED,
-	DS_RENDER,
-	DS_SOUND,
-	DS_VERSION
+typedef enum {
+    DS_FINISHED,
+    DS_RENDER,
+    DS_SOUND,
+    DS_VERSION
 } demoSystem_t;
 
-class idDemoFile : public idFile
-{
+class idDemoFile : public idFile {
 public:
-	idDemoFile();
-	~idDemoFile();
-	
-	const char* 	GetName()
-	{
-		return ( f ? f->GetName() : "" );
-	}
-	const char* 	GetFullPath()
-	{
-		return ( f ? f->GetFullPath() : "" );
-	}
-	
-	void			SetLog( bool b, const char* p );
-	void			Log( const char* p );
-	bool			OpenForReading( const char* fileName );
-	bool			OpenForWriting( const char* fileName );
-	void			Close();
-	
-	const char* 	ReadHashString();
-	void			WriteHashString( const char* str );
-	
-	void			ReadDict( idDict& dict );
-	void			WriteDict( const idDict& dict );
-	
-	int				Read( void* buffer, int len );
-	int				Write( const void* buffer, int len );
-	
+    idDemoFile();
+    ~idDemoFile();
+
+    const char* GetName()
+    {
+        return (f ? f->GetName() : "");
+    }
+    const char* GetFullPath()
+    {
+        return (f ? f->GetFullPath() : "");
+    }
+
+    void SetLog(bool b, const char* p);
+    void Log(const char* p);
+    bool OpenForReading(const char* fileName);
+    bool OpenForWriting(const char* fileName);
+    void Close();
+
+    const char* ReadHashString();
+    void WriteHashString(const char* str);
+
+    void ReadDict(idDict& dict);
+    void WriteDict(const idDict& dict);
+
+    int Read(void* buffer, int len);
+    int Write(const void* buffer, int len);
+
 private:
-	static idCompressor* AllocCompressor( int type );
-	
-	bool			writing;
-	byte* 			fileImage;
-	idFile* 		f;
-	idCompressor* 	compressor;
-	
-	idList<idStr*>	demoStrings;
-	idFile* 		fLog;
-	bool			log;
-	idStr			logStr;
-	
-	static idCVar	com_logDemos;
-	static idCVar	com_compressDemos;
-	static idCVar	com_preloadDemos;
+    static idCompressor* AllocCompressor(int type);
+
+    bool writing;
+    byte* fileImage;
+    idFile* f;
+    idCompressor* compressor;
+
+    idList<idStr*> demoStrings;
+    idFile* fLog;
+    bool log;
+    idStr logStr;
+
+    static idCVar com_logDemos;
+    static idCVar com_compressDemos;
+    static idCVar com_preloadDemos;
 };
 
 #endif /* !__DEMOFILE_H__ */

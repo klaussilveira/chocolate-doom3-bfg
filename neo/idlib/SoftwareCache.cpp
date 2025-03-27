@@ -42,31 +42,29 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	Software Cache
+        Software Cache
 
 ================================================================================================
 */
 
 uint32 globalDmaTag;
 
-bool SpursEmulationAssertFailed( const char* filename, int line, const char* expression )
+bool SpursEmulationAssertFailed(const char* filename, int line, const char* expression)
 {
-	static bool halt = true;
-	if( halt )
-	{
+    static bool halt = true;
+    if (halt) {
 #ifdef _WIN32
 #ifdef _MSC_VER
-		__debugbreak();
+        __debugbreak();
 #else
-		// DG: mingw support
-		DebugBreak();
+        // DG: mingw support
+        DebugBreak();
 #endif
-#else // not _WIN32
-		// DG: POSIX support
-		raise( SIGTRAP );
-		// DG: end
+#else  // not _WIN32
+       // DG: POSIX support
+        raise(SIGTRAP);
+        // DG: end
 #endif // _WIN32
-		
-	}
-	return true;
+    }
+    return true;
 }

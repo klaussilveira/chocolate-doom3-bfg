@@ -29,10 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-
 #include "../Game_local.h"
 
-CLASS_DECLARATION( idClass, idForce )
+CLASS_DECLARATION(idClass, idForce)
 END_CLASS
 
 idList<idForce*, TAG_IDLIB_LIST_PHYSICS> idForce::forceList;
@@ -44,7 +43,7 @@ idForce::idForce
 */
 idForce::idForce()
 {
-	forceList.Append( this );
+    forceList.Append(this);
 }
 
 /*
@@ -54,7 +53,7 @@ idForce::~idForce
 */
 idForce::~idForce()
 {
-	forceList.Remove( this );
+    forceList.Remove(this);
 }
 
 /*
@@ -62,14 +61,13 @@ idForce::~idForce()
 idForce::DeletePhysics
 ================
 */
-void idForce::DeletePhysics( const idPhysics* phys )
+void idForce::DeletePhysics(const idPhysics* phys)
 {
-	int i;
-	
-	for( i = 0; i < forceList.Num(); i++ )
-	{
-		forceList[i]->RemovePhysics( phys );
-	}
+    int i;
+
+    for (i = 0; i < forceList.Num(); i++) {
+        forceList[i]->RemovePhysics(phys);
+    }
 }
 
 /*
@@ -79,7 +77,7 @@ idForce::ClearForceList
 */
 void idForce::ClearForceList()
 {
-	forceList.Clear();
+    forceList.Clear();
 }
 
 /*
@@ -87,7 +85,7 @@ void idForce::ClearForceList()
 idForce::Evaluate
 ================
 */
-void idForce::Evaluate( int time )
+void idForce::Evaluate(int time)
 {
 }
 
@@ -96,6 +94,6 @@ void idForce::Evaluate( int time )
 idForce::RemovePhysics
 ================
 */
-void idForce::RemovePhysics( const idPhysics* phys )
+void idForce::RemovePhysics(const idPhysics* phys)
 {
 }

@@ -35,38 +35,39 @@ If you have questions concerning this license or the applicable additional terms
 idSignInManagerWin
 ================================================
 */
-class idSignInManagerWin : public idSignInManagerBase
-{
+class idSignInManagerWin : public idSignInManagerBase {
 public:
+    idSignInManagerWin()
+        : dlcVersionChecked(false)
+    {
+    }
+    virtual ~idSignInManagerWin() { }
 
-	idSignInManagerWin() : dlcVersionChecked( false ) {}
-	virtual ~idSignInManagerWin() {}
-	
-	//==========================================================================================
-	// idSignInManagerBase interface
-	//==========================================================================================
-	virtual void					Pump();
-	virtual void					Shutdown();
-	virtual int						GetNumLocalUsers() const
-	{
-		return localUsers.Num();
-	}
-	virtual idLocalUser* 			GetLocalUserByIndex( int index )
-	{
-		return &localUsers[index];
-	}
-	virtual const idLocalUser* 		GetLocalUserByIndex( int index ) const
-	{
-		return &localUsers[index];
-	}
-	virtual void					RemoveLocalUserByIndex( int index );
-	virtual void					RegisterLocalUser( int inputDevice );		// Register a local user to the passed in controller
-	
-	bool							CreateNewUser( winUserState_t& state );
-	
+    //==========================================================================================
+    // idSignInManagerBase interface
+    //==========================================================================================
+    virtual void Pump();
+    virtual void Shutdown();
+    virtual int GetNumLocalUsers() const
+    {
+        return localUsers.Num();
+    }
+    virtual idLocalUser* GetLocalUserByIndex(int index)
+    {
+        return &localUsers[index];
+    }
+    virtual const idLocalUser* GetLocalUserByIndex(int index) const
+    {
+        return &localUsers[index];
+    }
+    virtual void RemoveLocalUserByIndex(int index);
+    virtual void RegisterLocalUser(int inputDevice); // Register a local user to the passed in controller
+
+    bool CreateNewUser(winUserState_t& state);
+
 private:
-	idStaticList< idLocalUserWin, MAX_INPUT_DEVICES >	localUsers;
-	bool												dlcVersionChecked;
+    idStaticList<idLocalUserWin, MAX_INPUT_DEVICES> localUsers;
+    bool dlcVersionChecked;
 };
 
 #endif

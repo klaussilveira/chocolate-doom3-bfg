@@ -25,14 +25,13 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef	__ZIP_H__
-#define	__ZIP_H__
+#ifndef __ZIP_H__
+#define __ZIP_H__
 
 #include "../libs/zlib/zlib.h"
 
 // DG: all the zip access stuff from minizip is now in minizip/zip.h
 #include "minizip/zip.h"
-
 
 /*
 ================================================
@@ -42,51 +41,51 @@ simple interface for zipping up a folder of files
 by default, the source folder files are added recursively
 ================================================
 */
-class idZipBuilder
-{
+class idZipBuilder {
 public:
-	idZipBuilder() {}
-	~idZipBuilder() {}
-	
+    idZipBuilder() { }
+    ~idZipBuilder() { }
+
 public:
-	// adds a list of file extensions ( e.g. "bcm|bmodel|" ) to be compressed in the zip file
-	void				AddFileFilters( const char* filters );
-	// adds a list of file extensions ( e.g. "genmodel|" ) to be added to the zip file, in an uncompressed form
-	void				AddUncompressedFileFilters( const char* filters );
-	// builds a zip file of all the files in the specified folder, overwriting if necessary
-	bool				Build( const char* zipPath, const char* folder, bool cleanFolder );
-	// updates a zip file with the files in the specified folder
-	bool				Update( const char* zipPath, const char* folder, bool cleanFolder );
-	
-	// helper function to zip up all the files and put in a new zip file
-	static bool			BuildMapFolderZip( const char* mapFileName );
-	// helper function to update a map folder zip for newer files
-	static bool			UpdateMapFolderZip( const char* mapFileName );
-	
-	// combines multiple in-memory files into a single memory file
-	static idFile_Memory* CombineFiles( const idList< idFile_Memory* >& srcFiles );
-	// extracts multiple in-memory files from a single memory file
-	static bool			ExtractFiles( idFile_Memory*& srcFile, idList< idFile_Memory* >& destFiles );
-	
-	void				CleanSourceFolder();
-	
-	bool				CreateZipFileFromFileList( const char* name, const idList< idFile_Memory* >& srcFiles );
-	
-	zipFile				CreateZipFile( const char* name );
-	bool				AddFile( zipFile zf, idFile_Memory* fm, bool deleteFile );
-	void				CloseZipFile( zipFile zf );
+    // adds a list of file extensions ( e.g. "bcm|bmodel|" ) to be compressed in the zip file
+    void AddFileFilters(const char* filters);
+    // adds a list of file extensions ( e.g. "genmodel|" ) to be added to the zip file, in an uncompressed form
+    void AddUncompressedFileFilters(const char* filters);
+    // builds a zip file of all the files in the specified folder, overwriting if necessary
+    bool Build(const char* zipPath, const char* folder, bool cleanFolder);
+    // updates a zip file with the files in the specified folder
+    bool Update(const char* zipPath, const char* folder, bool cleanFolder);
+
+    // helper function to zip up all the files and put in a new zip file
+    static bool BuildMapFolderZip(const char* mapFileName);
+    // helper function to update a map folder zip for newer files
+    static bool UpdateMapFolderZip(const char* mapFileName);
+
+    // combines multiple in-memory files into a single memory file
+    static idFile_Memory* CombineFiles(const idList<idFile_Memory*>& srcFiles);
+    // extracts multiple in-memory files from a single memory file
+    static bool ExtractFiles(idFile_Memory*& srcFile, idList<idFile_Memory*>& destFiles);
+
+    void CleanSourceFolder();
+
+    bool CreateZipFileFromFileList(const char* name, const idList<idFile_Memory*>& srcFiles);
+
+    zipFile CreateZipFile(const char* name);
+    bool AddFile(zipFile zf, idFile_Memory* fm, bool deleteFile);
+    void CloseZipFile(zipFile zf);
+
 private:
-	bool				CreateZipFile( bool appendFiles );
-	bool				CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFiles );
-	bool				GetFileTime( const idStr& filename, unsigned long* dostime ) const;
-	bool				IsFiltered( const idStr& filename ) const;
-	bool				IsUncompressed( const idStr& filename ) const;
-	
+    bool CreateZipFile(bool appendFiles);
+    bool CreateZipFileFromFiles(const idList<idFile_Memory*>& srcFiles);
+    bool GetFileTime(const idStr& filename, unsigned long* dostime) const;
+    bool IsFiltered(const idStr& filename) const;
+    bool IsUncompressed(const idStr& filename) const;
+
 private:
-	idStr				zipFileName;				// os path to the zip file
-	idStr				sourceFolderName;			// source folder of files to zip or add
-	idStrList			filterExts;					// file extensions we want to compressed
-	idStrList			uncompressedFilterExts;		// file extensions we don't want to compress
+    idStr zipFileName;                // os path to the zip file
+    idStr sourceFolderName;           // source folder of files to zip or add
+    idStrList filterExts;             // file extensions we want to compressed
+    idStrList uncompressedFilterExts; // file extensions we don't want to compress
 };
 
-#endif	/* __ZIP_H__ */
+#endif /* __ZIP_H__ */

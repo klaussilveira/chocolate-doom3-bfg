@@ -32,43 +32,42 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ===============================================================================
 
-	idCompressor is a layer ontop of idFile which provides lossless data
-	compression. The compressor can be used as a regular file and multiple
-	compressors can be stacked ontop of each other.
+        idCompressor is a layer ontop of idFile which provides lossless data
+        compression. The compressor can be used as a regular file and multiple
+        compressors can be stacked ontop of each other.
 
 ===============================================================================
 */
 
-class idCompressor : public idFile
-{
+class idCompressor : public idFile {
 public:
-	// compressor allocation
-	static idCompressor* 	AllocNoCompression();
-	static idCompressor* 	AllocBitStream();
-	static idCompressor* 	AllocRunLength();
-	static idCompressor* 	AllocRunLength_ZeroBased();
-	static idCompressor* 	AllocHuffman();
-	static idCompressor* 	AllocArithmetic();
-	static idCompressor* 	AllocLZSS();
-	static idCompressor* 	AllocLZSS_WordAligned();
-	static idCompressor* 	AllocLZW();
-	
-	// initialization
-	virtual void			Init( idFile* f, bool compress, int wordLength ) = 0;
-	virtual void			FinishCompress() = 0;
-	virtual float			GetCompressionRatio() const = 0;
-	
-	// common idFile interface
-	virtual const char* 	GetName() = 0;
-	virtual const char* 	GetFullPath() = 0;
-	virtual int				Read( void* outData, int outLength ) = 0;
-	virtual int				Write( const void* inData, int inLength ) = 0;
-	virtual int				Length() = 0;
-	virtual ID_TIME_T			Timestamp() = 0;
-	virtual int				Tell() = 0;
-	virtual void			ForceFlush() = 0;
-	virtual void			Flush() = 0;
-	virtual int				Seek( long offset, fsOrigin_t origin ) = 0;
+    // compressor allocation
+    static idCompressor* AllocNoCompression();
+    static idCompressor* AllocBitStream();
+    static idCompressor* AllocRunLength();
+    static idCompressor* AllocRunLength_ZeroBased();
+    static idCompressor* AllocHuffman();
+    static idCompressor* AllocArithmetic();
+    static idCompressor* AllocLZSS();
+    static idCompressor* AllocLZSS_WordAligned();
+    static idCompressor* AllocLZW();
+
+    // initialization
+    virtual void Init(idFile* f, bool compress, int wordLength) = 0;
+    virtual void FinishCompress() = 0;
+    virtual float GetCompressionRatio() const = 0;
+
+    // common idFile interface
+    virtual const char* GetName() = 0;
+    virtual const char* GetFullPath() = 0;
+    virtual int Read(void* outData, int outLength) = 0;
+    virtual int Write(const void* inData, int inLength) = 0;
+    virtual int Length() = 0;
+    virtual ID_TIME_T Timestamp() = 0;
+    virtual int Tell() = 0;
+    virtual void ForceFlush() = 0;
+    virtual void Flush() = 0;
+    virtual int Seek(long offset, fsOrigin_t origin) = 0;
 };
 
 #endif /* !__COMPRESSOR_H__ */

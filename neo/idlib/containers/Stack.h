@@ -32,62 +32,58 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ===============================================================================
 
-	Stack template
+        Stack template
 
 ===============================================================================
 */
 
-#define idStack( type, next )		idStackTemplate<type, (int)&(((type*)NULL)->next)>
+#define idStack(type, next) idStackTemplate<type, (int)&(((type*)NULL)->next)>
 
-template< class type, int nextOffset >
-class idStackTemplate
-{
+template <class type, int nextOffset>
+class idStackTemplate {
 public:
-	idStackTemplate();
-	
-	void					Add( type* element );
-	type* 					Get();
-	
+    idStackTemplate();
+
+    void Add(type* element);
+    type* Get();
+
 private:
-	type* 					top;
-	type* 					bottom;
+    type* top;
+    type* bottom;
 };
 
-#define STACK_NEXT_PTR( element )		(*(type**)(((byte*)element)+nextOffset))
+#define STACK_NEXT_PTR(element) (*(type**)(((byte*)element) + nextOffset))
 
-template< class type, int nextOffset >
+template <class type, int nextOffset>
 idStackTemplate<type, nextOffset>::idStackTemplate()
 {
-	top = bottom = NULL;
+    top = bottom = NULL;
 }
 
-template< class type, int nextOffset >
-void idStackTemplate<type, nextOffset>::Add( type* element )
+template <class type, int nextOffset>
+void idStackTemplate<type, nextOffset>::Add(type* element)
 {
-	STACK_NEXT_PTR( element ) = top;
-	top = element;
-	if( !bottom )
-	{
-		bottom = element;
-	}
+    STACK_NEXT_PTR(element) = top;
+    top = element;
+    if (!bottom) {
+        bottom = element;
+    }
 }
 
-template< class type, int nextOffset >
+template <class type, int nextOffset>
 type* idStackTemplate<type, nextOffset>::Get()
 {
-	type* element;
-	
-	element = top;
-	if( element )
-	{
-		top = STACK_NEXT_PTR( top );
-		if( bottom == element )
-		{
-			bottom = NULL;
-		}
-		STACK_NEXT_PTR( element ) = NULL;
-	}
-	return element;
+    type* element;
+
+    element = top;
+    if (element) {
+        top = STACK_NEXT_PTR(top);
+        if (bottom == element) {
+            bottom = NULL;
+        }
+        STACK_NEXT_PTR(element) = NULL;
+    }
+    return element;
 }
 
 #endif /* !__STACK_H__ */

@@ -32,35 +32,34 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ===============================================================================
 
-	idDeclSkin
+        idDeclSkin
 
 ===============================================================================
 */
 
 typedef struct
 {
-	const idMaterial* 		from;			// 0 == any unmatched shader
-	const idMaterial* 		to;
+    const idMaterial* from; // 0 == any unmatched shader
+    const idMaterial* to;
 } skinMapping_t;
 
-class idDeclSkin : public idDecl
-{
+class idDeclSkin : public idDecl {
 public:
-	virtual size_t			Size() const;
-	virtual bool			SetDefaultText();
-	virtual const char* 	DefaultDefinition() const;
-	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
-	virtual void			FreeData();
-	
-	const idMaterial* 		RemapShaderBySkin( const idMaterial* shader ) const;
-	
-	// model associations are just for the preview dialog in the editor
-	const int				GetNumModelAssociations() const;
-	const char* 			GetAssociatedModel( int index ) const;
-	
+    virtual size_t Size() const;
+    virtual bool SetDefaultText();
+    virtual const char* DefaultDefinition() const;
+    virtual bool Parse(const char* text, const int textLength, bool allowBinaryVersion);
+    virtual void FreeData();
+
+    const idMaterial* RemapShaderBySkin(const idMaterial* shader) const;
+
+    // model associations are just for the preview dialog in the editor
+    const int GetNumModelAssociations() const;
+    const char* GetAssociatedModel(int index) const;
+
 private:
-	idList<skinMapping_t, TAG_IDLIB_LIST_DECL>	mappings;
-	idStrList				associatedModels;
+    idList<skinMapping_t, TAG_IDLIB_LIST_DECL> mappings;
+    idStrList associatedModels;
 };
 
 #endif /* !__DECLSKIN_H__ */

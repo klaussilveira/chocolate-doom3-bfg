@@ -45,23 +45,22 @@ Mem_Alloc16
 ==================
 */
 // RB: 64 bit fixes, changed int to size_t
-void* Mem_Alloc16( const size_t size, const memTag_t tag )
+void* Mem_Alloc16(const size_t size, const memTag_t tag)
 // RB end
 {
-	if( !size )
-	{
-		return NULL;
-	}
-	const size_t paddedSize = ( size + 15 ) & ~15;
+    if (!size) {
+        return NULL;
+    }
+    const size_t paddedSize = (size + 15) & ~15;
 #ifdef _WIN32
-	// this should work with MSVC and mingw, as long as __MSVCRT_VERSION__ >= 0x0700
-	return _aligned_malloc( paddedSize, 16 );
-#else // not _WIN32
-	// DG: the POSIX solution for linux etc
-	void* ret;
-	posix_memalign( &ret, 16, paddedSize );
-	return ret;
-	// DG end
+    // this should work with MSVC and mingw, as long as __MSVCRT_VERSION__ >= 0x0700
+    return _aligned_malloc(paddedSize, 16);
+#else  // not _WIN32
+       // DG: the POSIX solution for linux etc
+    void* ret;
+    posix_memalign(&ret, 16, paddedSize);
+    return ret;
+    // DG end
 #endif // _WIN32
 }
 
@@ -70,19 +69,18 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 Mem_Free16
 ==================
 */
-void Mem_Free16( void* ptr )
+void Mem_Free16(void* ptr)
 {
-	if( ptr == NULL )
-	{
-		return;
-	}
+    if (ptr == NULL) {
+        return;
+    }
 #ifdef _WIN32
-	_aligned_free( ptr );
-#else // not _WIN32
-	// DG: Linux/POSIX compatibility
-	// can use normal free() for aligned memory
-	free( ptr );
-	// DG end
+    _aligned_free(ptr);
+#else  // not _WIN32
+       // DG: Linux/POSIX compatibility
+       // can use normal free() for aligned memory
+    free(ptr);
+    // DG end
 #endif // _WIN32
 }
 
@@ -91,11 +89,11 @@ void Mem_Free16( void* ptr )
 Mem_ClearedAlloc
 ==================
 */
-void* Mem_ClearedAlloc( const size_t size, const memTag_t tag )
+void* Mem_ClearedAlloc(const size_t size, const memTag_t tag)
 {
-	void* mem = Mem_Alloc( size, tag );
-	SIMDProcessor->Memset( mem, 0, size );
-	return mem;
+    void* mem = Mem_Alloc(size, tag);
+    SIMDProcessor->Memset(mem, 0, size);
+    return mem;
 }
 
 /*
@@ -103,10 +101,9 @@ void* Mem_ClearedAlloc( const size_t size, const memTag_t tag )
 Mem_CopyString
 ==================
 */
-char* Mem_CopyString( const char* in )
+char* Mem_CopyString(const char* in)
 {
-	char* out = ( char* )Mem_Alloc( strlen( in ) + 1, TAG_STRING );
-	strcpy( out, in );
-	return out;
+    char* out = (char*)Mem_Alloc(strlen(in) + 1, TAG_STRING);
+    strcpy(out, in);
+    return out;
 }
-

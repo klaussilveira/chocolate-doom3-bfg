@@ -28,11 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_LEADERBOARDS_H__
 #define __SYS_LEADERBOARDS_H__
 
-
 /*
 ================================================================================================
 
-	Stats (for achievements, matchmaking, etc.)
+        Stats (for achievements, matchmaking, etc.)
 
 ================================================================================================
 */
@@ -49,85 +48,81 @@ the level for matchmaking, etc.
 /*
 ================================================================================================
 
-	Leaderboards
+        Leaderboards
 
 ================================================================================================
 */
 
-const int MAX_LEADERBOARDS			= 256;
-const int MAX_LEADERBOARD_COLUMNS	= 16;
+const int MAX_LEADERBOARDS = 256;
+const int MAX_LEADERBOARD_COLUMNS = 16;
 
-enum aggregationMethod_t
-{
-	AGGREGATE_MIN,  // Write the new value if it is less than the existing value.
-	AGGREGATE_MAX,  // Write the new value if it is greater than the existing value.
-	AGGREGATE_SUM,  // Add the new value to the existing value and write the result.
-	AGGREGATE_LAST, // Write the new value.
+enum aggregationMethod_t {
+    AGGREGATE_MIN,  // Write the new value if it is less than the existing value.
+    AGGREGATE_MAX,  // Write the new value if it is greater than the existing value.
+    AGGREGATE_SUM,  // Add the new value to the existing value and write the result.
+    AGGREGATE_LAST, // Write the new value.
 };
 
-enum rankOrder_t
-{
-	RANK_GREATEST_FIRST, // Rank the in descending order, greatest score is best score
-	RANK_LEAST_FIRST,	 // Rank the in ascending order, lowest score is best score
+enum rankOrder_t {
+    RANK_GREATEST_FIRST, // Rank the in descending order, greatest score is best score
+    RANK_LEAST_FIRST,    // Rank the in ascending order, lowest score is best score
 };
 
-enum statsColumnDisplayType_t
-{
-	STATS_COLUMN_DISPLAY_NUMBER,
-	STATS_COLUMN_DISPLAY_TIME_MILLISECONDS,
-	STATS_COLUMN_DISPLAY_CASH,
-	STATS_COLUMN_NEVER_DISPLAY,
+enum statsColumnDisplayType_t {
+    STATS_COLUMN_DISPLAY_NUMBER,
+    STATS_COLUMN_DISPLAY_TIME_MILLISECONDS,
+    STATS_COLUMN_DISPLAY_CASH,
+    STATS_COLUMN_NEVER_DISPLAY,
 };
 
-struct columnDef_t
-{
-	const char* 				locDisplayName;
-	int							bits;
-	aggregationMethod_t			aggregationMethod;
-	statsColumnDisplayType_t	displayType;
+struct columnDef_t {
+    const char* locDisplayName;
+    int bits;
+    aggregationMethod_t aggregationMethod;
+    statsColumnDisplayType_t displayType;
 };
 
 extern struct leaderboardDefinition_t* registeredLeaderboards[MAX_LEADERBOARDS];
-extern int								numRegisteredLeaderboards;
+extern int numRegisteredLeaderboards;
 
-struct leaderboardDefinition_t
-{
-	leaderboardDefinition_t() :
-		id( -1 ),
-		numColumns( 0 ),
-		columnDefs( NULL ),
-		rankOrder( RANK_GREATEST_FIRST ),
-		supportsAttachments( false ),
-		checkAgainstCurrent( false )
-	{
-	}
-	leaderboardDefinition_t( int id_, int numColumns_, const columnDef_t* columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_ ) :
-		id( id_ ),
-		numColumns( numColumns_ ),
-		columnDefs( columnDefs_ ),
-		rankOrder( rankOrder_ ),
-		supportsAttachments( supportsAttachments_ ),
-		checkAgainstCurrent( checkAgainstCurrent_ )
-	{
-		assert( numRegisteredLeaderboards < MAX_LEADERBOARDS );
-		registeredLeaderboards[numRegisteredLeaderboards++] = this;
-	}
-	int32				id;
-	int32				numColumns;
-	const columnDef_t* 	columnDefs;
-	rankOrder_t			rankOrder;
-	bool				supportsAttachments;
-	bool				checkAgainstCurrent;		// Compare column 0 with the currently stored leaderboard, and only submit the new leaderboard if the new column 0 is better
+struct leaderboardDefinition_t {
+    leaderboardDefinition_t()
+        : id(-1)
+        , numColumns(0)
+        , columnDefs(NULL)
+        , rankOrder(RANK_GREATEST_FIRST)
+        , supportsAttachments(false)
+        , checkAgainstCurrent(false)
+    {
+    }
+    leaderboardDefinition_t(int id_, int numColumns_, const columnDef_t* columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_)
+        : id(id_)
+        , numColumns(numColumns_)
+        , columnDefs(columnDefs_)
+        , rankOrder(rankOrder_)
+        , supportsAttachments(supportsAttachments_)
+        , checkAgainstCurrent(checkAgainstCurrent_)
+    {
+        assert(numRegisteredLeaderboards < MAX_LEADERBOARDS);
+        registeredLeaderboards[numRegisteredLeaderboards++] = this;
+    }
+    int32 id;
+    int32 numColumns;
+    const columnDef_t* columnDefs;
+    rankOrder_t rankOrder;
+    bool supportsAttachments;
+    bool checkAgainstCurrent; // Compare column 0 with the currently stored leaderboard, and only submit the new leaderboard if the new column 0 is better
 };
 
-struct column_t
-{
-	column_t( int64 value_ ) : value( value_ ) {}
-	column_t() {}
-	
-	int64				value;
-};
+struct column_t {
+    column_t(int64 value_)
+        : value(value_)
+    {
+    }
+    column_t() { }
 
+    int64 value;
+};
 
 /*
 ================================================================================================
@@ -135,38 +130,35 @@ Contains the Achievement and LeaderBoard free function declarations.
 ================================================================================================
 */
 
-typedef int32			leaderboardHandle_t;
+typedef int32 leaderboardHandle_t;
 
 /*
 ================================================
 idLeaderBoardEntry
 ================================================
 */
-class idLeaderBoardEntry
-{
+class idLeaderBoardEntry {
 public:
-	static const int MAX_LEADERBOARD_COLUMNS = 16;
-	idStr username; // aka gamertag
-	int64 score;
-	int64 columns[ MAX_LEADERBOARD_COLUMNS ];
+    static const int MAX_LEADERBOARD_COLUMNS = 16;
+    idStr username; // aka gamertag
+    int64 score;
+    int64 columns[MAX_LEADERBOARD_COLUMNS];
 };
 
-const leaderboardDefinition_t* Sys_FindLeaderboardDef( int id );
-
+const leaderboardDefinition_t* Sys_FindLeaderboardDef(int id);
 
 //------------------------
 // leaderboardError_t
 //------------------------
-enum leaderboardError_t
-{
-	LEADERBOARD_ERROR_NONE,
-	LEADERBOARD_ERROR_FAILED,				// General error occurred
-	LEADERBOARD_ERROR_NOT_ONLINE,			// Not online to request leaderboards
-	LEADERBOARD_ERROR_BUSY,					// Unable to download leaderboards right now (download already in progress)
-	LEADERBOARD_ERROR_INVALID_USER,			// Unable to request leaderboards as the given user
-	LEADERBOARD_ERROR_INVALID_REQUEST,		// The leaderboard request was invalid
-	LEADERBOARD_ERROR_DOWNLOAD,				// An error occurred while downloading the leaderboard
-	LEADERBOARD_ERROR_MAX
+enum leaderboardError_t {
+    LEADERBOARD_ERROR_NONE,
+    LEADERBOARD_ERROR_FAILED,          // General error occurred
+    LEADERBOARD_ERROR_NOT_ONLINE,      // Not online to request leaderboards
+    LEADERBOARD_ERROR_BUSY,            // Unable to download leaderboards right now (download already in progress)
+    LEADERBOARD_ERROR_INVALID_USER,    // Unable to request leaderboards as the given user
+    LEADERBOARD_ERROR_INVALID_REQUEST, // The leaderboard request was invalid
+    LEADERBOARD_ERROR_DOWNLOAD,        // An error occurred while downloading the leaderboard
+    LEADERBOARD_ERROR_MAX
 };
 
 /*
@@ -174,87 +166,92 @@ enum leaderboardError_t
 idLeaderboardCallback
 ================================================
 */
-class idLeaderboardCallback : public idCallback
-{
+class idLeaderboardCallback : public idCallback {
 public:
-	struct row_t
-	{
-		bool		hasAttachment;
-		int64		attachmentID;
-		idStr		name;
-		int64		rank;
-		idArray<int64, MAX_LEADERBOARD_COLUMNS> 	columns;
-		
-		long		user_id;
-//		CSteamID	user_id;
-	};
-	
-	idLeaderboardCallback() : def( NULL ), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
-	virtual idLeaderboardCallback* Clone() const = 0;
-	
-	// Used by the platform handlers to set data
-	void 							ResetRows()
-	{
-		rows.Clear();
-	}
-	void 							AddRow( const row_t& row )
-	{
-		rows.Append( row );
-	}
-	void 							SetNumRowsInLeaderboard( int32 i )
-	{
-		numRowsInLeaderboard = i;
-	}
-	void 							SetDef( const leaderboardDefinition_t* def_ )
-	{
-		def = def_;
-	}
-	void 							SetStartIndex( int startIndex_ )
-	{
-		startIndex = startIndex_;
-	}
-	void 							SetLocalIndex( int localIndex_ )
-	{
-		localIndex = localIndex_;
-	}
-	void							SetErrorCode( leaderboardError_t errorCode )
-	{
-		this->errorCode = errorCode;
-	}
-	
-	// Used in user callback for information retrieval
-	const leaderboardDefinition_t* 	GetDef() const
-	{
-		return def;
-	}
-	int								GetStartIndex() const
-	{
-		return startIndex;
-	}
-	const idList< row_t >& 			GetRows() const
-	{
-		return rows;
-	}
-	int								GetNumRowsInLeaderboard() const
-	{
-		return numRowsInLeaderboard;
-	}
-	int								GetLocalIndex() const
-	{
-		return localIndex;
-	}
-	leaderboardError_t				GetErrorCode() const
-	{
-		return this->errorCode;
-	}
-	
+    struct row_t {
+        bool hasAttachment;
+        int64 attachmentID;
+        idStr name;
+        int64 rank;
+        idArray<int64, MAX_LEADERBOARD_COLUMNS> columns;
+
+        long user_id;
+        //		CSteamID	user_id;
+    };
+
+    idLeaderboardCallback()
+        : def(NULL)
+        , startIndex(-1)
+        , localIndex(-1)
+        , numRowsInLeaderboard(-1)
+        , errorCode(LEADERBOARD_ERROR_NONE)
+    {
+    }
+    virtual idLeaderboardCallback* Clone() const = 0;
+
+    // Used by the platform handlers to set data
+    void ResetRows()
+    {
+        rows.Clear();
+    }
+    void AddRow(const row_t& row)
+    {
+        rows.Append(row);
+    }
+    void SetNumRowsInLeaderboard(int32 i)
+    {
+        numRowsInLeaderboard = i;
+    }
+    void SetDef(const leaderboardDefinition_t* def_)
+    {
+        def = def_;
+    }
+    void SetStartIndex(int startIndex_)
+    {
+        startIndex = startIndex_;
+    }
+    void SetLocalIndex(int localIndex_)
+    {
+        localIndex = localIndex_;
+    }
+    void SetErrorCode(leaderboardError_t errorCode)
+    {
+        this->errorCode = errorCode;
+    }
+
+    // Used in user callback for information retrieval
+    const leaderboardDefinition_t* GetDef() const
+    {
+        return def;
+    }
+    int GetStartIndex() const
+    {
+        return startIndex;
+    }
+    const idList<row_t>& GetRows() const
+    {
+        return rows;
+    }
+    int GetNumRowsInLeaderboard() const
+    {
+        return numRowsInLeaderboard;
+    }
+    int GetLocalIndex() const
+    {
+        return localIndex;
+    }
+    leaderboardError_t GetErrorCode() const
+    {
+        return this->errorCode;
+    }
+
 protected:
-	const leaderboardDefinition_t* 	def;					// leaderboard def
-	int								startIndex;				// where the first row starts in the online leaderboard
-	int								localIndex;				// if player is in the rows, this is the offset of him within the returned rows
-	idList< row_t >					rows;					// leaderboard entries for the request
-	int								numRowsInLeaderboard;	// total number of rows in the online leaderboard
-	leaderboardError_t				errorCode;				// error, if any, that occurred during last operation
+    const leaderboardDefinition_t* def; // leaderboard def
+    int startIndex;                     // where the first row starts in the online leaderboard
+    int localIndex;                     // if player is in the rows, this is the offset of him within the returned rows
+    idList<row_t> rows;                 // leaderboard entries for the request
+    int numRowsInLeaderboard;           // total number of rows in the online leaderboard
+    leaderboardError_t errorCode;       // error, if any, that occurred during last operation
 };
 
 #endif // !__SYS_LEADERBOARDS_H__

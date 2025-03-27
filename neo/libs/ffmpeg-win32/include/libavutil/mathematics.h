@@ -28,37 +28,37 @@
 #include "intfloat.h"
 
 #ifndef M_E
-#define M_E            2.7182818284590452354   /* e */
+#define M_E 2.7182818284590452354 /* e */
 #endif
 #ifndef M_LN2
-#define M_LN2          0.69314718055994530942  /* log_e 2 */
+#define M_LN2 0.69314718055994530942 /* log_e 2 */
 #endif
 #ifndef M_LN10
-#define M_LN10         2.30258509299404568402  /* log_e 10 */
+#define M_LN10 2.30258509299404568402 /* log_e 10 */
 #endif
 #ifndef M_LOG2_10
-#define M_LOG2_10      3.32192809488736234787  /* log_2 10 */
+#define M_LOG2_10 3.32192809488736234787 /* log_2 10 */
 #endif
 #ifndef M_PHI
-#define M_PHI          1.61803398874989484820   /* phi / golden ratio */
+#define M_PHI 1.61803398874989484820 /* phi / golden ratio */
 #endif
 #ifndef M_PI
-#define M_PI           3.14159265358979323846  /* pi */
+#define M_PI 3.14159265358979323846 /* pi */
 #endif
 #ifndef M_PI_2
-#define M_PI_2         1.57079632679489661923  /* pi/2 */
+#define M_PI_2 1.57079632679489661923 /* pi/2 */
 #endif
 #ifndef M_SQRT1_2
-#define M_SQRT1_2      0.70710678118654752440  /* 1/sqrt(2) */
+#define M_SQRT1_2 0.70710678118654752440 /* 1/sqrt(2) */
 #endif
 #ifndef M_SQRT2
-#define M_SQRT2        1.41421356237309504880  /* sqrt(2) */
+#define M_SQRT2 1.41421356237309504880 /* sqrt(2) */
 #endif
 #ifndef NAN
-#define NAN            av_int2float(0x7fc00000)
+#define NAN av_int2float(0x7fc00000)
 #endif
 #ifndef INFINITY
-#define INFINITY       av_int2float(0x7f800000)
+#define INFINITY av_int2float(0x7f800000)
 #endif
 
 /**
@@ -66,13 +66,12 @@
  * @{
  */
 
-
 enum AVRounding {
-    AV_ROUND_ZERO     = 0, ///< Round toward zero.
-    AV_ROUND_INF      = 1, ///< Round away from zero.
-    AV_ROUND_DOWN     = 2, ///< Round toward -infinity.
-    AV_ROUND_UP       = 3, ///< Round toward +infinity.
-    AV_ROUND_NEAR_INF = 5, ///< Round to nearest and halfway cases away from zero.
+    AV_ROUND_ZERO = 0,           ///< Round toward zero.
+    AV_ROUND_INF = 1,            ///< Round away from zero.
+    AV_ROUND_DOWN = 2,           ///< Round toward -infinity.
+    AV_ROUND_UP = 3,             ///< Round toward +infinity.
+    AV_ROUND_NEAR_INF = 5,       ///< Round to nearest and halfway cases away from zero.
     AV_ROUND_PASS_MINMAX = 8192, ///< Flag to pass INT64_MIN/MAX through instead of rescaling, this avoids special cases for AV_NOPTS_VALUE
 };
 
@@ -110,7 +109,7 @@ int64_t av_rescale_q(int64_t a, AVRational bq, AVRational cq) av_const;
  *         INT64_MIN or INT64_MAX then a is passed through unchanged.
  */
 int64_t av_rescale_q_rnd(int64_t a, AVRational bq, AVRational cq,
-                         enum AVRounding) av_const;
+    enum AVRounding) av_const;
 
 /**
  * Compare 2 timestamps each in its own timebases.
@@ -141,7 +140,7 @@ int64_t av_compare_mod(uint64_t a, uint64_t b, uint64_t mod);
  * @param duration duration till the next call
  * @param out_tb Output timebase
  */
-int64_t av_rescale_delta(AVRational in_tb, int64_t in_ts,  AVRational fs_tb, int duration, int64_t *last, AVRational out_tb);
+int64_t av_rescale_delta(AVRational in_tb, int64_t in_ts, AVRational fs_tb, int duration, int64_t* last, AVRational out_tb);
 
 /**
  * Add a value to a timestamp.
@@ -156,8 +155,7 @@ int64_t av_rescale_delta(AVRational in_tb, int64_t in_ts,  AVRational fs_tb, int
  */
 int64_t av_add_stable(AVRational ts_tb, int64_t ts, AVRational inc_tb, int64_t inc);
 
-
-    /**
+/**
  * @}
  */
 

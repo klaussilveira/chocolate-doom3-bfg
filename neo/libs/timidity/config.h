@@ -38,27 +38,27 @@ appended to the filename and the open is tried again.
 #define DEFAULT_PROGRAM 0
 
 /* 9 here is MIDI channel 10, which is the standard percussion channel.
-Some files (notably C:\WINDOWS\CANYON.MID) think that 16 is one too. 
+Some files (notably C:\WINDOWS\CANYON.MID) think that 16 is one too.
 On the other hand, some files know that 16 is not a drum channel and
 try to play music on it. This is now a runtime option, so this isn't
 a critical choice anymore. */
-//#define DEFAULT_DRUMCHANNELS ((1<<9) | (1<<15))
-#define DEFAULT_DRUMCHANNELS ((1<<9))
+// #define DEFAULT_DRUMCHANNELS ((1<<9) | (1<<15))
+#define DEFAULT_DRUMCHANNELS ((1 << 9))
 
 /* A somewhat arbitrary frequency range. The low end of this will
 sound terrible as no lowpass filtering is performed on most
 instruments before resampling. */
-#define MIN_OUTPUT_RATE 	4000
-#define MAX_OUTPUT_RATE 	65000
+#define MIN_OUTPUT_RATE 4000
+#define MAX_OUTPUT_RATE 65000
 
 /* In percent. */
-#define DEFAULT_AMPLIFICATION 	70
+#define DEFAULT_AMPLIFICATION 70
 
 /* Default sampling rate, default polyphony, and maximum polyphony.
 All but the last can be overridden from the command line. */
-#define DEFAULT_RATE	32000
-#define DEFAULT_VOICES	32
-#define MAX_VOICES	48
+#define DEFAULT_RATE 32000
+#define DEFAULT_VOICES 32
+#define MAX_VOICES 48
 
 /* 1000 here will give a control ratio of 22:1 with 22 kHz output.
 Higher CONTROLS_PER_SECOND values allow more accurate rendering
@@ -129,7 +129,7 @@ to a new machine with other than 32-bit, big-endian words. */
 /* change FRACTION_BITS above, not these */
 #define INTEGER_BITS (32 - FRACTION_BITS)
 #define INTEGER_MASK (0xFFFFFFFF << FRACTION_BITS)
-#define FRACTION_MASK (~ INTEGER_MASK)
+#define FRACTION_MASK (~INTEGER_MASK)
 
 /* This is enforced by some computations that must fit in an int */
 #define MAX_CONTROL_RATIO 255
@@ -137,11 +137,8 @@ to a new machine with other than 32-bit, big-endian words. */
 /* Instrument files are little-endian, MIDI files big-endian, so we
 need to do some conversions. */
 
-#define XCHG_SHORT(x) ((((x)&0xFF)<<8) | (((x)>>8)&0xFF))
-# define XCHG_LONG(x) ((((x)&0xFF)<<24) | \
-	(((x)&0xFF00)<<8) | \
-	(((x)&0xFF0000)>>8) | \
-	(((x)>>24)&0xFF))
+#define XCHG_SHORT(x) ((((x) & 0xFF) << 8) | (((x) >> 8) & 0xFF))
+#define XCHG_LONG(x) ((((x) & 0xFF) << 24) | (((x) & 0xFF00) << 8) | (((x) & 0xFF0000) >> 8) | (((x) >> 24) & 0xFF))
 
 #ifdef LITTLE_ENDIAN
 #define LE_SHORT(x) x
@@ -159,27 +156,27 @@ need to do some conversions. */
 
 /* These affect general volume */
 #define GUARD_BITS 3
-#define AMP_BITS (15-GUARD_BITS)
+#define AMP_BITS (15 - GUARD_BITS)
 
 #ifdef LOOKUP_HACK
 typedef int8_t sample_t;
 typedef uint8_t final_volume_t;
-#  define FINAL_VOLUME(v) (~_l2u[v])
-#  define MIXUP_SHIFT 5
-#  define MAX_AMP_VALUE 4095
+#define FINAL_VOLUME(v) (~_l2u[v])
+#define MIXUP_SHIFT 5
+#define MAX_AMP_VALUE 4095
 #else
 typedef int16_t sample_t;
-typedef  int32_t  final_volume_t;
-#  define FINAL_VOLUME(v) (v)
-#  define MAX_AMP_VALUE ((1<<(AMP_BITS+1))-1)
+typedef int32_t final_volume_t;
+#define FINAL_VOLUME(v) (v)
+#define MAX_AMP_VALUE ((1 << (AMP_BITS + 1)) - 1)
 #endif
 
 #ifdef USE_LDEXP
-#  define FSCALE(a,b) ldexp((a),(b))
-#  define FSCALENEG(a,b) ldexp((a),-(b))
+#define FSCALE(a, b) ldexp((a), (b))
+#define FSCALENEG(a, b) ldexp((a), -(b))
 #else
-#  define FSCALE(a,b) (float)((a) * (double)(1<<(b)))
-#  define FSCALENEG(a,b) (float)((a) * (1.0L / (double)(1<<(b))))
+#define FSCALE(a, b) (float)((a) * (double)(1 << (b)))
+#define FSCALENEG(a, b) (float)((a) * (1.0L / (double)(1 << (b))))
 #endif
 
 /* Vibrato and tremolo Choices of the Day */
@@ -195,14 +192,14 @@ typedef  int32_t  final_volume_t;
 #define VIBRATO_SAMPLE_INCREMENTS 32
 
 #ifndef PI
-const float PI =  3.14159265358979323846f;
+const float PI = 3.14159265358979323846f;
 #endif
 
 /* The path separator (D.M.) */
-//#ifdef __WIN32__
-#  define PATH_SEP '\\'
-#  define PATH_STRING "\\"
-//#else
-//#  define PATH_SEP '/'
-//#  define PATH_STRING "/"
-//#endif
+// #ifdef __WIN32__
+#define PATH_SEP '\\'
+#define PATH_STRING "\\"
+// #else
+// #  define PATH_SEP '/'
+// #  define PATH_STRING "/"
+// #endif

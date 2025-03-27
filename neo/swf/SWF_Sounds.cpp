@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 idSWF::DefineSound
 ========================
 */
-void idSWF::DefineSound( idSWFBitStream& bitstream )
+void idSWF::DefineSound(idSWFBitStream& bitstream)
 {
 }
 
@@ -42,6 +42,6 @@ void idSWF::DefineSound( idSWFBitStream& bitstream )
 idSWFSpriteInstance::StartSound
 ========================
 */
-void idSWFSpriteInstance::StartSound( idSWFBitStream& bitstream )
+void idSWFSpriteInstance::StartSound(idSWFBitStream& bitstream)
 {
 }

@@ -3,7 +3,7 @@
 TiMidity -- Experimental MIDI to WAVE converter
 Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
-In case you haven't heard, this program is free software; 
+In case you haven't heard, this program is free software;
 you can redistribute it and/or modify it under the terms of the
 GNU General Public License as published by the Free Software
 Foundation; either version 2 of the License, or (at your option)
@@ -22,6 +22,6 @@ mix.h
 
 */
 
-extern void mix_voice( int32_t  *buf, int v,  int32_t  c);
+extern void mix_voice(int32_t* buf, int v, int32_t c);
 extern int recompute_envelope(int v);
 extern void apply_envelope_to_amp(int v);

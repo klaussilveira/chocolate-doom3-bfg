@@ -34,14 +34,14 @@
 /**
  * assert() equivalent, that is always enabled.
  */
-#define av_assert0(cond) do {                                           \
-    if (!(cond)) {                                                      \
-        av_log(NULL, AV_LOG_PANIC, "Assertion %s failed at %s:%d\n",    \
-               AV_STRINGIFY(cond), __FILE__, __LINE__);                 \
-        abort();                                                        \
-    }                                                                   \
-} while (0)
-
+#define av_assert0(cond)                                                 \
+    do {                                                                 \
+        if (!(cond)) {                                                   \
+            av_log(NULL, AV_LOG_PANIC, "Assertion %s failed at %s:%d\n", \
+                AV_STRINGIFY(cond), __FILE__, __LINE__);                 \
+            abort();                                                     \
+        }                                                                \
+    } while (0)
 
 /**
  * assert() equivalent, that does not lie in speed critical code.
@@ -52,7 +52,6 @@
 #else
 #define av_assert1(cond) ((void)0)
 #endif
-
 
 /**
  * assert() equivalent, that does lie in speed critical code.

@@ -38,9 +38,7 @@
  * @param perms permissions to assign to the new buffer reference
  * @deprecated avfilter APIs work natively with AVFrame instead.
  */
-attribute_deprecated
-AVFilterBufferRef *avfilter_get_video_buffer_ref_from_frame(const AVFrame *frame, int perms);
-
+attribute_deprecated AVFilterBufferRef* avfilter_get_video_buffer_ref_from_frame(const AVFrame* frame, int perms);
 
 /**
  * Create and return a picref reference from the data and properties
@@ -49,9 +47,8 @@ AVFilterBufferRef *avfilter_get_video_buffer_ref_from_frame(const AVFrame *frame
  * @param perms permissions to assign to the new buffer reference
  * @deprecated avfilter APIs work natively with AVFrame instead.
  */
-attribute_deprecated
-AVFilterBufferRef *avfilter_get_audio_buffer_ref_from_frame(const AVFrame *frame,
-                                                            int perms);
+attribute_deprecated AVFilterBufferRef* avfilter_get_audio_buffer_ref_from_frame(const AVFrame* frame,
+    int perms);
 
 /**
  * Create and return a buffer reference from the data and properties
@@ -60,10 +57,9 @@ AVFilterBufferRef *avfilter_get_audio_buffer_ref_from_frame(const AVFrame *frame
  * @param perms permissions to assign to the new buffer reference
  * @deprecated avfilter APIs work natively with AVFrame instead.
  */
-attribute_deprecated
-AVFilterBufferRef *avfilter_get_buffer_ref_from_frame(enum AVMediaType type,
-                                                      const AVFrame *frame,
-                                                      int perms);
+attribute_deprecated AVFilterBufferRef* avfilter_get_buffer_ref_from_frame(enum AVMediaType type,
+    const AVFrame* frame,
+    int perms);
 #endif
 
 #if FF_API_FILL_FRAME
@@ -76,9 +72,8 @@ AVFilterBufferRef *avfilter_get_buffer_ref_from_frame(enum AVMediaType type,
  * failure
  * @deprecated Use avfilter_copy_buf_props() instead.
  */
-attribute_deprecated
-int avfilter_fill_frame_from_audio_buffer_ref(AVFrame *frame,
-                                              const AVFilterBufferRef *samplesref);
+attribute_deprecated int avfilter_fill_frame_from_audio_buffer_ref(AVFrame* frame,
+    const AVFilterBufferRef* samplesref);
 
 /**
  * Fill an AVFrame with the information stored in picref.
@@ -89,9 +84,8 @@ int avfilter_fill_frame_from_audio_buffer_ref(AVFrame *frame,
  * failure
  * @deprecated Use avfilter_copy_buf_props() instead.
  */
-attribute_deprecated
-int avfilter_fill_frame_from_video_buffer_ref(AVFrame *frame,
-                                              const AVFilterBufferRef *picref);
+attribute_deprecated int avfilter_fill_frame_from_video_buffer_ref(AVFrame* frame,
+    const AVFilterBufferRef* picref);
 
 /**
  * Fill an AVFrame with information stored in ref.
@@ -102,9 +96,8 @@ int avfilter_fill_frame_from_video_buffer_ref(AVFrame *frame,
  * failure
  * @deprecated Use avfilter_copy_buf_props() instead.
  */
-attribute_deprecated
-int avfilter_fill_frame_from_buffer_ref(AVFrame *frame,
-                                        const AVFilterBufferRef *ref);
+attribute_deprecated int avfilter_fill_frame_from_buffer_ref(AVFrame* frame,
+    const AVFilterBufferRef* ref);
 #endif
 
 #endif /* AVFILTER_AVCODEC_H */

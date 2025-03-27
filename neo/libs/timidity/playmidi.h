@@ -24,63 +24,68 @@ playmidi.h
 #include "structs.h"
 
 /* Midi events */
-#define ME_NONE 	0
-#define ME_NOTEON	1
-#define ME_NOTEOFF	2
-#define ME_KEYPRESSURE	3
-#define ME_MAINVOLUME	4
-#define ME_PAN		5
-#define ME_SUSTAIN	6
-#define ME_EXPRESSION	7
-#define ME_PITCHWHEEL	8
-#define ME_PROGRAM	9
-#define ME_TEMPO	10
-#define ME_PITCH_SENS	11
+#define ME_NONE 0
+#define ME_NOTEON 1
+#define ME_NOTEOFF 2
+#define ME_KEYPRESSURE 3
+#define ME_MAINVOLUME 4
+#define ME_PAN 5
+#define ME_SUSTAIN 6
+#define ME_EXPRESSION 7
+#define ME_PITCHWHEEL 8
+#define ME_PROGRAM 9
+#define ME_TEMPO 10
+#define ME_PITCH_SENS 11
 
-#define ME_ALL_SOUNDS_OFF	12
-#define ME_RESET_CONTROLLERS	13
-#define ME_ALL_NOTES_OFF	14
-#define ME_TONE_BANK	15
+#define ME_ALL_SOUNDS_OFF 12
+#define ME_RESET_CONTROLLERS 13
+#define ME_ALL_NOTES_OFF 14
+#define ME_TONE_BANK 15
 
-#define ME_LYRIC	16
+#define ME_LYRIC 16
 
-#define ME_EOT		99
+#define ME_EOT 99
 
 typedef struct {
-	int
-		bank, program, volume, sustain, panning, pitchbend, expression, 
-		mono, /* one note only on this channel -- not implemented yet */
-		pitchsens;
-	/* chorus, reverb... Coming soon to a 300-MHz, eight-way superscalar
-	processor near you */
-	float
-		pitchfactor; /* precomputed pitch bend factor to save some fdiv's */
+    int
+        bank,
+        program, volume, sustain, panning, pitchbend, expression,
+        mono, /* one note only on this channel -- not implemented yet */
+        pitchsens;
+    /* chorus, reverb... Coming soon to a 300-MHz, eight-way superscalar
+    processor near you */
+    float
+        pitchfactor; /* precomputed pitch bend factor to save some fdiv's */
 } Channel;
 
 /* Causes the instrument's default panning to be used. */
 #define NO_PANNING -1
 
 typedef struct {
-	uint8_t
-		status, channel, note, velocity;
-	Sample *sample;
-	 int32_t 
-		orig_frequency, frequency,
-		sample_offset, sample_increment,
-		envelope_volume, envelope_target, envelope_increment,
-		tremolo_sweep, tremolo_sweep_position,
-		tremolo_phase, tremolo_phase_increment,
-		vibrato_sweep, vibrato_sweep_position;
+    uint8_t
+        status,
+        channel, note, velocity;
+    Sample* sample;
+    int32_t
+        orig_frequency,
+        frequency,
+        sample_offset, sample_increment,
+        envelope_volume, envelope_target, envelope_increment,
+        tremolo_sweep, tremolo_sweep_position,
+        tremolo_phase, tremolo_phase_increment,
+        vibrato_sweep, vibrato_sweep_position;
 
-	final_volume_t left_mix, right_mix;
+    final_volume_t left_mix, right_mix;
 
-	float
-		left_amp, right_amp, tremolo_volume;
-	 int32_t 
-		vibrato_sample_increment[VIBRATO_SAMPLE_INCREMENTS];
-	int
-		vibrato_phase, vibrato_control_ratio, vibrato_control_counter,
-		envelope_stage, control_counter, panning, panned;
+    float
+        left_amp,
+        right_amp, tremolo_volume;
+    int32_t
+        vibrato_sample_increment[VIBRATO_SAMPLE_INCREMENTS];
+    int
+        vibrato_phase,
+        vibrato_control_ratio, vibrato_control_counter,
+        envelope_stage, control_counter, panning, panned;
 
 } Voice;
 
@@ -101,13 +106,13 @@ typedef struct {
 extern Channel channel[16];
 extern Voice voice[MAX_VOICES];
 
-extern  int32_t  control_ratio, amp_with_poly, amplification;
-extern  int32_t  drumchannels;
+extern int32_t control_ratio, amp_with_poly, amplification;
+extern int32_t drumchannels;
 extern int adjust_panning_immediately;
 extern int voices;
 
-#define ISDRUMCHANNEL(c) ((drumchannels & (1<<(c))))
+#define ISDRUMCHANNEL(c) ((drumchannels & (1 << (c))))
 
-extern int play_midi(MidiEvent *el,  int32_t  events,  int32_t  samples);
-extern int play_midi_file(char *fn);
-extern void dumb_pass_playing_list(int number_of_files, char *list_of_files[]);
+extern int play_midi(MidiEvent* el, int32_t events, int32_t samples);
+extern int play_midi_file(char* fn);
+extern void dumb_pass_playing_list(int number_of_files, char* list_of_files[]);

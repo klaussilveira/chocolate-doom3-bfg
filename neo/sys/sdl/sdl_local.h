@@ -30,13 +30,13 @@ If you have questions concerning this license or the applicable additional terms
 #define __SDL_LOCAL_H__
 
 // glimp.cpp
-const int GRAB_ENABLE		= ( 1 << 0 );
-const int GRAB_REENABLE		= ( 1 << 1 );
-const int GRAB_HIDECURSOR	= ( 1 << 2 );
-const int GRAB_SETSTATE		= ( 1 << 3 );
+const int GRAB_ENABLE = (1 << 0);
+const int GRAB_REENABLE = (1 << 1);
+const int GRAB_HIDECURSOR = (1 << 2);
+const int GRAB_SETSTATE = (1 << 3);
 
-void GLimp_GrabInput( int flags );
+void GLimp_GrabInput(int flags);
 
-char*	Sys_ConsoleInput();
+char* Sys_ConsoleInput();
 
 #endif

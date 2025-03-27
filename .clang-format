@@ -1,0 +1,9 @@
+BasedOnStyle: Webkit
+Language: Cpp
+DerivePointerAlignment: false
+PointerAlignment: Left
+InsertBraces: false
+AlignTrailingComments: Always
+MaxEmptyLinesToKeep: 1
+SortIncludes: Never
+NamespaceIndentation: All

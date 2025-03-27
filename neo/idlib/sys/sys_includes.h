@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	Windows
+        Windows
 
 ================================================================================================
 */
@@ -43,19 +43,19 @@ If you have questions concerning this license or the applicable additional terms
 // RB: windows specific stuff should only be set on Windows
 #if defined(_WIN32)
 
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// prevent auto literal to string conversion
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS // prevent auto literal to string conversion
 
 #ifndef _D3SDK
 #ifndef GAME_DLL
 
-#define WINVER				0x501
+#define WINVER 0x501
 
 #include <winsock2.h>
 #include <mmsystem.h>
 #include <mmreg.h>
 
-#define DIRECTINPUT_VERSION  0x0800			// was 0x0700 with the old mssdk
-#define DIRECTSOUND_VERSION  0x0800
+#define DIRECTINPUT_VERSION 0x0800 // was 0x0700 with the old mssdk
+#define DIRECTSOUND_VERSION 0x0800
 
 #ifdef _MSC_VER
 #include <dsound.h>
@@ -70,19 +70,17 @@ If you have questions concerning this license or the applicable additional terms
 
 // RB begin
 #if defined(__MINGW32__)
-//#include <sal.h> 	// RB: missing __analysis_assume
-// including <sal.h> breaks some STL crap ...
+// #include <sal.h> 	// RB: missing __analysis_assume
+//  including <sal.h> breaks some STL crap ...
 
 #ifndef __analysis_assume
-#define __analysis_assume( x )
+#define __analysis_assume(x)
 #endif
 
 #endif
 // RB end
 
 #endif
-
-
 
 #include <dinput.h>
 
@@ -98,16 +96,16 @@ If you have questions concerning this license or the applicable additional terms
 // DG end
 
 #ifdef _MSC_VER
-#include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
+#include <intrin.h> // needed for intrinsics like _mm_setzero_si28
 
-#pragma warning(disable : 4100)				// unreferenced formal parameter
-#pragma warning(disable : 4127)				// conditional expression is constant
-#pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
-#pragma warning(disable : 4714)				// function marked as __forceinline not inlined
-#pragma warning(disable : 4996)				// unsafe string operations
-#endif // _MSC_VER
+#pragma warning(disable : 4100) // unreferenced formal parameter
+#pragma warning(disable : 4127) // conditional expression is constant
+#pragma warning(disable : 4244) // conversion to smaller type, possible loss of data
+#pragma warning(disable : 4714) // function marked as __forceinline not inlined
+#pragma warning(disable : 4996) // unsafe string operations
+#endif                          // _MSC_VER
 
-#include <windows.h>						// for qgl.h
+#include <windows.h> // for qgl.h
 
 #elif defined(__linux__) || defined(__FreeBSD__)
 
@@ -117,19 +115,18 @@ If you have questions concerning this license or the applicable additional terms
 #endif // #if defined(_WIN32)
 // RB end
 
-#include <stdlib.h>							// no malloc.h on mac or unix
-#undef FindText								// fix namespace pollution
-
+#include <stdlib.h> // no malloc.h on mac or unix
+#undef FindText     // fix namespace pollution
 
 /*
 ================================================================================================
 
-	Common Include Files
+        Common Include Files
 
 ================================================================================================
 */
 
-#if !defined( _DEBUG ) && !defined( NDEBUG )
+#if !defined(_DEBUG) && !defined(NDEBUG)
 // don't generate asserts
 #define NDEBUG
 #endif
@@ -156,8 +153,7 @@ If you have questions concerning this license or the applicable additional terms
 //-----------------------------------------------------
 
 // Hacked stuff we may want to consider implementing later
-class idScopedGlobalHeap
-{
+class idScopedGlobalHeap {
 };
 
 #endif // SYS_INCLUDES_H

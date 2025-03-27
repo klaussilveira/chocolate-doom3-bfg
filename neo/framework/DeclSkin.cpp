@@ -29,7 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-
 /*
 =================
 idDeclSkin::Size
@@ -37,7 +36,7 @@ idDeclSkin::Size
 */
 size_t idDeclSkin::Size() const
 {
-	return sizeof( idDeclSkin );
+    return sizeof(idDeclSkin);
 }
 
 /*
@@ -47,7 +46,7 @@ idDeclSkin::FreeData
 */
 void idDeclSkin::FreeData()
 {
-	mappings.Clear();
+    mappings.Clear();
 }
 
 /*
@@ -55,59 +54,51 @@ void idDeclSkin::FreeData()
 idDeclSkin::Parse
 ================
 */
-bool idDeclSkin::Parse( const char* text, const int textLength, bool allowBinaryVersion )
+bool idDeclSkin::Parse(const char* text, const int textLength, bool allowBinaryVersion)
 {
-	idLexer src;
-	idToken	token, token2;
-	
-	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
-	src.SetFlags( DECL_LEXER_FLAGS );
-	src.SkipUntilString( "{" );
-	
-	associatedModels.Clear();
-	
-	while( 1 )
-	{
-		if( !src.ReadToken( &token ) )
-		{
-			break;
-		}
-		
-		if( !token.Icmp( "}" ) )
-		{
-			break;
-		}
-		if( !src.ReadToken( &token2 ) )
-		{
-			src.Warning( "Unexpected end of file" );
-			MakeDefault();
-			return false;
-		}
-		
-		if( !token.Icmp( "model" ) )
-		{
-			associatedModels.Append( token2 );
-			continue;
-		}
-		
-		skinMapping_t	map;
-		
-		if( !token.Icmp( "*" ) )
-		{
-			// wildcard
-			map.from = NULL;
-		}
-		else
-		{
-			map.from = declManager->FindMaterial( token );
-		}
-		
-		map.to = declManager->FindMaterial( token2 );
-		
-		mappings.Append( map );
-	}
-	
-	return false;
+    idLexer src;
+    idToken token, token2;
+
+    src.LoadMemory(text, textLength, GetFileName(), GetLineNum());
+    src.SetFlags(DECL_LEXER_FLAGS);
+    src.SkipUntilString("{");
+
+    associatedModels.Clear();
+
+    while (1) {
+        if (!src.ReadToken(&token)) {
+            break;
+        }
+
+        if (!token.Icmp("}")) {
+            break;
+        }
+        if (!src.ReadToken(&token2)) {
+            src.Warning("Unexpected end of file");
+            MakeDefault();
+            return false;
+        }
+
+        if (!token.Icmp("model")) {
+            associatedModels.Append(token2);
+            continue;
+        }
+
+        skinMapping_t map;
+
+        if (!token.Icmp("*")) {
+            // wildcard
+            map.from = NULL;
+        } else {
+            map.from = declManager->FindMaterial(token);
+        }
+
+        map.to = declManager->FindMaterial(token2);
+
+        mappings.Append(map);
+    }
+
+    return false;
 }
 
 /*
@@ -117,23 +108,21 @@ idDeclSkin::SetDefaultText
 */
 bool idDeclSkin::SetDefaultText()
 {
-	// if there exists a material with the same name
-	if( declManager->FindType( DECL_MATERIAL, GetName(), false ) )
-	{
-		char generated[2048];
-		
-		idStr::snPrintf( generated, sizeof( generated ),
-						 "skin %s // IMPLICITLY GENERATED\n"
-						 "{\n"
-						 "_default %s\n"
-						 "}\n", GetName(), GetName() );
-		SetText( generated );
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    // if there exists a material with the same name
+    if (declManager->FindType(DECL_MATERIAL, GetName(), false)) {
+        char generated[2048];
+
+        idStr::snPrintf(generated, sizeof(generated),
+            "skin %s // IMPLICITLY GENERATED\n"
+            "{\n"
+            "_default %s\n"
+            "}\n",
+            GetName(), GetName());
+        SetText(generated);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /*
@@ -143,10 +132,10 @@ idDeclSkin::DefaultDefinition
 */
 const char* idDeclSkin::DefaultDefinition() const
 {
-	return
-		"{\n"
-		"\t"	"\"*\"\t\"_default\"\n"
-		"}";
+    return "{\n"
+           "\t"
+           "\"*\"\t\"_default\"\n"
+           "}";
 }
 
 /*
@@ -154,9 +143,9 @@ const char* idDeclSkin::DefaultDefinition() const
 idDeclSkin::GetNumModelAssociations
 ================
 */
-const int idDeclSkin::GetNumModelAssociations( void ) const
+const int idDeclSkin::GetNumModelAssociations(void) const
 {
-	return associatedModels.Num();
+    return associatedModels.Num();
 }
 
 /*
@@ -164,13 +153,12 @@ const int idDeclSkin::GetNumModelAssociations( void ) const
 idDeclSkin::GetAssociatedModel
 ================
 */
-const char* idDeclSkin::GetAssociatedModel( int index ) const
+const char* idDeclSkin::GetAssociatedModel(int index) const
 {
-	if( index >= 0 && index < associatedModels.Num() )
-	{
-		return associatedModels[ index ];
-	}
-	return "";
+    if (index >= 0 && index < associatedModels.Num()) {
+        return associatedModels[index];
+    }
+    return "";
 }
 
 /*
@@ -178,32 +166,28 @@ const char* idDeclSkin::GetAssociatedModel( int index ) const
 RemapShaderBySkin
 ===============
 */
-const idMaterial* idDeclSkin::RemapShaderBySkin( const idMaterial* shader ) const
+const idMaterial* idDeclSkin::RemapShaderBySkin(const idMaterial* shader) const
 {
-	int		i;
-	
-	if( !shader )
-	{
-		return NULL;
-	}
-	
-	// never remap surfaces that were originally nodraw, like collision hulls
-	if( !shader->IsDrawn() )
-	{
-		return shader;
-	}
-	
-	for( i = 0; i < mappings.Num() ; i++ )
-	{
-		const skinMapping_t*	map = &mappings[i];
-		
-		// NULL = wildcard match
-		if( !map->from || map->from == shader )
-		{
-			return map->to;
-		}
-	}
-	
-	// didn't find a match or wildcard, so stay the same
-	return shader;
+    int i;
+
+    if (!shader) {
+        return NULL;
+    }
+
+    // never remap surfaces that were originally nodraw, like collision hulls
+    if (!shader->IsDrawn()) {
+        return shader;
+    }
+
+    for (i = 0; i < mappings.Num(); i++) {
+        const skinMapping_t* map = &mappings[i];
+
+        // NULL = wildcard match
+        if (!map->from || map->from == shader) {
+            return map->to;
+        }
+    }
+
+    // didn't find a match or wildcard, so stay the same
+    return shader;
 }

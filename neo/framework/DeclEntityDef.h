@@ -32,21 +32,20 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ===============================================================================
 
-	idDeclEntityDef
+        idDeclEntityDef
 
 ===============================================================================
 */
 
-class idDeclEntityDef : public idDecl
-{
+class idDeclEntityDef : public idDecl {
 public:
-	idDict					dict;
-	
-	virtual size_t			Size() const;
-	virtual const char* 	DefaultDefinition() const;
-	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
-	virtual void			FreeData();
-	virtual void			Print();
+    idDict dict;
+
+    virtual size_t Size() const;
+    virtual const char* DefaultDefinition() const;
+    virtual bool Parse(const char* text, const int textLength, bool allowBinaryVersion);
+    virtual void FreeData();
+    virtual void Print();
 };
 
 #endif /* !__DECLENTITYDEF_H__ */

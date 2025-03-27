@@ -49,40 +49,38 @@ rendered with Z-Fail, and optionally calculates the shadow volume depth bounds.
 staticShadowVolumeParms_t
 ================================================
 */
-struct staticShadowVolumeParms_t
-{
-	// input
-	const idShadowVert* 			verts;					// streamed in from main memory
-	int								numVerts;
-	const triIndex_t* 				indexes;				// streamed in from main memory
-	int								numIndexes;
-	int								numShadowIndicesWithCaps;
-	int								numShadowIndicesNoCaps;
-	idBounds						triangleBounds;
-	idRenderMatrix					triangleMVP;
-	idVec3							localLightOrigin;
-	idVec3							localViewOrigin;
-	float							zNear;
-	float							lightZMin;
-	float							lightZMax;
-	bool							forceShadowCaps;
-	bool							useShadowPreciseInsideTest;
-	bool							useShadowDepthBounds;
-	// temp
-	byte* 							tempCullBits;			// temp buffer in SPU local memory
-	// output
-	int* 							numShadowIndices;		// streamed out to main memory
-	int* 							renderZFail;			// streamed out to main memory
-	float* 							shadowZMin;				// streamed out to main memory
-	float* 							shadowZMax;				// streamed out to main memory
-	volatile shadowVolumeState_t* 	shadowVolumeState;		// streamed out to main memory
-	// next in chain on view entity
-	staticShadowVolumeParms_t* 		next;
-	int								pad[3];
+struct staticShadowVolumeParms_t {
+    // input
+    const idShadowVert* verts; // streamed in from main memory
+    int numVerts;
+    const triIndex_t* indexes; // streamed in from main memory
+    int numIndexes;
+    int numShadowIndicesWithCaps;
+    int numShadowIndicesNoCaps;
+    idBounds triangleBounds;
+    idRenderMatrix triangleMVP;
+    idVec3 localLightOrigin;
+    idVec3 localViewOrigin;
+    float zNear;
+    float lightZMin;
+    float lightZMax;
+    bool forceShadowCaps;
+    bool useShadowPreciseInsideTest;
+    bool useShadowDepthBounds;
+    // temp
+    byte* tempCullBits; // temp buffer in SPU local memory
+    // output
+    int* numShadowIndices;                           // streamed out to main memory
+    int* renderZFail;                                // streamed out to main memory
+    float* shadowZMin;                               // streamed out to main memory
+    float* shadowZMax;                               // streamed out to main memory
+    volatile shadowVolumeState_t* shadowVolumeState; // streamed out to main memory
+    // next in chain on view entity
+    staticShadowVolumeParms_t* next;
+    int pad[3];
 };
 
-
-void StaticShadowVolumeJob( const staticShadowVolumeParms_t* parms );
-void StaticShadowVolume_SetupSPURSHeader( CellSpursJob128* job, const staticShadowVolumeParms_t* parms );
+void StaticShadowVolumeJob(const staticShadowVolumeParms_t* parms);
+void StaticShadowVolume_SetupSPURSHeader(CellSpursJob128* job, const staticShadowVolumeParms_t* parms);
 
 #endif // !__STATICSHADOWVOLUME_H__

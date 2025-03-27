@@ -101,7 +101,7 @@ typedef struct AVDownmixInfo {
  *
  * @return the AVDownmixInfo structure to be edited by the caller.
  */
-AVDownmixInfo *av_downmix_info_update_side_data(AVFrame *frame);
+AVDownmixInfo* av_downmix_info_update_side_data(AVFrame* frame);
 
 /**
  * @}

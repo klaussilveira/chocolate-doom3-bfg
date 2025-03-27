@@ -318,10 +318,10 @@ If you have questions concerning this license or the applicable additional terms
 #define qglTexCoord4s glTexCoord4s
 #define qglTexCoord4sv glTexCoord4sv
 #define qglTexCoordPointer glTexCoordPointer
-#define	qglTexEnvf glTexEnvf
-#define	qglTexEnvfv glTexEnvfv
-#define	qglTexEnvi glTexEnvi
-#define	qglTexEnviv glTexEnviv
+#define qglTexEnvf glTexEnvf
+#define qglTexEnvfv glTexEnvfv
+#define qglTexEnvi glTexEnvi
+#define qglTexEnviv glTexEnviv
 #define qglTexGend glTexGend
 #define qglTexGendv glTexGendv
 #define qglTexGenf glTexGenf

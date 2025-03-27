@@ -54,7 +54,7 @@ struct vaapi_context {
      * - encoding: unused
      * - decoding: Set by user
      */
-    void *display;
+    void* display;
 
     /**
      * Configuration ID
@@ -102,7 +102,7 @@ struct vaapi_context {
      * - encoding: unused
      * - decoding: Set by libavcodec
      */
-    uint32_t *slice_buf_ids;
+    uint32_t* slice_buf_ids;
 
     /**
      * Number of effective slice buffer IDs to send to the HW
@@ -126,7 +126,7 @@ struct vaapi_context {
      * - encoding: unused
      * - decoding: Set by libavcodec
      */
-    void *slice_params;
+    void* slice_params;
 
     /**
      * Size of a VASliceParameterBuffer element
@@ -157,7 +157,7 @@ struct vaapi_context {
      * - encoding: unused
      * - decoding: Set by libavcodec
      */
-    const uint8_t *slice_data;
+    const uint8_t* slice_data;
 
     /**
      * Current size of slice data

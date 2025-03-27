@@ -26,10 +26,10 @@ rates as low as 8Khz.
 
 /* Order of the FIR filter = 20 should be enough ! */
 #define ORDER 20
-#define ORDER2 ORDER/2
+#define ORDER2 ORDER / 2
 
 #ifndef PI
 extern const float PI;
 #endif
 
-extern void antialiasing(Sample *sp,  int32_t  output_rate);
+extern void antialiasing(Sample* sp, int32_t output_rate);

@@ -159,6 +159,6 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 
 #undef min
 #undef max
-#include <algorithm>	// for min / max / swap
+#include <algorithm> // for min / max / swap
 
 #endif /* !__PRECOMPILED_H__ */

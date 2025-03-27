@@ -32,26 +32,25 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ===============================================================================
 
-	tables are used to map a floating point input value to a floating point
-	output value, with optional wrap / clamp and interpolation
+        tables are used to map a floating point input value to a floating point
+        output value, with optional wrap / clamp and interpolation
 
 ===============================================================================
 */
 
-class idDeclTable : public idDecl
-{
+class idDeclTable : public idDecl {
 public:
-	virtual size_t			Size() const;
-	virtual const char* 	DefaultDefinition() const;
-	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
-	virtual void			FreeData();
-	
-	float					TableLookup( float index ) const;
-	
+    virtual size_t Size() const;
+    virtual const char* DefaultDefinition() const;
+    virtual bool Parse(const char* text, const int textLength, bool allowBinaryVersion);
+    virtual void FreeData();
+
+    float TableLookup(float index) const;
+
 private:
-	bool					clamp;
-	bool					snap;
-	idList<float, TAG_IDLIB_LIST_DECL>			values;
+    bool clamp;
+    bool snap;
+    idList<float, TAG_IDLIB_LIST_DECL> values;
 };
 
 #endif /* !__DECLTABLE_H__ */

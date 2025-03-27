@@ -39,72 +39,70 @@ If you have questions concerning this license or the applicable additional terms
 
 typedef struct
 {
-	renderLight_t			renderLight;			// light presented to the renderer
-	qhandle_t				lightDefHandle;			// handle to renderer light def
-	renderEntity_t			renderEntity;			// used to present a model to the renderer
-	int						modelDefHandle;			// handle to static renderer model
-	float					delay;
-	int						particleSystem;
-	int						start;
-	bool					soundStarted;
-	bool					shakeStarted;
-	bool					decalDropped;
-	bool					launched;
+    renderLight_t renderLight;   // light presented to the renderer
+    qhandle_t lightDefHandle;    // handle to renderer light def
+    renderEntity_t renderEntity; // used to present a model to the renderer
+    int modelDefHandle;          // handle to static renderer model
+    float delay;
+    int particleSystem;
+    int start;
+    bool soundStarted;
+    bool shakeStarted;
+    bool decalDropped;
+    bool launched;
 } idFXLocalAction;
 
-class idEntityFx : public idEntity
-{
+class idEntityFx : public idEntity {
 public:
-	CLASS_PROTOTYPE( idEntityFx );
-	
-	idEntityFx();
-	virtual					~idEntityFx();
-	
-	void					Spawn();
-	
-	void					Save( idSaveGame* savefile ) const;
-	void					Restore( idRestoreGame* savefile );
-	
-	virtual void			Think();
-	void					Setup( const char* fx );
-	void					Run( int time );
-	void					Start( int time );
-	void					Stop();
-	const int				Duration();
-	const char* 			EffectName();
-	const char* 			Joint();
-	const bool				Done();
-	
-	virtual void			WriteToSnapshot( idBitMsg& msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg& msg );
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			ClientPredictionThink();
-	
-	static idEntityFx* 		StartFx( const char* fx, const idVec3* useOrigin, const idMat3* useAxis, idEntity* ent, bool bind );
-	
+    CLASS_PROTOTYPE(idEntityFx);
+
+    idEntityFx();
+    virtual ~idEntityFx();
+
+    void Spawn();
+
+    void Save(idSaveGame* savefile) const;
+    void Restore(idRestoreGame* savefile);
+
+    virtual void Think();
+    void Setup(const char* fx);
+    void Run(int time);
+    void Start(int time);
+    void Stop();
+    const int Duration();
+    const char* EffectName();
+    const char* Joint();
+    const bool Done();
+
+    virtual void WriteToSnapshot(idBitMsg& msg) const;
+    virtual void ReadFromSnapshot(const idBitMsg& msg);
+    virtual void ClientThink(const int curTime, const float fraction, const bool predict);
+    virtual void ClientPredictionThink();
+
+    static idEntityFx* StartFx(const char* fx, const idVec3* useOrigin, const idMat3* useAxis, idEntity* ent, bool bind);
+
 protected:
-	void					Event_Trigger( idEntity* activator );
-	void					Event_ClearFx();
-	
-	void					CleanUp();
-	void					CleanUpSingleAction( const idFXSingleAction& fxaction, idFXLocalAction& laction );
-	void					ApplyFade( const idFXSingleAction& fxaction, idFXLocalAction& laction, const int time, const int actualStart );
-	
-	int						started;
-	int						nextTriggerTime;
-	const idDeclFX* 		fxEffect;				// GetFX() should be called before using fxEffect as a pointer
-	idList<idFXLocalAction, TAG_FX>	actions;
-	idStr					systemName;
+    void Event_Trigger(idEntity* activator);
+    void Event_ClearFx();
+
+    void CleanUp();
+    void CleanUpSingleAction(const idFXSingleAction& fxaction, idFXLocalAction& laction);
+    void ApplyFade(const idFXSingleAction& fxaction, idFXLocalAction& laction, const int time, const int actualStart);
+
+    int started;
+    int nextTriggerTime;
+    const idDeclFX* fxEffect; // GetFX() should be called before using fxEffect as a pointer
+    idList<idFXLocalAction, TAG_FX> actions;
+    idStr systemName;
 };
 
-class idTeleporter : public idEntityFx
-{
+class idTeleporter : public idEntityFx {
 public:
-	CLASS_PROTOTYPE( idTeleporter );
-	
+    CLASS_PROTOTYPE(idTeleporter);
+
 private:
-	// teleporters to this location
-	void					Event_DoAction( idEntity* activator );
+    // teleporters to this location
+    void Event_DoAction(idEntity* activator);
 };
 
 #endif /* !__GAME_FX_H__ */

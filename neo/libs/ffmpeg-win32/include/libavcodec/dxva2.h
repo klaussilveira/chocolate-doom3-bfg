@@ -49,7 +49,7 @@
  */
 
 #define FF_DXVA2_WORKAROUND_SCALING_LIST_ZIGZAG 1 ///< Work around for DXVA2 and old UVD/UVD+ ATI video cards
-#define FF_DXVA2_WORKAROUND_INTEL_CLEARVIDEO    2 ///< Work around for DXVA2 and old Intel GPUs with ClearVideo interface
+#define FF_DXVA2_WORKAROUND_INTEL_CLEARVIDEO 2    ///< Work around for DXVA2 and old Intel GPUs with ClearVideo interface
 
 /**
  * This structure is used to provides the necessary configurations and data
@@ -61,12 +61,12 @@ struct dxva_context {
     /**
      * DXVA2 decoder object
      */
-    IDirectXVideoDecoder *decoder;
+    IDirectXVideoDecoder* decoder;
 
     /**
      * DXVA2 configuration used to create the decoder
      */
-    const DXVA2_ConfigPictureDecode *cfg;
+    const DXVA2_ConfigPictureDecode* cfg;
 
     /**
      * The number of surface in the surface array
@@ -76,7 +76,7 @@ struct dxva_context {
     /**
      * The array of Direct3D surfaces used to create the decoder
      */
-    LPDIRECT3DSURFACE9 *surface;
+    LPDIRECT3DSURFACE9* surface;
 
     /**
      * A bit field configuring the workarounds needed for using the decoder

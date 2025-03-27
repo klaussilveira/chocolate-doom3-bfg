@@ -43,12 +43,11 @@
  *
  * @deprecated use av_buffersrc_add_ref() instead.
  */
-attribute_deprecated
-int av_asrc_buffer_add_samples(AVFilterContext *abuffersrc,
-                               uint8_t *data[8], int linesize[8],
-                               int nb_samples, int sample_rate,
-                               int sample_fmt, int64_t ch_layout, int planar,
-                               int64_t pts, int av_unused flags);
+attribute_deprecated int av_asrc_buffer_add_samples(AVFilterContext* abuffersrc,
+    uint8_t* data[8], int linesize[8],
+    int nb_samples, int sample_rate,
+    int sample_fmt, int64_t ch_layout, int planar,
+    int64_t pts, int av_unused flags);
 
 /**
  * Queue an audio buffer to the audio buffer source.
@@ -67,12 +66,11 @@ int av_asrc_buffer_add_samples(AVFilterContext *abuffersrc,
  *
  * @deprecated use av_buffersrc_add_ref() instead.
  */
-attribute_deprecated
-int av_asrc_buffer_add_buffer(AVFilterContext *abuffersrc,
-                              uint8_t *buf, int buf_size,
-                              int sample_rate,
-                              int sample_fmt, int64_t ch_layout, int planar,
-                              int64_t pts, int av_unused flags);
+attribute_deprecated int av_asrc_buffer_add_buffer(AVFilterContext* abuffersrc,
+    uint8_t* buf, int buf_size,
+    int sample_rate,
+    int sample_fmt, int64_t ch_layout, int planar,
+    int64_t pts, int av_unused flags);
 
 /**
  * Queue an audio buffer to the audio buffer source.
@@ -83,9 +81,8 @@ int av_asrc_buffer_add_buffer(AVFilterContext *abuffersrc,
  *
  * @deprecated use av_buffersrc_add_ref() instead.
  */
-attribute_deprecated
-int av_asrc_buffer_add_audio_buffer_ref(AVFilterContext *abuffersrc,
-                                        AVFilterBufferRef *samplesref,
-                                        int av_unused flags);
+attribute_deprecated int av_asrc_buffer_add_audio_buffer_ref(AVFilterContext* abuffersrc,
+    AVFilterBufferRef* samplesref,
+    int av_unused flags);
 
 #endif /* AVFILTER_ASRC_ABUFFER_H */

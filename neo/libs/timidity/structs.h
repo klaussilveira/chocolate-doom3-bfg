@@ -3,7 +3,7 @@
 TiMidity -- Experimental MIDI to WAVE converter
 Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
 
-In case you haven't heard, this program is free software; 
+In case you haven't heard, this program is free software;
 you can redistribute it and/or modify it under the terms of the
 GNU General Public License as published by the Free Software
 Foundation; either version 2 of the License, or (at your option)
@@ -27,14 +27,13 @@ structs.h
 #include <stdint.h>
 
 typedef struct {
-	int32_t time;
-	uint8_t channel, type, a, b;
+    int32_t time;
+    uint8_t channel, type, a, b;
 } MidiEvent;
 
 struct _MidiSong {
-	int32_t samples;
-	MidiEvent *events;
+    int32_t samples;
+    MidiEvent* events;
 };
-
 
 #endif

@@ -32,14 +32,14 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	Minimum set of headers needed to compile the code for a job.
+        Minimum set of headers needed to compile the code for a job.
 
 ================================================================================================
 */
 
 #include "sys/sys_defines.h"
 
-#include <stddef.h>					// for offsetof
+#include <stddef.h> // for offsetof
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -50,11 +50,11 @@ If you have questions concerning this license or the applicable additional terms
 
 // RB begin
 #if defined(__MINGW32__)
-//#include <sal.h> 	// RB: missing __analysis_assume
+// #include <sal.h> 	// RB: missing __analysis_assume
 #include <malloc.h> // DG: _alloca16 needs that
 
 #ifndef __analysis_assume
-#define __analysis_assume( x )
+#define __analysis_assume(x)
 #endif
 
 #elif defined(__linux__)
@@ -69,11 +69,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef _MSC_VER
 #include <intrin.h>
-#pragma warning( disable : 4100 )	// unreferenced formal parameter
-#pragma warning( disable : 4127 )	// conditional expression is constant
+#pragma warning(disable : 4100) // unreferenced formal parameter
+#pragma warning(disable : 4127) // conditional expression is constant
 #endif
-
-
 
 #include "sys/sys_assert.h"
 #include "sys/sys_types.h"

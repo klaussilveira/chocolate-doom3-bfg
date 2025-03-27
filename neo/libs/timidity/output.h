@@ -1,4 +1,4 @@
-/* 
+/*
 
 TiMidity -- Experimental MIDI to WAVE converter
 Copyright (C) 1995 Tuukka Toivonen <toivonen@clinet.fi>
@@ -24,11 +24,11 @@ output.h
 #include "timidity.h"
 /* Data format encoding bits */
 
-#define PE_MONO 	0x01  /* versus stereo */
-#define PE_SIGNED	0x02  /* versus unsigned */
-#define PE_16BIT 	0x04  /* versus 8-bit */
-#define PE_ULAW 	0x08  /* versus linear */
-#define PE_BYTESWAP	0x10  /* versus the other way */
+#define PE_MONO 0x01     /* versus stereo */
+#define PE_SIGNED 0x02   /* versus unsigned */
+#define PE_16BIT 0x04    /* versus 8-bit */
+#define PE_ULAW 0x08     /* versus linear */
+#define PE_BYTESWAP 0x10 /* versus the other way */
 
 extern int init_buffers(int kbytes);
 
@@ -39,22 +39,22 @@ data in another format */
 extern int AUDIO_BUFFER_SIZE;
 
 /* Actual copy function */
-extern void (*s32tobuf)(void *dp,  int32_t  *lp,  int32_t  c);
+extern void (*s32tobuf)(void* dp, int32_t* lp, int32_t c);
 
 /* 8-bit signed and unsigned*/
-extern void s32tos8(void *dp,  int32_t  *lp,  int32_t  c);
-extern void s32tou8(void *dp,  int32_t  *lp,  int32_t  c);
+extern void s32tos8(void* dp, int32_t* lp, int32_t c);
+extern void s32tou8(void* dp, int32_t* lp, int32_t c);
 
 /* 16-bit */
-extern void s32tos16(void *dp,  int32_t  *lp,  int32_t  c);
-extern void s32tou16(void *dp,  int32_t  *lp,  int32_t  c);
+extern void s32tos16(void* dp, int32_t* lp, int32_t c);
+extern void s32tou16(void* dp, int32_t* lp, int32_t c);
 
 /* byte-exchanged 16-bit */
-extern void s32tos16x(void *dp,  int32_t  *lp,  int32_t  c);
-extern void s32tou16x(void *dp,  int32_t  *lp,  int32_t  c);
+extern void s32tos16x(void* dp, int32_t* lp, int32_t c);
+extern void s32tou16x(void* dp, int32_t* lp, int32_t c);
 
 /* uLaw (8 bits) */
-extern void s32toulaw(void *dp,  int32_t  *lp,  int32_t  c);
+extern void s32toulaw(void* dp, int32_t* lp, int32_t c);
 
 /* little-endian and big-endian specific */
 #ifdef LITTLE_ENDIAN

@@ -23,20 +23,20 @@ common.h
 class idFile;
 extern char *program_name, current_filename[];
 
-extern FILE *msgfp;
+extern FILE* msgfp;
 
 typedef struct {
-	char *path;
-	void *next;
+    char* path;
+    void* next;
 } PathList;
 
 /* Noise modes for open_file */
-#define OF_SILENT	0
-#define OF_NORMAL	1
-#define OF_VERBOSE	2
+#define OF_SILENT 0
+#define OF_NORMAL 1
+#define OF_VERBOSE 2
 
-extern idFile * open_file(const char *name, int decompress, int noise_mode);
-extern void add_to_pathlist(char *s);
-extern void close_file(idFile * fp);
-extern void skip(idFile * fp, size_t len);
-extern void *safe_malloc(size_t count);
+extern idFile* open_file(const char* name, int decompress, int noise_mode);
+extern void add_to_pathlist(char* s);
+extern void close_file(idFile* fp);
+extern void skip(idFile* fp, size_t len);
+extern void* safe_malloc(size_t count);

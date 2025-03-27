@@ -48,38 +48,36 @@ not the shadow volume needs to be rendered with Z-Fail.
 preLightShadowVolumeParms_t
 ================================================
 */
-struct preLightShadowVolumeParms_t
-{
-	// input
-	const idShadowVert* 			verts;					// streamed in from main memory
-	int								numVerts;
-	const triIndex_t* 				indexes;				// streamed in from main memory
-	int								numIndexes;
-	idBounds						triangleBounds;
-	idRenderMatrix					triangleMVP;
-	idVec3							localLightOrigin;
-	idVec3							localViewOrigin;
-	float							zNear;
-	float							lightZMin;
-	float							lightZMax;
-	bool							forceShadowCaps;
-	bool							useShadowPreciseInsideTest;
-	bool							useShadowDepthBounds;
-	// temp
-	byte* 							tempCullBits;			// temp buffer in SPU local memory
-	// output
-	int* 							numShadowIndices;		// streamed out to main memory
-	int* 							renderZFail;			// streamed out to main memory
-	float* 							shadowZMin;				// streamed out to main memory
-	float* 							shadowZMax;				// streamed out to main memory
-	volatile shadowVolumeState_t* 	shadowVolumeState;		// streamed out to main memory
-	// next in chain on view light
-	preLightShadowVolumeParms_t* 	next;
-	int								pad;
+struct preLightShadowVolumeParms_t {
+    // input
+    const idShadowVert* verts; // streamed in from main memory
+    int numVerts;
+    const triIndex_t* indexes; // streamed in from main memory
+    int numIndexes;
+    idBounds triangleBounds;
+    idRenderMatrix triangleMVP;
+    idVec3 localLightOrigin;
+    idVec3 localViewOrigin;
+    float zNear;
+    float lightZMin;
+    float lightZMax;
+    bool forceShadowCaps;
+    bool useShadowPreciseInsideTest;
+    bool useShadowDepthBounds;
+    // temp
+    byte* tempCullBits; // temp buffer in SPU local memory
+    // output
+    int* numShadowIndices;                           // streamed out to main memory
+    int* renderZFail;                                // streamed out to main memory
+    float* shadowZMin;                               // streamed out to main memory
+    float* shadowZMax;                               // streamed out to main memory
+    volatile shadowVolumeState_t* shadowVolumeState; // streamed out to main memory
+    // next in chain on view light
+    preLightShadowVolumeParms_t* next;
+    int pad;
 };
 
-
-void PreLightShadowVolumeJob( const preLightShadowVolumeParms_t* parms );
-void PreLightShadowVolume_SetupSPURSHeader( CellSpursJob128* job, const preLightShadowVolumeParms_t* parms );
+void PreLightShadowVolumeJob(const preLightShadowVolumeParms_t* parms);
+void PreLightShadowVolume_SetupSPURSHeader(CellSpursJob128* job, const preLightShadowVolumeParms_t* parms);
 
 #endif // !__PRELIGHTSHADOWVOLUME_H__

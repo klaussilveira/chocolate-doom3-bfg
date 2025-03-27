@@ -40,22 +40,20 @@ extern idCVar win_partyCount;
 idLocalUserWin::Init
 ========================
 */
-void idLocalUserWin::Init( int inputDevice_, const char* gamertag_, int numLocalUsers )
+void idLocalUserWin::Init(int inputDevice_, const char* gamertag_, int numLocalUsers)
 {
-	if( numLocalUsers == 1 )     // Check for 1, since this is now incremented before we get in here
-	{
-		// This is the master user
-		gamertag = gamertag_;
-	}
-	else
-	{
-		// On steam, we need to generate a name based off the master user for split-screen users.
-		// We use the number of users on the system to generate the name rather than the device
-		// number so that it is always consistently "username (2)" for the second player.
-		gamertag.Format( "%s (%i)", gamertag_, numLocalUsers );
-	}
-	
-	inputDevice = inputDevice_;
+    if (numLocalUsers == 1) // Check for 1, since this is now incremented before we get in here
+    {
+        // This is the master user
+        gamertag = gamertag_;
+    } else {
+        // On steam, we need to generate a name based off the master user for split-screen users.
+        // We use the number of users on the system to generate the name rather than the device
+        // number so that it is always consistently "username (2)" for the second player.
+        gamertag.Format("%s (%i)", gamertag_, numLocalUsers);
+    }
+
+    inputDevice = inputDevice_;
 }
 
 /*
@@ -66,9 +64,9 @@ idLocalUserWin::IsProfileReady
 bool idLocalUserWin::IsProfileReady() const
 {
 #ifdef _DEBUG
-	return win_userPersistent.GetBool();
+    return win_userPersistent.GetBool();
 #else
-	return true;
+    return true;
 #endif
 }
 
@@ -80,9 +78,9 @@ idLocalUserWin::IsOnline
 bool idLocalUserWin::IsOnline() const
 {
 #ifdef _DEBUG
-	return win_userOnline.GetBool();
+    return win_userOnline.GetBool();
 #else
-	return true;
+    return true;
 #endif
 }
 
@@ -94,9 +92,9 @@ idLocalUserWin::IsInParty
 bool idLocalUserWin::IsInParty() const
 {
 #ifdef _DEBUG
-	return win_isInParty.GetBool();
+    return win_isInParty.GetBool();
 #else
-	return false;
+    return false;
 #endif
 }
 
@@ -107,11 +105,11 @@ idLocalUserWin::GetPartyCount
 */
 int idLocalUserWin::GetPartyCount() const
 {
-	// TODO: Implement
+    // TODO: Implement
 #ifdef _DEBUG
-	return win_partyCount.GetInteger();
+    return win_partyCount.GetInteger();
 #else
-	return 0;
+    return 0;
 #endif
 }
 
@@ -120,12 +118,11 @@ int idLocalUserWin::GetPartyCount() const
 idLocalUserWin::VerifyUserState
 ========================
 */
-bool idLocalUserWin::VerifyUserState( winUserState_t& state )
+bool idLocalUserWin::VerifyUserState(winUserState_t& state)
 {
 
-	if( state.inputDevice != inputDevice )
-	{
-		return false;
-	}
-	return true;
+    if (state.inputDevice != inputDevice) {
+        return false;
+    }
+    return true;
 }
