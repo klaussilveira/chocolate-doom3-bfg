@@ -339,7 +339,7 @@ void idInternalCVar::Set(const char* newValue, bool force, bool fromServer)
         }
 
         if (flags & CVAR_INIT) {
-            common->Printf("%s is write protected.\n", nameString.c_str());
+            common->Printf("%s is write protected and can only be set from the cmdline (or autoexec.cfg).\n", nameString.c_str());
             return;
         }
     }
@@ -1088,6 +1088,15 @@ void idCVarSystemLocal::ListByFlags(const idCmdArgs& args, cvarFlags_t flags)
         }
     }
 
+    bool onlyNew = false; // RB: added to only show new cvars
+    for (int i = 1; i < args.Argc(); i++) {
+        idStr option = args.Argv(i);
+        if (option.Icmp("new") == 0) {
+            onlyNew = true;
+            argNum = i + 1;
+        }
+    }
+
     if (args.Argc() > argNum) {
         match = args.Args(argNum, -1);
         match.Replace(" ", "");
@@ -1099,6 +1108,10 @@ void idCVarSystemLocal::ListByFlags(const idCmdArgs& args, cvarFlags_t flags)
         cvar = localCVarSystem.cvars[i];
 
         if (!(cvar->GetFlags() & flags)) {
+            continue;
+        }
+
+        if (onlyNew && !(cvar->GetFlags() & CVAR_NEW)) {
             continue;
         }
 
@@ -1209,7 +1222,8 @@ void idCVarSystemLocal::ListByFlags(const idCmdArgs& args, cvarFlags_t flags)
     common->Printf("listCvar [search string]          = list cvar values\n"
                    "listCvar -help [search string]    = list cvar descriptions\n"
                    "listCvar -type [search string]    = list cvar types\n"
-                   "listCvar -flags [search string]   = list cvar flags\n");
+                   "listCvar -flags [search string]   = list cvar flags\n"
+                   "listCvar -new [search string]     = list new RBDoom vars\n");
 }
 
 /*
