@@ -26,8 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 #include "sys_local.h"
 
 const char* sysLanguageNames[] = {
@@ -36,7 +36,8 @@ const char* sysLanguageNames[] = {
 
 const int numLanguages = sizeof(sysLanguageNames) / sizeof sysLanguageNames[0] - 1;
 
-idCVar sys_lang("sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames>);
+// RB: allow sys_lang to be saved to config so it has to be set per cmdline only a single time
+idCVar sys_lang("sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT | CVAR_ARCHIVE, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames>);
 
 idSysLocal sysLocal;
 idSys* sys = &sysLocal;
@@ -237,11 +238,11 @@ const char* Sys_SecToStr(int sec)
     sec -= min * 60;
 
     if (weeks > 0) {
-        sprintf(timeString, "%dw, %dd, %d:%02d:%02d", weeks, days, hours, min, sec);
+        idStr::snPrintf(timeString, sizeof(timeString), "%dw, %dd, %d:%02d:%02d", weeks, days, hours, min, sec);
     } else if (days > 0) {
-        sprintf(timeString, "%dd, %d:%02d:%02d", days, hours, min, sec);
+        idStr::snPrintf(timeString, sizeof(timeString), "%dd, %d:%02d:%02d", days, hours, min, sec);
     } else {
-        sprintf(timeString, "%d:%02d:%02d", hours, min, sec);
+        idStr::snPrintf(timeString, sizeof(timeString), "%d:%02d:%02d", hours, min, sec);
     }
 
     return timeString;
@@ -279,5 +280,57 @@ const char* Sys_DefaultLanguage()
         return ID_LANG_ENGLISH;
     }
 
-    return ID_LANG_ENGLISH;
+    // GK: Prevent sys_lang to revert to english if is set manually
+    if (idStr::Icmp(ID_LANG_ENGLISH, sys_lang.GetString()) != 0) {
+        return sys_lang.GetString();
+    }
+
+    idStr fileName;
+
+    // D3XP: Instead of just loading a single lang file for each language
+    // we are going to load all files that begin with the language name
+    // similar to the way pak files work. So you can place english001.lang
+    // to add new strings to the english language dictionary
+    idFileList* langFiles;
+    langFiles = fileSystem->ListFilesTree("strings", ".lang", true);
+
+    idStrList langList = langFiles->GetList();
+
+    // Loop through the list and filter
+    idStrList currentLangList = langList;
+
+    idStr temp;
+    for (int i = 0; i < currentLangList.Num(); i++) {
+        temp = currentLangList[i];
+        temp = temp.Right(temp.Length() - strlen("strings/"));
+        temp = temp.Left(temp.Length() - strlen(".lang"));
+        currentLangList[i] = temp;
+    }
+
+    if (currentLangList.Num() <= 0) {
+        // call it English if no lang files exist
+        sys_lang.SetString(ID_LANG_ENGLISH);
+    } else if (currentLangList.Num() == 1) {
+        sys_lang.SetString(currentLangList[0]);
+    } else {
+        if (currentLangList.Find(ID_LANG_ENGLISH)) {
+            sys_lang.SetString(ID_LANG_ENGLISH);
+        } else if (currentLangList.Find(ID_LANG_JAPANESE)) {
+            sys_lang.SetString(ID_LANG_JAPANESE);
+        } else if (currentLangList.Find(ID_LANG_FRENCH)) {
+            sys_lang.SetString(ID_LANG_FRENCH);
+        } else if (currentLangList.Find(ID_LANG_GERMAN)) {
+            sys_lang.SetString(ID_LANG_GERMAN);
+        } else if (currentLangList.Find(ID_LANG_ITALIAN)) {
+            sys_lang.SetString(ID_LANG_GERMAN);
+        } else if (currentLangList.Find(ID_LANG_SPANISH)) {
+            sys_lang.SetString(ID_LANG_GERMAN);
+        } else {
+            sys_lang.SetString(currentLangList[0]);
+        }
+    }
+
+    fileSystem->FreeFileList(langFiles);
+
+    return sys_lang.GetString(); // ID_LANG_ENGLISH;
 }

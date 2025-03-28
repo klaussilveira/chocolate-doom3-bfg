@@ -38,7 +38,7 @@ int maskForNumBits[33] = { NBM(0x00), NBM(0x01), NBM(0x02), NBM(0x03),
     NBM(0x18), NBM(0x19), NBM(0x1A), NBM(0x1B),
     NBM(0x1C), NBM(0x1D), NBM(0x1E), NBM(0x1F), -1 };
 
-#define NBS(x) (int32)((-1) << (x - 1))
+#define NBS(x) (int32)((unsigned long)(-1L) << (x - 1)) // SRS - Cast to unsigned long
 int signForNumBits[33] = { NBS(0x01), NBS(0x01), NBS(0x02), NBS(0x03),
     NBS(0x04), NBS(0x05), NBS(0x06), NBS(0x07),
     NBS(0x08), NBS(0x09), NBS(0x0A), NBS(0x0B),
@@ -78,6 +78,32 @@ idSWFBitStream& idSWFBitStream::operator=(idSWFBitStream& other)
         // because these things are copied around inside idList
         other.free = false;
     }
+    return *this;
+}
+
+/*
+========================
+idSWFBitStream::operator=
+========================
+*/
+idSWFBitStream& idSWFBitStream::operator=(idSWFBitStream&& other)
+{
+    Free();
+    free = other.free;
+    startp = other.startp;
+    readp = other.readp;
+    endp = other.endp;
+    currentBit = other.currentBit;
+    currentByte = other.currentByte;
+    if (other.free) {
+        // this is actually quite dangerous, but we need to do this
+        // because these things are copied around inside idList
+        other.free = false;
+    }
+    other.readp = NULL;
+    other.endp = NULL;
+    other.currentBit = 0;
+    other.currentByte = 0;
     return *this;
 }
 

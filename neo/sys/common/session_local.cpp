@@ -13,8 +13,8 @@ Contains the windows implementation of the network session
 ================================================================================================
 */
 
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 #include "../../framework/Common_local.h"
 #include "../sys_session_local.h"
@@ -248,7 +248,12 @@ void idSessionLocalWin::Shutdown()
     MoveToMainMenu();
 
     // Wait until we fully shutdown
-    while (localState != STATE_IDLE && localState != STATE_PRESS_START) {
+#if defined(USE_DOOMCLASSIC)
+    while (localState != STATE_IDLE && localState != STATE_PRESS_START)
+#else
+    while (localState != STATE_IDLE)
+#endif
+    {
         Pump();
     }
 

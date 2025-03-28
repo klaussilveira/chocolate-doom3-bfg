@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 #include "sys_lobby.h"
 
 extern idCVar net_connectTimeoutInSeconds;
@@ -69,6 +69,7 @@ idLobby::idLobby()
 
     localReadSS = NULL;
     objMemory = NULL;
+    lzwData = NULL;
     haveSubmittedSnaps = false;
 
     state = STATE_IDLE;
@@ -114,6 +115,20 @@ idLobby::idLobby()
 
     showHostLeftTheSession = false;
     connectIsFromInvite = false;
+}
+
+/*
+========================
+idLobby::~idLobby
+========================
+*/
+idLobby::~idLobby()
+{
+    // SRS - cleanup any allocations made for multiplayer networking support
+    Mem_Free(objMemory);
+    objMemory = NULL;
+    Mem_Free(lzwData);
+    lzwData = NULL;
 }
 
 /*
@@ -276,47 +291,43 @@ void idLobby::Shutdown(bool retainMigrationInfo, bool skipGoodbye)
         for (int p = 0; p < peers.Num(); p++) {
             assert(peers[p].GetConnectionState() == CONNECTION_FREE);
         }
+    } else {
+        NET_VERBOSE_PRINT("NET: ShutdownLobby (%s)\n", GetLobbyName());
 
-        state = STATE_IDLE;
-
-        return;
-    }
-
-    NET_VERBOSE_PRINT("NET: ShutdownLobby (%s)\n", GetLobbyName());
-
-    for (int p = 0; p < peers.Num(); p++) {
-        if (peers[p].GetConnectionState() != CONNECTION_FREE) {
-            SetPeerConnectionState(p, CONNECTION_FREE, skipGoodbye); // This will send goodbye's
+        for (int p = 0; p < peers.Num(); p++) {
+            if (peers[p].GetConnectionState() != CONNECTION_FREE) {
+                SetPeerConnectionState(p, CONNECTION_FREE, skipGoodbye); // This will send goodbye's
+            }
         }
-    }
 
-    // Remove any users that weren't handled in ResetPeers
-    // (this will happen as a client, because we won't get the reliable msg from the server since we are severing the connection)
-    for (int i = 0; i < GetNumLobbyUsers(); i++) {
-        lobbyUser_t* user = GetLobbyUser(i);
-        UnregisterUser(user);
-    }
+        // Remove any users that weren't handled in ResetPeers
+        // (this will happen as a client, because we won't get the reliable msg from the server since we are severing the connection)
+        for (int i = 0; i < GetNumLobbyUsers(); i++) {
+            lobbyUser_t* user = GetLobbyUser(i);
+            UnregisterUser(user);
+        }
 
-    FreeAllUsers();
+        FreeAllUsers();
 
-    host = -1;
-    peerIndexOnHost = -1;
-    isHost = false;
-    needToDisplayMigrateMsg = false;
-    migrationDlg = GDM_INVALID;
+        host = -1;
+        peerIndexOnHost = -1;
+        isHost = false;
+        needToDisplayMigrateMsg = false;
+        migrationDlg = GDM_INVALID;
 
-    partyToken = 0; // Reset our party token so we recompute
-    loaded = false;
-    respondToArbitrate = false;
-    waitForPartyOk = false;
-    startLoadingFromHost = false;
+        partyToken = 0; // Reset our party token so we recompute
+        loaded = false;
+        respondToArbitrate = false;
+        waitForPartyOk = false;
+        startLoadingFromHost = false;
 
-    snapDeltaAckQueue.Clear();
+        snapDeltaAckQueue.Clear();
 
-    // Shutdown the lobbyBackend
-    if (!retainMigrationInfo) {
-        sessionCB->DestroyLobbyBackend(lobbyBackend);
-        lobbyBackend = NULL;
+        // Shutdown the lobbyBackend
+        if (!retainMigrationInfo) {
+            sessionCB->DestroyLobbyBackend(lobbyBackend);
+            lobbyBackend = NULL;
+        }
     }
 
     state = STATE_IDLE;
@@ -1353,7 +1364,7 @@ void idLobby::HandleReliablePlayerToPlayerMsg(const reliablePlayerToPlayerHeader
 #if 0
 	// Remember that the reliablePlayerToPlayerHeader_t was already removed from the msg
 	reliablePlayerToPlayer_t type = ( reliablePlayerToPlayer_t )( reliableType - RELIABLE_PLAYER_TO_PLAYER_BEGIN );
-	
+
 	switch( type )
 	{
 		case RELIABLE_PLAYER_TO_PLAYER_VOICE_EVENT:
@@ -1361,7 +1372,7 @@ void idLobby::HandleReliablePlayerToPlayerMsg(const reliablePlayerToPlayerHeader
 			sessionCB->HandleReliableVoiceEvent( *this, info.fromSessionUserIndex, info.toSessionUserIndex, msg );
 			break;
 		}
-		
+
 		default:
 		{
 			idLib::Warning( "NET: Ignored unknown player to player reliable type %i", ( int ) type );

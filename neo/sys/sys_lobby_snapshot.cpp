@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 #include "sys_lobby.h"
 
 idCVar net_snapshot_send_warntime("net_snapshot_send_warntime", "500", CVAR_INTEGER, "Print warning messages if we take longer than this to send a client a snapshot.");
@@ -96,7 +96,7 @@ void idLobby::UpdateSnaps()
 
 #if 0
 	uint64 endTimeMicroSec = Sys_Microseconds();
-	
+
 	if( endTimeMicroSec - startTimeMicroSec > 200 )  	// .2 ms
 	{
 		idLib::Printf( "NET: UpdateSnaps time in ms: %f\n", ( float )( endTimeMicroSec - startTimeMicroSec ) / 1000.0f );

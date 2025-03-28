@@ -68,11 +68,6 @@ assert_sizeof(uint32, 4);
 assert_sizeof(int64, 8);
 assert_sizeof(uint64, 8);
 
-#define MAX_TYPE(x) ((((1 << ((sizeof(x) - 1) * 8 - 1)) - 1) << 8) | 255)
-#define MIN_TYPE(x) (-MAX_TYPE(x) - 1)
-#define MAX_UNSIGNED_TYPE(x) ((((1U << ((sizeof(x) - 1) * 8)) - 1) << 8) | 255U)
-#define MIN_UNSIGNED_TYPE(x) 0
-
 template <typename _type_>
 bool IsSignedType(const _type_ t)
 {
@@ -95,21 +90,21 @@ class idFile;
 struct idNullPtr {
     // one pointer member initialized to zero so you can pass NULL as a vararg
     void* value;
-    idNullPtr()
+    constexpr idNullPtr()
         : value(0)
     {
     }
 
     // implicit conversion to all pointer types
     template <typename T1>
-    operator T1*() const
+    constexpr operator T1*() const
     {
         return 0;
     }
 
     // implicit conversion to all pointer to member types
     template <typename T1, typename T2>
-    operator T1 T2::*() const
+    constexpr operator T1 T2::*() const
     {
         return 0;
     }
@@ -123,9 +118,9 @@ struct idNullPtr {
 // #endif
 
 // C99 Standard
-#ifndef nullptr
-#define nullptr idNullPtr()
-#endif
+// #ifndef nullptr
+// #define nullptr	idNullPtr()
+// #endif
 
 #ifndef BIT
 #define BIT(num) (1ULL << (num))
@@ -157,7 +152,7 @@ typedef unsigned int triIndex_t;
 
 #endif
 
-// if writing to write-combined memroy, always write indexes as pairs for 32 bit writes
+// if writing to write-combined memory, always write indexes as pairs for 32 bit writes
 ID_INLINE void WriteIndexPair(triIndex_t* dest, const triIndex_t a, const triIndex_t b)
 {
     *(unsigned*)dest = (unsigned)a | ((unsigned)b << 16);
@@ -172,8 +167,13 @@ ID_INLINE void WriteIndexPair(triIndex_t* dest, const triIndex_t a, const triInd
 #define NODEFAULT \
     default:      \
         __assume(0)
-#else // not _MSVC
+#elif defined(__GNUC__)
 // TODO: is that __assume an important optimization? if so, is there a gcc equivalent?
+// SRS - The gcc equivalent is __builtin_unreachable()
+#define NODEFAULT \
+    default:      \
+        __builtin_unreachable()
+#else // not _MSVC and not __GNUC__
 #define NODEFAULT
 #endif
 #endif

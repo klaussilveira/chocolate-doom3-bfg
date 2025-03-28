@@ -244,6 +244,8 @@ public:
     {
     }
 
+    virtual ~idLobbyBackend() { } // SRS - Added virtual destructor
+
     virtual void StartHosting(const idMatchParameters& p, float skillLevel, lobbyBackendType_t type) = 0;
     virtual void StartFinding(const idMatchParameters& p, int numPartyUsers, float skillLevel) = 0;
     virtual void JoinFromConnectInfo(const lobbyConnectInfo_t& connectInfo) = 0;

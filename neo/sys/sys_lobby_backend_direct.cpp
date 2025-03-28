@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 #include "sys_lobby_backend.h"
 #include "sys_lobby_backend_direct.h"
 
@@ -180,8 +180,9 @@ lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo()
         // (which is the right behavior for the Direct backend, I guess).
         // the client special case is in idLobby::HandleReliableMsg
         const char* ip = net_ip.GetString();
-        if (ip == NULL || idStr::Length(ip) == 0 || idStr::Icmp(ip, "localhost") == 0)
+        if (ip == NULL || idStr::Length(ip) == 0 || idStr::Icmp(ip, "localhost") == 0) {
             ip = "0.0.0.0";
+        }
         // DG end
         Sys_StringToNetAdr(ip, &address, false);
         address.port = net_port.GetInteger();

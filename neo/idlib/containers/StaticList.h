@@ -45,6 +45,7 @@ class idStaticList {
 public:
     idStaticList();
     idStaticList(const idStaticList<type, size>& other);
+    idStaticList(std::initializer_list<type> initializerList);
     ~idStaticList<type, size>();
 
     void Clear();            // marks the list as empty.  does not deallocate or intialize data.
@@ -112,6 +113,13 @@ ID_INLINE idStaticList<type, size>::idStaticList(const idStaticList<type, size>&
     *this = other;
 }
 
+template <class type, int size>
+ID_INLINE idStaticList<type, size>::idStaticList(std::initializer_list<type> initializerList)
+{
+    SetNum(initializerList.size());
+    std::copy(initializerList.begin(), initializerList.end(), list);
+}
+
 /*
 ================
 idStaticList<type,size>::~idStaticList<type,size>
@@ -148,7 +156,9 @@ Note:	The data is merely moved around the list, so any pointers to data within t
 template <class type, int size>
 ID_INLINE void idStaticList<type, size>::Sort(const idSort<type>& sort)
 {
-    if (list == NULL) {
+    /*  if( list == NULL )  */
+    if (Num() <= 0) // SRS - Instead of checking this->list for NULL, check this->Num() for empty list
+    {
         return;
     }
     sort.Sort(Ptr(), Num());
@@ -394,8 +404,6 @@ Returns the index of the new element, or -1 when list is full.
 template <class type, int size>
 ID_INLINE int idStaticList<type, size>::Insert(type const& obj, int index)
 {
-    int i;
-
     assert(num < size);
     if (num >= size) {
         return -1;
@@ -408,7 +416,7 @@ ID_INLINE int idStaticList<type, size>::Insert(type const& obj, int index)
         index = num;
     }
 
-    for (i = num; i > index; --i) {
+    for (int i = num; i > index; --i) {
         list[i] = list[i - 1];
     }
 
@@ -429,13 +437,12 @@ Returns the size of the new combined list
 template <class type, int size>
 ID_INLINE int idStaticList<type, size>::Append(const idStaticList<type, size>& other)
 {
-    int i;
     int n = other.Num();
 
     if (num + n > size) {
         n = size - num;
     }
-    for (i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         list[i + num] = other.list[i];
     }
     num += n;
@@ -452,9 +459,7 @@ Adds the data to the list if it doesn't already exist.  Returns the index of the
 template <class type, int size>
 ID_INLINE int idStaticList<type, size>::AddUnique(type const& obj)
 {
-    int index;
-
-    index = FindIndex(obj);
+    int index = FindIndex(obj);
     if (index < 0) {
         index = Append(obj);
     }
@@ -472,9 +477,7 @@ Searches for the specified data in the list and returns it's index.  Returns -1 
 template <class type, int size>
 ID_INLINE int idStaticList<type, size>::FindIndex(type const& obj) const
 {
-    int i;
-
-    for (i = 0; i < num; i++) {
+    for (int i = 0; i < num; i++) {
         if (list[i] == obj) {
             return i;
         }
@@ -494,9 +497,7 @@ Searches for the specified data in the list and returns it's address. Returns NU
 template <class type, int size>
 ID_INLINE type* idStaticList<type, size>::Find(type const& obj) const
 {
-    int i;
-
-    i = FindIndex(obj);
+    int i = FindIndex(obj);
     if (i >= 0) {
         return (type*)&list[i];
     }
@@ -517,9 +518,7 @@ on non-pointer lists will cause a compiler error.
 template <class type, int size>
 ID_INLINE int idStaticList<type, size>::FindNull() const
 {
-    int i;
-
-    for (i = 0; i < num; i++) {
+    for (int i = 0; i < num; i++) {
         if (list[i] == NULL) {
             return i;
         }
@@ -575,7 +574,7 @@ ID_INLINE bool idStaticList<type, size>::RemoveIndex(int index)
 
     num--;
     for (i = index; i < num; i++) {
-        list[i] = list[i + 1];
+        list[i] = std::move(list[i + 1]);
     }
 
     return true;
@@ -583,7 +582,7 @@ ID_INLINE bool idStaticList<type, size>::RemoveIndex(int index)
 
 /*
 ========================
-idList<_type_,_tag_>::RemoveIndexFast
+idStaticList<_type_,_tag_>::RemoveIndexFast
 
 Removes the element at the specified index and moves the last element into its spot, rather
 than moving the whole array down by one. Of course, this doesn't maintain the order of
@@ -656,7 +655,7 @@ void BreakOnListDefault();
 
 /*
 ========================
-idList<_type_,_tag_>::Resize
+idStaticList<_type_,_tag_>::Resize
 
 Allocates memory for the amount of elements requested while keeping the contents intact.
 Contents are copied using their = operator so that data is correctly instantiated.

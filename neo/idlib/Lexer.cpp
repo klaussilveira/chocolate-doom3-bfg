@@ -224,7 +224,7 @@ void idLexer::Error(const char* str, ...)
     }
 
     va_start(ap, str);
-    vsprintf(text, str, ap);
+    idStr::vsnPrintf(text, sizeof(text), str, ap);
     va_end(ap);
 
     if (idLexer::flags & LEXFL_NOFATALERRORS) {
@@ -249,7 +249,7 @@ void idLexer::Warning(const char* str, ...)
     }
 
     va_start(ap, str);
-    vsprintf(text, str, ap);
+    idStr::vsnPrintf(text, sizeof(text), str, ap);
     va_end(ap);
     idLib::common->Warning("file %s, line %d: %s", idLexer::filename.c_str(), idLexer::line, text);
 }
@@ -483,14 +483,15 @@ int idLexer::ReadEscapeCharacter(char* ch)
         idLexer::script_p++;
         for (i = 0, val = 0;; i++, idLexer::script_p++) {
             c = *idLexer::script_p;
-            if (c >= '0' && c <= '9')
+            if (c >= '0' && c <= '9') {
                 c = c - '0';
-            else if (c >= 'A' && c <= 'Z')
+            } else if (c >= 'A' && c <= 'Z') {
                 c = c - 'A' + 10;
-            else if (c >= 'a' && c <= 'z')
+            } else if (c >= 'a' && c <= 'z') {
                 c = c - 'a' + 10;
-            else
+            } else {
                 break;
+            }
             val = (val << 4) + c;
         }
         idLexer::script_p--;
@@ -508,10 +509,11 @@ int idLexer::ReadEscapeCharacter(char* ch)
         }
         for (i = 0, val = 0;; i++, idLexer::script_p++) {
             c = *idLexer::script_p;
-            if (c >= '0' && c <= '9')
+            if (c >= '0' && c <= '9') {
                 c = c - '0';
-            else
+            } else {
                 break;
+            }
             val = val * 10 + c;
         }
         idLexer::script_p--;

@@ -64,12 +64,17 @@ void* Mem_ClearedAlloc(const size_t size, const memTag_t tag);
 char* Mem_CopyString(const char* in);
 // RB end
 
+#ifdef _MSC_VER // SRS: #pragma warning is MSVC specific
+#pragma warning(push)
+#pragma warning(disable : 4595) // C4595: non-member operator new or delete functions may not be declared inline
+#endif
 ID_INLINE void* operator new(size_t s)
 {
     return Mem_Alloc(s, TAG_NEW);
 }
 
-ID_INLINE void operator delete(void* p)
+// SRS - Added noexcept to silence build-time warning
+ID_INLINE void operator delete(void* p) noexcept
 {
     Mem_Free(p);
 }
@@ -78,10 +83,14 @@ ID_INLINE void* operator new[](size_t s)
     return Mem_Alloc(s, TAG_NEW);
 }
 
-ID_INLINE void operator delete[](void* p)
+// SRS - Added noexcept to silence build-time warning
+ID_INLINE void operator delete[](void* p) noexcept
 {
     Mem_Free(p);
 }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 ID_INLINE void* operator new(size_t s, memTag_t tag)
 {
@@ -342,7 +351,7 @@ ID_INLINE _type_* idBlockAlloc<_type_, _blockSize_, memTag>::Alloc()
 
     _type_* t = (_type_*)element->buffer;
     if (clearAllocs) {
-        memset(t, 0, sizeof(_type_));
+        memset((void*)t, 0, sizeof(_type_)); // SRS - Added (void*) cast to silence build-time warning
     }
     new (t) _type_;
     return t;

@@ -35,8 +35,8 @@ Note that other POSIX systems may need some small changes, e.g. in Sys_InitNetwo
 ================================================================================================
 */
 
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 #ifdef _WIN32
 
@@ -63,7 +63,7 @@ Note that other POSIX systems may need some small changes, e.g. in Sys_InitNetwo
 #include <errno.h>
 #include <sys/select.h>
 #include <net/if.h>
-#if defined(MACOS_X) || defined(__FreeBSD__)
+#if defined(__APPLE__) || defined(__FreeBSD__)
 #include <ifaddrs.h>
 #endif
 
@@ -702,7 +702,7 @@ bool Net_GetUDPPacket(int netSocket, netadr_t& net_from, char* data, int& size, 
 	{
 		memset( from.sin_zero, 0, sizeof( from.sin_zero ) );
 	}
-	
+
 	if( usingSocks && static_cast<unsigned int>( netSocket ) == ip_socket && memcmp( &from, &socksRelayAddr, fromlen ) == 0 )
 	{
 		if( ret < 10 || data[0] != 0 || data[1] != 0 || data[2] != 0 || data[3] != 1 )
@@ -869,7 +869,7 @@ void Sys_InitNetworking()
     }
     free(pAdapterInfo);
 
-#elif defined(MACOS_X) || defined(__FreeBSD__)
+#elif defined(__APPLE__) || defined(__FreeBSD__)
     // haven't been able to clearly pinpoint which standards or RFCs define SIOCGIFCONF, SIOCGIFADDR, SIOCGIFNETMASK ioctls
     // it seems fairly widespread, in Linux kernel ioctl, and in BSD .. so let's assume it's always available on our targets
 
@@ -884,17 +884,21 @@ void Sys_InitNetworking()
     }
 
     for (ifp = ifap; ifp; ifp = ifp->ifa_next) {
-        if (ifp->ifa_addr->sa_family != AF_INET)
+        if (ifp->ifa_addr->sa_family != AF_INET) {
             continue;
+        }
 
-        if (!(ifp->ifa_flags & IFF_UP))
+        if (!(ifp->ifa_flags & IFF_UP)) {
             continue;
+        }
 
-        if (!ifp->ifa_addr)
+        if (!ifp->ifa_addr) {
             continue;
+        }
 
-        if (!ifp->ifa_netmask)
+        if (!ifp->ifa_netmask) {
             continue;
+        }
 
         // RB: 64 bit fixes, changed long to int
         ip = ntohl(*(unsigned int*)&ifp->ifa_addr->sa_data[2]);
@@ -923,6 +927,7 @@ void Sys_InitNetworking()
         // DG end
         num_interfaces++;
     }
+    free(ifap);
 #else  // not _WIN32, OSX or FreeBSD
     int s;
     char buf[MAX_INTERFACES * sizeof(ifreq)];
@@ -1016,8 +1021,9 @@ void Sys_ShutdownNetworking()
     WSACleanup();
     winsockInitialized = false;
 #endif
-    if (usingSocks)
+    if (usingSocks) {
         closesocket(socks_socket);
+    }
 }
 
 /*
@@ -1053,13 +1059,13 @@ const char* Sys_NetAdrToString(const netadr_t a)
 
     s = buf[index];
     index = (index + 1) & 3;
-    if (a.type == NA_IP || a.type == NA_LOOPBACK)
+    if (a.type == NA_IP || a.type == NA_LOOPBACK) {
         idStr::snPrintf(s, 64, "%i.%i.%i.%i:%i", a.ip[0], a.ip[1], a.ip[2], a.ip[3], a.port);
-    else if (a.type == NA_BROADCAST)
+    } else if (a.type == NA_BROADCAST) {
         idStr::snPrintf(s, 64, "BROADCAST");
-    else if (a.type == NA_BAD)
+    } else if (a.type == NA_BAD) {
         idStr::snPrintf(s, 64, "BAD_IP");
-    else {
+    } else {
         idStr::snPrintf(s, 64, "WTF_UNKNOWN_IP_TYPE_%i", a.type);
     }
     return s;

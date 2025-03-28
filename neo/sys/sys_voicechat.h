@@ -46,6 +46,8 @@ public:
     {
     }
 
+    virtual ~idVoiceChatMgr() { } // SRS - Added virtual destructor
+
     virtual void Init(void* pXAudio2);
     virtual void Shutdown();
 

@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 #define SAVEGAME_PROFILE_FILENAME "profile.bin"
 
@@ -311,7 +311,7 @@ bool idSaveGameProcessorSaveProfile::InitSaveProfile(idPlayerProfile* profile_, 
 
     // Add data to the file and prepare for save
     profileFile->Write(msg.GetReadData(), msg.GetSize());
-    profileFile->MakeReadOnly();
+    profileFile->TakeDataOwnership(); // SRS - this makes the file read-only and enables data buffer release
 
     saveFileEntryList_t files;
     files.Append(profileFile);

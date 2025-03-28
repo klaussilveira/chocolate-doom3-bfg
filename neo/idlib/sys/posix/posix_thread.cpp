@@ -30,6 +30,14 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../precompiled.h"
 
+#ifndef _WIN32
+#include <sched.h>
+#endif
+
+#ifdef __APPLE__
+#include "../../../sys/posix/posix_public.h"
+#endif
+
 #ifdef __FreeBSD__
 #include <pthread_np.h> // for pthread_set_name_np
 #endif
@@ -61,8 +69,9 @@ static int Sys_SetThreadName(pthread_t handle, const char* name)
     assert(strlen(name) < 16);
 
     ret = pthread_setname_np(handle, name);
-    if (ret != 0)
+    if (ret != 0) {
         idLib::common->Printf("Setting threadname \"%s\" failed, reason: %s (%i)\n", name, strerror(errno), errno);
+    }
 #elif defined(__FreeBSD__)
     // according to http://www.freebsd.org/cgi/man.cgi?query=pthread_set_name_np&sektion=3
     // the interface is void pthread_set_name_np(pthread_t tid, const char *name);
@@ -84,8 +93,9 @@ static int Sys_GetThreadName(pthread_t handle, char* namebuf, size_t buflen)
     int ret = 0;
 #ifdef __linux__
     ret = pthread_getname_np(handle, namebuf, buflen);
-    if (ret != 0)
+    if (ret != 0) {
         idLib::common->Printf("Getting threadname failed, reason: %s (%i)\n", strerror(errno), errno);
+    }
 #elif defined(__FreeBSD__)
     // seems like there is no pthread_getname_np equivalent on FreeBSD
     idStr::snPrintf(namebuf, buflen, "Can't read threadname on this platform!");
@@ -131,34 +141,34 @@ uintptr_t Sys_CreateThread(xthread_t function, void* parms, xthreadPriority prio
 
 #if 0
 	// RB: realtime policies require root privileges
-	
+
 	// all Linux threads have one of the following scheduling policies:
-	
+
 	// SCHED_OTHER or SCHED_NORMAL: the default policy,  priority: [-20..0..19], default 0
-	
+
 	// SCHED_FIFO: first in/first out realtime policy
-	
+
 	// SCHED_RR: round-robin realtime policy
-	
+
 	// SCHED_BATCH: similar to SCHED_OTHER, but with a throughput orientation
-	
+
 	// SCHED_IDLE: lower priority than SCHED_OTHER
-	
+
 	int schedulePolicy = SCHED_OTHER;
 	struct sched_param scheduleParam;
-	
+
 	int error = pthread_getschedparam( handle, &schedulePolicy, &scheduleParam );
 	if( error != 0 )
 	{
 		idLib::common->FatalError( "ERROR: pthread_getschedparam %s failed: %s\n", name, strerror( error ) );
 		return ( uintptr_t )0;
 	}
-	
+
 	schedulePolicy = SCHED_FIFO;
-	
+
 	int minPriority = sched_get_priority_min( schedulePolicy );
 	int maxPriority = sched_get_priority_max( schedulePolicy );
-	
+
 	if( priority == THREAD_HIGHEST )
 	{
 		//  we better sleep enough to do this
@@ -180,7 +190,7 @@ uintptr_t Sys_CreateThread(xthread_t function, void* parms, xthreadPriority prio
 	{
 		scheduleParam.__sched_priority = minPriority;
 	}
-	
+
 	// set new priority
 	error = pthread_setschedparam( handle, schedulePolicy, &scheduleParam );
 	if( error != 0 )
@@ -188,7 +198,7 @@ uintptr_t Sys_CreateThread(xthread_t function, void* parms, xthreadPriority prio
 		idLib::common->FatalError( "ERROR: pthread_setschedparam( name = %s, policy = %i, priority = %i ) failed: %s\n", name, schedulePolicy, scheduleParam.__sched_priority, strerror( error ) );
 		return ( uintptr_t )0;
 	}
-	
+
 	pthread_getschedparam( handle, &schedulePolicy, &scheduleParam );
 	if( error != 0 )
 	{
@@ -256,7 +266,12 @@ Sys_Yield
 */
 void Sys_Yield()
 {
-    pthread_yield();
+    // SRS - pthread_yield() is deprecated on linux
+    // #if defined(__ANDROID__) || defined(__APPLE__)
+    sched_yield();
+    // #else
+    //	pthread_yield();
+    // #endif
 }
 
 /*
@@ -286,7 +301,7 @@ void Sys_SignalCreate(signalHandle_t& handle, bool manualReset)
     handle.waiting = 0;
 #if 0
 	pthread_mutexattr_t attr;
-	
+
 	pthread_mutexattr_init( &attr );
 	pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_ERRORCHECK );
 	//pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_DEFAULT );
@@ -380,7 +395,9 @@ bool Sys_SignalWait(signalHandle_t& handle, int timeout)
     if (handle.signaled) // there is a signal that hasn't been used yet
     {
         if (!handle.manualReset) // for auto-mode only one thread may be released - this one.
+        {
             handle.signaled = false;
+        }
 
         status = 0; // success!
     } else          // we'll have to wait for a signal
@@ -390,7 +407,9 @@ bool Sys_SignalWait(signalHandle_t& handle, int timeout)
             status = pthread_cond_wait(&handle.cond, &handle.mutex);
         } else {
             timespec ts;
+
             clock_gettime(CLOCK_REALTIME, &ts);
+
             // DG: handle timeouts > 1s better
             ts.tv_nsec += (timeout % 1000) * 1000000; // millisec to nanosec
             ts.tv_sec += timeout / 1000;

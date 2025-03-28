@@ -157,7 +157,7 @@ private:
 MakeCallback
 ========================
 */
-ID_INLINE_EXTERN idCallbackStatic MakeCallback(void (*f)(void))
+ID_INLINE_EXTERN idCallbackStatic MakeCallback(void (*f)())
 {
     return idCallbackStatic(f);
 }
@@ -168,7 +168,7 @@ MakeCallback
 ========================
 */
 template <class T>
-ID_INLINE_EXTERN idCallbackBindMem<T> MakeCallback(T* t, void (T::*f)(void))
+ID_INLINE_EXTERN idCallbackBindMem<T> MakeCallback(T* t, void (T::*f)())
 {
     return idCallbackBindMem<T>(t, f);
 }

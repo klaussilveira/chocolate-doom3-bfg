@@ -158,15 +158,18 @@ public:
                 // Partition the region.
                 do {
                     while (static_cast<const _derived_*>(this)->Compare(base[i], pivot) < 0) {
-                        if (++i >= j)
+                        if (++i >= j) {
                             break;
+                        }
                     }
                     while (static_cast<const _derived_*>(this)->Compare(base[j], pivot) > 0) {
-                        if (--j <= i)
+                        if (--j <= i) {
                             break;
+                        }
                     }
-                    if (i >= j)
+                    if (i >= j) {
                         break;
+                    }
                     SwapValues(base[i], base[j]);
                 } while (++i < --j);
 

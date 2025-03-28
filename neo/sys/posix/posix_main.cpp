@@ -812,13 +812,6 @@ void Posix_LateInit()
     Posix_InitConsoleInput();
     com_pid.SetInteger(getpid());
     common->Printf("pid: %d\n", com_pid.GetInteger());
-    common->Printf("%d MB System Memory\n", Sys_GetSystemRam());
-
-    // #ifndef ID_DEDICATED
-    // common->Printf( "%d MB Video Memory\n", Sys_GetVideoRam() );
-    // #endif
-
-    // Posix_StartAsyncThread( );
 }
 
 /*

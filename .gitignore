@@ -1,8 +1,7 @@
-build*
-eclipse*
-neo/ipch
-
-Doom3BFG.exe
+build/
+.idea
+cmake-build-debug
+neo/idlib/precompiled.h.gch
 base/_common.crc
 base/_common.resources
 base/_ordered.crc

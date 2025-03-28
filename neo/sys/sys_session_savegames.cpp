@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 #include "sys_savegame.h"
 #include "sys_session_local.h"
 #include "sys_session_savegames.h"
@@ -336,6 +336,7 @@ saveGameHandle_t idSessionLocal::LoadGameSync(const char* name, saveFileEntryLis
 {
     idSaveLoadParms& parms = processorLoadFiles->GetParmsNonConst();
     saveGameHandle_t handle = 0;
+    bool checkDetailsFile = true;
 
     {
         // Put in a local block so everything will go in the global heap before the map change, but the heap is
@@ -366,7 +367,7 @@ saveGameHandle_t idSessionLocal::LoadGameSync(const char* name, saveFileEntryLis
 
         // Read the details file when loading games
         saveFileEntryList_t filesWithDetails(files);
-        std::auto_ptr<idFile_SaveGame> gameDetailsFile(new (TAG_SAVEGAMES) idFile_SaveGame(SAVEGAME_DETAILS_FILENAME, SAVEGAMEFILE_TEXT));
+        std::unique_ptr<idFile_SaveGame> gameDetailsFile(new (TAG_SAVEGAMES) idFile_SaveGame(SAVEGAME_DETAILS_FILENAME, SAVEGAMEFILE_TEXT));
         filesWithDetails.Append(gameDetailsFile.get());
 
         // Check the cached save details from the enumeration and make sure we don't load a save from a newer version of the game!
@@ -389,12 +390,22 @@ saveGameHandle_t idSessionLocal::LoadGameSync(const char* name, saveFileEntryLis
             parms.errorCode = SAVEGAME_E_UNKNOWN;
         }
 
-        if (parms.GetError() != SAVEGAME_E_NONE) {
-            return 0;
+        // SRS - check details file for compatibility before removing it from parms.files list
+        if (parms.GetError() == SAVEGAME_E_NONE) {
+            // Checks the details file to see if corrupted or if it's from a newer savegame
+            checkDetailsFile = LoadGameCheckDescriptionFile(parms);
         }
 
-        // Checks the description file to see if corrupted or if it's from a newer savegame
-        if (!LoadGameCheckDescriptionFile(parms)) {
+        // tomgreen66 - remove details file we added via auto_ptr to parms.files in InitLoadFiles above
+        for (int i = 0; i < parms.files.Num(); ++i) {
+            if (parms.files[i] == gameDetailsFile.get()) {
+                // details file reference will be deleted by auto_ptr so remove it from list and update file count
+                parms.files.RemoveIndexFast(i);
+            }
+        }
+
+        // SRS - return if savegame error or description file corrupt or not compatible
+        if (parms.GetError() != SAVEGAME_E_NONE || !checkDetailsFile) {
             return 0;
         }
 
@@ -667,7 +678,7 @@ bool idSessionLocal::LoadGameCheckDiscNumber(idSaveLoadParms& parms)
 {
 #if 0
 	idStr mapName = parms.description.GetMapName();
-	
+
 	assert( !discSwapStateMgr->IsWorking() );
 	discSwapStateMgr->Init( &parms.callbackSignal, idDiscSwapStateManager::DISC_SWAP_COMMAND_LOAD );
 	//// TODO_KC this is probably broken now...
@@ -677,18 +688,18 @@ bool idSessionLocal::LoadGameCheckDiscNumber(idSaveLoadParms& parms)
 	//discSwapStateMgr->instanceFileName = instanceFileName;
 	discSwapStateMgr->user = session->GetSignInManager().GetMasterLocalUser();
 	discSwapStateMgr->map = mapName;
-	
+
 	discSwapStateMgr->Pump();
 	while( discSwapStateMgr->IsWorking() )
 	{
 		Sys_Sleep( 15 );
 		// process input and render
-		
+
 		discSwapStateMgr->Pump();
 	}
-	
+
 	idDiscSwapStateManager::discSwapStateError_t discSwapError = discSwapStateMgr->GetError();
-	
+
 	if( discSwapError == idDiscSwapStateManager::DSSE_CANCEL )
 	{
 		parms.errorCode = SAVEGAME_E_CANCELLED;
@@ -706,7 +717,7 @@ bool idSessionLocal::LoadGameCheckDiscNumber(idSaveLoadParms& parms)
 	{
 		parms.errorCode = SAVEGAME_E_DISC_SWAP;
 	}
-	
+
 	if( parms.errorCode == SAVEGAME_E_UNKNOWN )
 	{
 		parms.errorCode = SAVEGAME_E_DISC_SWAP;
