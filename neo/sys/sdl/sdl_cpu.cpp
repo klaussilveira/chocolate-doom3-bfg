@@ -104,7 +104,7 @@ double Sys_ClockTicksPerSecond()
 {
     static double ticks = 0;
 #if 0
-	
+
 	if( !ticks )
 	{
 		LARGE_INTEGER li;
@@ -201,7 +201,7 @@ cpuid_t Sys_GetCPUId()
     }
 
     // check for Streaming SIMD Extensions 3 aka Prescott's New Instructions
-#if 0 // SDL_VERSION_ATLEAST(2,0,0)
+#if 0
 	if( SDL_HasSSE3() )
 	{
 		flags |= CPUID_SSE3;
@@ -286,33 +286,33 @@ static bitFlag_t statusWordFlags[] = {
 Sys_FPU_PrintStateFlags
 ===============
 */
-int Sys_FPU_PrintStateFlags(char* ptr, int ctrl, int stat, int tags, int inof, int inse, int opof, int opse)
+int Sys_FPU_PrintStateFlags(char* buf, int bufsize, int ctrl, int stat, int tags, int inof, int inse, int opof, int opse)
 {
     int i, length = 0;
 
-    length += sprintf(ptr + length, "CTRL = %08x\n"
-                                    "STAT = %08x\n"
-                                    "TAGS = %08x\n"
-                                    "INOF = %08x\n"
-                                    "INSE = %08x\n"
-                                    "OPOF = %08x\n"
-                                    "OPSE = %08x\n"
-                                    "\n",
+    length += idStr::snPrintf(buf + length, bufsize - length, "CTRL = %08x\n"
+                                                              "STAT = %08x\n"
+                                                              "TAGS = %08x\n"
+                                                              "INOF = %08x\n"
+                                                              "INSE = %08x\n"
+                                                              "OPOF = %08x\n"
+                                                              "OPSE = %08x\n"
+                                                              "\n",
         ctrl, stat, tags, inof, inse, opof, opse);
 
-    length += sprintf(ptr + length, "Control Word:\n");
+    length += idStr::snPrintf(buf + length, bufsize - length, "Control Word:\n");
     for (i = 0; controlWordFlags[i].name[0]; i++) {
-        length += sprintf(ptr + length, "  %-30s = %s\n", controlWordFlags[i].name, (ctrl & (1 << controlWordFlags[i].bit)) ? "true" : "false");
+        length += idStr::snPrintf(buf + length, bufsize - length, "  %-30s = %s\n", controlWordFlags[i].name, (ctrl & (1 << controlWordFlags[i].bit)) ? "true" : "false");
     }
-    length += sprintf(ptr + length, "  %-30s = %s\n", "Precision control", precisionControlField[(ctrl >> 8) & 3]);
-    length += sprintf(ptr + length, "  %-30s = %s\n", "Rounding control", roundingControlField[(ctrl >> 10) & 3]);
+    length += idStr::snPrintf(buf + length, bufsize - length, "  %-30s = %s\n", "Precision control", precisionControlField[(ctrl >> 8) & 3]);
+    length += idStr::snPrintf(buf + length, bufsize - length, "  %-30s = %s\n", "Rounding control", roundingControlField[(ctrl >> 10) & 3]);
 
-    length += sprintf(ptr + length, "Status Word:\n");
+    length += idStr::snPrintf(buf + length, bufsize - length, "Status Word:\n");
     for (i = 0; statusWordFlags[i].name[0]; i++) {
-        ptr += sprintf(ptr + length, "  %-30s = %s\n", statusWordFlags[i].name, (stat & (1 << statusWordFlags[i].bit)) ? "true" : "false");
+        length += idStr::snPrintf(buf + length, bufsize - length, "  %-30s = %s\n", statusWordFlags[i].name, (stat & (1 << statusWordFlags[i].bit)) ? "true" : "false");
     }
-    length += sprintf(ptr + length, "  %-30s = %d%d%d%d\n", "Condition code", (stat >> 8) & 1, (stat >> 9) & 1, (stat >> 10) & 1, (stat >> 14) & 1);
-    length += sprintf(ptr + length, "  %-30s = %d\n", "Top of stack pointer", (stat >> 11) & 7);
+    length += idStr::snPrintf(buf + length, bufsize - length, "  %-30s = %d%d%d%d\n", "Condition code", (stat >> 8) & 1, (stat >> 9) & 1, (stat >> 10) & 1, (stat >> 14) & 1);
+    length += idStr::snPrintf(buf + length, bufsize - length, "  %-30s = %d\n", "Top of stack pointer", (stat >> 11) & 7);
 
     return length;
 }

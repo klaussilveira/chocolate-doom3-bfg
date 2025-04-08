@@ -81,7 +81,7 @@ idEventDef::idEventDef(const char* command, const char* formatspec, char returnT
     assert(numargs <= D_EVENT_MAXARGS);
     if (numargs > D_EVENT_MAXARGS) {
         eventError = true;
-        sprintf(eventErrorMsg, "idEventDef::idEventDef : Too many args for '%s' event.", name);
+        idStr::snPrintf(eventErrorMsg, sizeof(eventErrorMsg), "idEventDef::idEventDef : Too many args for '%s' event.", name);
         return;
     }
 
@@ -133,7 +133,7 @@ idEventDef::idEventDef(const char* command, const char* formatspec, char returnT
 
         default:
             eventError = true;
-            sprintf(eventErrorMsg, "idEventDef::idEventDef : Invalid arg format '%s' string for '%s' event.", formatspec, name);
+            idStr::snPrintf(eventErrorMsg, sizeof(eventErrorMsg), "idEventDef::idEventDef : Invalid arg format '%s' string for '%s' event.", formatspec, name);
             return;
             break;
         }
@@ -150,14 +150,14 @@ idEventDef::idEventDef(const char* command, const char* formatspec, char returnT
         if (strcmp(command, ev->name) == 0) {
             if (strcmp(formatspec, ev->formatspec) != 0) {
                 eventError = true;
-                sprintf(eventErrorMsg, "idEvent '%s' defined twice with same name but differing format strings ('%s'!='%s').",
+                idStr::snPrintf(eventErrorMsg, sizeof(eventErrorMsg), "idEvent '%s' defined twice with same name but differing format strings ('%s'!='%s').",
                     command, formatspec, ev->formatspec);
                 return;
             }
 
             if (ev->returnType != returnType) {
                 eventError = true;
-                sprintf(eventErrorMsg, "idEvent '%s' defined twice with same name but differing return types ('%c'!='%c').",
+                idStr::snPrintf(eventErrorMsg, sizeof(eventErrorMsg), "idEvent '%s' defined twice with same name but differing return types ('%c'!='%c').",
                     command, returnType, ev->returnType);
                 return;
             }
@@ -171,7 +171,7 @@ idEventDef::idEventDef(const char* command, const char* formatspec, char returnT
 
     if (numEventDefs >= MAX_EVENTS) {
         eventError = true;
-        sprintf(eventErrorMsg, "numEventDefs >= MAX_EVENTS");
+        idStr::snPrintf(eventErrorMsg, sizeof(eventErrorMsg), "numEventDefs >= MAX_EVENTS");
         return;
     }
     eventDefList[numEventDefs] = ev;

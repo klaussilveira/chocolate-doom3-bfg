@@ -567,7 +567,7 @@ const char* idMultiplayerGame::GameTime()
         if (ms <= 0) {
             strcpy(buff, "WMP --");
         } else {
-            sprintf(buff, "WMP %i", s);
+            idStr::snPrintf(buff, sizeof(buff), "WMP %i", s);
         }
     } else {
         int timeLimit = gameLocal.serverInfo.GetInt("si_timeLimit");

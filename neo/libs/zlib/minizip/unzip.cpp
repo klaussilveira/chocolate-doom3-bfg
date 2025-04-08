@@ -157,7 +157,7 @@ idCVar zip_avgSeekDistance( "zip_avgSeekDistance", "0", CVAR_INTEGER, "" );
 #define TRYFREE(p)   \
     {                \
         Mem_Free(p); \
-    }  // Mem_Free - as well as free() - check for NULL themselves, no need to do it here
+    } // Mem_Free - as well as free() - check for NULL themselves, no need to do it here
 #endif // 0
 
 #define SIZECENTRALDIRITEM (0x2e)

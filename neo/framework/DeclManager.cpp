@@ -1540,7 +1540,9 @@ void idDeclManagerLocal::ListType(const idCmdArgs& args, declType_t type)
             continue;
         }
 
-        if (decl->referencedThisLevel) {
+        if (decl->parsedOutsideLevelLoad) {
+            common->Printf("!");
+        } else if (decl->referencedThisLevel) {
             common->Printf("*");
         } else if (decl->everReferenced) {
             common->Printf(".");
@@ -1803,7 +1805,7 @@ void idDeclManagerLocal::WritePrecacheCommands(idFile* f)
             }
 
             char str[1024];
-            sprintf(str, "touch %s %s\n", declTypes[i]->typeName.c_str(), decl->GetName());
+            idStr::snPrintf(str, sizeof(str), "touch %s %s\n", declTypes[i]->typeName.c_str(), decl->GetName());
             common->Printf("%s", str);
             f->Printf("%s", str);
         }
@@ -2040,7 +2042,8 @@ idDeclLocal* idDeclManagerLocal::FindTypeWithoutParsing(declType_t type, const c
     decl->sourceFile = &implicitDecls;
     decl->referencedThisLevel = false;
     decl->everReferenced = false;
-    decl->parsedOutsideLevelLoad = !insideLevelLoad;
+    // SRS - initialize to false, otherwise all decls will be set to non-purgeable during Init()
+    decl->parsedOutsideLevelLoad = false; // !insideLevelLoad;
 
     // add it to the linear list and hash table
     decl->index = linearLists[typeIndex].Num();

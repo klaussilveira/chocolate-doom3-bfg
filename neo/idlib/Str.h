@@ -592,7 +592,7 @@ ID_INLINE idStr::idStr(const int i)
     char text[64];
     int l;
 
-    l = sprintf(text, "%d", i);
+    l = idStr::snPrintf(text, sizeof(text), "%d", i);
     EnsureAlloced(l + 1);
     strcpy(data, text);
     len = l;

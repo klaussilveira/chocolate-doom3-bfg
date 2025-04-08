@@ -41,13 +41,13 @@ punctuation_t default_punctuations[] = {
     // define merge operator
     { "##", P_PRECOMPMERGE }, // pre-compiler
                               // logic operators
-    { "&&", P_LOGIC_AND },  // pre-compiler
-    { "||", P_LOGIC_OR },   // pre-compiler
-    { ">=", P_LOGIC_GEQ },  // pre-compiler
-    { "<=", P_LOGIC_LEQ },  // pre-compiler
-    { "==", P_LOGIC_EQ },   // pre-compiler
-    { "!=", P_LOGIC_UNEQ }, // pre-compiler
-                            // arithmatic operators
+    { "&&", P_LOGIC_AND },    // pre-compiler
+    { "||", P_LOGIC_OR },     // pre-compiler
+    { ">=", P_LOGIC_GEQ },    // pre-compiler
+    { "<=", P_LOGIC_LEQ },    // pre-compiler
+    { "==", P_LOGIC_EQ },     // pre-compiler
+    { "!=", P_LOGIC_UNEQ },   // pre-compiler
+                              // arithmatic operators
     { "*=", P_MUL_ASSIGN },
     { "/=", P_DIV_ASSIGN },
     { "%=", P_MOD_ASSIGN },
@@ -74,24 +74,24 @@ punctuation_t default_punctuations[] = {
     { "-", P_SUB }, // pre-compiler
     { "=", P_ASSIGN },
     // binary operators
-    { "&", P_BIN_AND }, // pre-compiler
-    { "|", P_BIN_OR },  // pre-compiler
-    { "^", P_BIN_XOR }, // pre-compiler
-    { "~", P_BIN_NOT }, // pre-compiler
-                        // logic operators
+    { "&", P_BIN_AND },       // pre-compiler
+    { "|", P_BIN_OR },        // pre-compiler
+    { "^", P_BIN_XOR },       // pre-compiler
+    { "~", P_BIN_NOT },       // pre-compiler
+                              // logic operators
     { "!", P_LOGIC_NOT },     // pre-compiler
     { ">", P_LOGIC_GREATER }, // pre-compiler
     { "<", P_LOGIC_LESS },    // pre-compiler
-                           // reference operator
+                              // reference operator
     { ".", P_REF },
     // seperators
     { ",", P_COMMA }, // pre-compiler
     { ";", P_SEMICOLON },
     // label indication
-    { ":", P_COLON }, // pre-compiler
-                      // if statement
-    { "?", P_QUESTIONMARK }, // pre-compiler
-                             // embracements
+    { ":", P_COLON },            // pre-compiler
+                                 // if statement
+    { "?", P_QUESTIONMARK },     // pre-compiler
+                                 // embracements
     { "(", P_PARENTHESESOPEN },  // pre-compiler
     { ")", P_PARENTHESESCLOSE }, // pre-compiler
     { "{", P_BRACEOPEN },        // pre-compiler

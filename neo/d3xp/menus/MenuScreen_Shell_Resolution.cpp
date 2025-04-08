@@ -151,6 +151,15 @@ void idMenuScreen_Shell_Resolution::ShowScreen(const mainMenuTransition_t transi
     optionData.Append(optionData_t(0, 0));
 
     int viewIndex = 0;
+    // SRS - Added support for selecting borderless fullscreen window mode
+    idStr bw_str;
+    bw_str.Append(va("%s", "Borderless Fullscreen"));
+    menuOptions.Alloc().Alloc() = bw_str;
+    optionData.Append(optionData_t(-2, 0));
+    if (originalOption.fullscreen == -2) {
+        viewIndex = menuOptions.Num() - 1;
+    }
+    // SRS end
     idList<idList<vidMode_t>> displays;
     for (int displayNum = 0;; displayNum++) {
         idList<vidMode_t>& modeList = displays.Alloc();
@@ -246,9 +255,11 @@ bool idMenuScreen_Shell_Resolution::HandleAction(idWidgetAction& action, const i
             if (currentOption == originalOption) {
                 // No change
                 menuData->SetNextScreen(SHELL_AREA_SYSTEM_OPTIONS, MENU_TRANSITION_SIMPLE);
-            } else if (currentOption.fullscreen == 0) {
-                // Changing to windowed mode
-                r_fullscreen.SetInteger(0);
+            }
+            // SRS - Added support for selecting borderless fullscreen window mode
+            else if (currentOption.fullscreen == 0 || currentOption.fullscreen == -2) {
+                // Changing to windowed or borderless fullscreen mode
+                r_fullscreen.SetInteger(currentOption.fullscreen);
                 cmdSystem->BufferCommandText(CMD_EXEC_APPEND, "vid_restart\n");
                 menuData->SetNextScreen(SHELL_AREA_SYSTEM_OPTIONS, MENU_TRANSITION_SIMPLE);
             } else {

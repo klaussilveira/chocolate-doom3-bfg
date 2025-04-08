@@ -58,5 +58,15 @@ void Sys_FPE_handler(int signum, siginfo_t* info, void* context);
 void Sys_DoStartProcess(const char* exeName, bool dofork = true); // if not forking, current process gets replaced
 
 char* Posix_ConsoleInput();
+double MeasureClockTicks();
+
+#ifdef __APPLE__
+#if !defined(CLOCK_REALTIME) // SRS - define clockid_t enum for OSX 10.11 and earlier
+enum /*clk_id_t*/ clockid_t { CLOCK_REALTIME,
+    CLOCK_MONOTONIC,
+    CLOCK_MONOTONIC_RAW };
+#endif
+int clock_gettime(/*clk_id_t*/ clockid_t clock, struct timespec* tp); // SRS - use APPLE clockid_t
+#endif
 
 #endif

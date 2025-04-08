@@ -49,6 +49,10 @@ If you have questions concerning this license or the applicable additional terms
 #include <android/log.h>
 #endif
 
+#if defined(__APPLE__)
+#include <SDL.h>
+#endif
+
 #include <sys/statvfs.h>
 // RB end
 
@@ -56,6 +60,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #define MAX_OSPATH 256
 #define COMMAND_HISTORY 64
+
+static idStr basepath;
+static idStr savepath;
 
 static int input_hide = 0;
 
@@ -81,6 +88,32 @@ idCVar com_pid("com_pid", "0", CVAR_INTEGER | CVAR_INIT | CVAR_SYSTEM, "process 
 
 static int set_exit = 0;
 static char exit_spawn[1024];
+
+/*
+ ==============
+ Sys_DefaultSavePath
+ ==============
+ */
+const char* Sys_DefaultSavePath()
+{
+#if defined(__APPLE__)
+    char* base_path = SDL_GetPrefPath("", "RBDOOM-3-BFG");
+    if (base_path) {
+        savepath = base_path;
+        savepath.StripTrailing('/');
+        SDL_free(base_path);
+    }
+#else
+    const char* xdg_data_home = getenv("XDG_DATA_HOME");
+    if (xdg_data_home != NULL) {
+        sprintf(savepath, "%s/rbdoom3bfg", xdg_data_home);
+    } else {
+        sprintf(savepath, "%s/.local/share/rbdoom3bfg", getenv("HOME"));
+    }
+#endif
+
+    return savepath.c_str();
+}
 
 /*
 ================
@@ -169,6 +202,89 @@ void Sys_Quit()
 }
 
 /*
+===============
+Sys_Shutdown
+===============
+*/
+void Sys_Shutdown()
+{
+    basepath.Clear();
+    savepath.Clear();
+    Posix_Shutdown();
+}
+
+/*
+===============
+Sys_FPU_EnableExceptions
+===============
+*/
+// void Sys_FPU_EnableExceptions( int exceptions )
+//{
+// }
+
+/*
+===============
+Sys_FPE_handler
+===============
+*/
+void Sys_FPE_handler(int signum, siginfo_t* info, void* context)
+{
+    assert(signum == SIGFPE);
+    Sys_Printf("FPE\n");
+}
+
+/*
+===============
+Sys_GetClockticks
+===============
+*/
+double Sys_GetClockTicks()
+{
+#if defined(__i386__)
+    unsigned long lo, hi;
+
+    __asm__ __volatile__(
+        "push %%ebx\n"
+        "xor %%eax,%%eax\n"
+        "cpuid\n"
+        "rdtsc\n"
+        "mov %%eax,%0\n"
+        "mov %%edx,%1\n"
+        "pop %%ebx\n"
+        : "=r"(lo), "=r"(hi));
+    return (double)lo + (double)0xFFFFFFFF * hi;
+// RB begin
+#elif defined(__x86_64__)
+    uint32_t lo, hi;
+    __asm__ __volatile__("rdtsc" : "=a"(lo), "=d"(hi));
+    return (((uint64_t)hi) << 32) | lo;
+#else
+    // #error unsupported CPU
+    struct timespec now;
+
+    clock_gettime(CLOCK_MONOTONIC, &now);
+
+    return now.tv_sec * 1000000000LL + now.tv_nsec;
+#endif
+    // RB end
+}
+
+/*
+===============
+MeasureClockTicks
+===============
+*/
+double MeasureClockTicks()
+{
+    double t0, t1;
+
+    t0 = Sys_GetClockTicks();
+    Sys_Sleep(1000);
+    t1 = Sys_GetClockTicks();
+    return t1 - t0;
+}
+
+/*
 ================
 Sys_Milliseconds
 ================
@@ -243,13 +359,13 @@ uint64 Sys_Microseconds()
 {
 #if 0
 	static uint64 ticksPerMicrosecondTimes1024 = 0;
-	
+
 	if( ticksPerMicrosecondTimes1024 == 0 )
 	{
 		ticksPerMicrosecondTimes1024 = ( ( uint64 )Sys_ClockTicksPerSecond() << 10 ) / 1000000;
 		assert( ticksPerMicrosecondTimes1024 > 0 );
 	}
-	
+
 	return ( ( uint64 )( ( int64 )Sys_GetClockTicks() << 10 ) ) / ticksPerMicrosecondTimes1024;
 #elif 0
     uint64 curtime;
@@ -275,6 +391,79 @@ uint64 Sys_Microseconds()
 
     return curtime;
 #endif
+}
+
+/*
+================
+Sys_DefaultBasePath
+
+Get the default base path
+- binary image path
+- current directory
+- macOS app bundle resources directory path			// SRS - added macOS app bundle resources path
+- build directory path								// SRS - added build directory path
+- hardcoded
+Try to be intelligent: if there is no BASE_GAMEDIR, try the next path
+================
+*/
+const char* Sys_DefaultBasePath()
+{
+    struct stat st;
+    idStr testbase, exepath = {};
+    basepath = Sys_EXEPath();
+    if (basepath.Length()) {
+        exepath = basepath.StripFilename();
+        testbase = basepath;
+        testbase += "/";
+        testbase += BASE_GAMEDIR;
+        if (stat(testbase.c_str(), &st) != -1 && S_ISDIR(st.st_mode)) {
+            return basepath.c_str();
+        } else {
+            common->Printf("no '%s' directory in exe path %s, skipping\n", BASE_GAMEDIR, basepath.c_str());
+        }
+    }
+    if (basepath != Posix_Cwd()) {
+        basepath = Posix_Cwd();
+        testbase = basepath;
+        testbase += "/";
+        testbase += BASE_GAMEDIR;
+        if (stat(testbase.c_str(), &st) != -1 && S_ISDIR(st.st_mode)) {
+            return basepath.c_str();
+        } else {
+            common->Printf("no '%s' directory in cwd path %s, skipping\n", BASE_GAMEDIR, basepath.c_str());
+        }
+    }
+    if (exepath.Length()) {
+#if defined(__APPLE__)
+        // SRS - Check for macOS app bundle resources path (up one dir level and down to Resources dir)
+        basepath = exepath;
+        basepath = basepath.StripFilename() + "/Resources";
+        testbase = basepath;
+        testbase += "/";
+        testbase += BASE_GAMEDIR;
+        if (stat(testbase.c_str(), &st) != -1 && S_ISDIR(st.st_mode)) {
+            return basepath.c_str();
+        } else {
+            common->Printf("no '%s' directory in macOS app bundle resources path %s, skipping\n", BASE_GAMEDIR, basepath.c_str());
+        }
+#endif
+        // SRS - Check for linux/macOS build path (directory structure with build dir and possible config suffix)
+        basepath = exepath;
+        basepath.StripFilename(); // up 1st dir level for single-config dev builds
+#if !defined(NO_MULTI_CONFIG)
+        basepath.StripFilename(); // up 2nd dir level for multi-config dev builds with Debug/Release/etc suffix
+#endif
+        testbase = basepath;
+        testbase += "/";
+        testbase += BASE_GAMEDIR;
+        if (stat(testbase.c_str(), &st) != -1 && S_ISDIR(st.st_mode)) {
+            return basepath.c_str();
+        } else {
+            common->Printf("no '%s' directory in build path %s, skipping\n", BASE_GAMEDIR, basepath.c_str());
+        }
+    }
+    common->Printf("WARNING: using hardcoded default base path %s\n", DEFAULT_BASEPATH);
+    return DEFAULT_BASEPATH;
 }
 
 /*
@@ -371,41 +560,49 @@ int Sys_ListFiles(const char* directory, const char* extension, idStrList& list)
 
     // DG: use readdir_r instead of readdir for thread safety
     // the following lines are from the readdir_r manpage.. fscking ugly.
-    int nameMax = pathconf(directory, _PC_NAME_MAX);
-    if (nameMax == -1)
-        nameMax = 255;
-    int direntLen = offsetof(struct dirent, d_name) + nameMax + 1;
+    // int nameMax = pathconf( directory, _PC_NAME_MAX );
+    // if( nameMax == -1 )
+    //{
+    //	nameMax = 255;
+    //}
+    // int direntLen = offsetof( struct dirent, d_name ) + nameMax + 1;
 
-    struct dirent* entry = (struct dirent*)Mem_Alloc(direntLen, TAG_CRAP);
+    // struct dirent* entry = ( struct dirent* )Mem_Alloc( direntLen, TAG_CRAP );
 
-    if (entry == NULL) {
-        common->Warning("Sys_ListFiles: Mem_Alloc for entry failed!");
-        closedir(fdir);
-        return 0;
-    }
+    // if( entry == NULL )
+    //{
+    //	common->Warning( "Sys_ListFiles: Mem_Alloc for entry failed!" );
+    //	closedir( fdir );
+    //	return 0;
+    // }
 
-    while (readdir_r(fdir, entry, &d) == 0 && d != NULL) {
+    // while( readdir_r( fdir, entry, &d ) == 0 && d != NULL )
+    //  SRS - readdir_r() is deprecated on linux, readdir() is thread safe with different dir streams
+    while ((d = readdir(fdir)) != NULL) {
         // DG end
         idStr::snPrintf(search, sizeof(search), "%s/%s", directory, d->d_name);
-        if (stat(search, &st) == -1)
+        if (stat(search, &st) == -1) {
             continue;
+        }
         if (!dironly) {
             // DG: the original code didn't work because d3 bfg abuses the extension
             // to match whole filenames and patterns in the savegame-code, not just file extensions...
             // so just use fnmatch() which supports matching shell wildcard patterns ("*.foo" etc)
             // if we should ever need case insensitivity, use FNM_CASEFOLD as third flag
-            if (fnmatch(pattern.c_str(), d->d_name, 0) != 0)
+            if (fnmatch(pattern.c_str(), d->d_name, 0) != 0) {
                 continue;
+            }
             // DG end
         }
-        if ((dironly && !(st.st_mode & S_IFDIR)) || (!dironly && (st.st_mode & S_IFDIR)))
+        if ((dironly && !(st.st_mode & S_IFDIR)) || (!dironly && (st.st_mode & S_IFDIR))) {
             continue;
+        }
 
         list.Append(d->d_name);
     }
 
     closedir(fdir);
-    Mem_Free(entry);
+    // Mem_Free( entry );
 
     if (debug) {
         common->Printf("Sys_ListFiles: %d entries in %s\n", list.Num(), directory);
@@ -650,20 +847,10 @@ void Sys_Sleep(int msec)
 #if defined(__ANDROID__)
     usleep(msec * 1000);
 #else
-    if (usleep(msec * 1000) == -1)
+    if (usleep(msec * 1000) == -1) {
         Sys_Printf("usleep: %s\n", strerror(errno));
+    }
 #endif
-}
-
-char* Sys_GetClipboardData()
-{
-    Sys_Printf("TODO: Sys_GetClipboardData\n");
-    return NULL;
-}
-
-void Sys_SetClipboardData(const char* string)
-{
-    Sys_Printf("TODO: Sys_SetClipboardData\n");
 }
 
 // stub pretty much everywhere - heavy calling
@@ -812,6 +999,13 @@ void Posix_LateInit()
     Posix_InitConsoleInput();
     com_pid.SetInteger(getpid());
     common->Printf("pid: %d\n", com_pid.GetInteger());
+    //	common->Printf( "%d MB System Memory\n", Sys_GetSystemRam() );
+
+    // #ifndef ID_DEDICATED
+    // common->Printf( "%d MB Video Memory\n", Sys_GetVideoRam() );
+    // #endif
+
+    // Posix_StartAsyncThread();
 }
 
 /*
@@ -1206,7 +1400,7 @@ char* Posix_ConsoleInput()
     } else {
         // disabled on OSX. works fine from a terminal, but launching from Finder is causing trouble
         // I'm pretty sure it could be re-enabled if needed, and just handling the Finder failure case right (TTimo)
-#ifndef MACOS_X
+#ifndef __APPLE__
         // no terminal support - read only complete lines
         int len;
         fd_set fdset;
@@ -1365,4 +1559,52 @@ extern idCVar sys_lang;
 void Sys_SetLanguageFromSystem()
 {
     sys_lang.SetString(Sys_DefaultLanguage());
+}
+
+/*
+=================
+Sys_OpenURL
+=================
+*/
+void idSysLocal::OpenURL(const char* url, bool quit)
+{
+    const char* script_path;
+    idFile* script_file;
+    char cmdline[1024];
+
+    static bool quit_spamguard = false;
+
+    if (quit_spamguard) {
+        common->DPrintf("Sys_OpenURL: already in a doexit sequence, ignoring %s\n", url);
+        return;
+    }
+
+    common->Printf("Open URL: %s\n", url);
+    // opening an URL on *nix can mean a lot of things ..
+    // just spawn a script instead of deciding for the user :-)
+
+    // look in the savepath first, then in the basepath
+    script_path = fileSystem->BuildOSPath(cvarSystem->GetCVarString("fs_savepath"), "", "openurl.sh");
+    script_file = fileSystem->OpenExplicitFileRead(script_path);
+    if (!script_file) {
+        script_path = fileSystem->BuildOSPath(cvarSystem->GetCVarString("fs_basepath"), "", "openurl.sh");
+        script_file = fileSystem->OpenExplicitFileRead(script_path);
+    }
+    if (!script_file) {
+        common->Printf("Can't find URL script 'openurl.sh' in either savepath or basepath\n");
+        common->Printf("OpenURL '%s' failed\n", url);
+        return;
+    }
+    fileSystem->CloseFile(script_file);
+
+    // if we are going to quit, only accept a single URL before quitting and spawning the script
+    if (quit) {
+        quit_spamguard = true;
+    }
+
+    common->Printf("URL script: %s\n", script_path);
+
+    // StartProcess is going to execute a system() call with that - hence the &
+    idStr::snPrintf(cmdline, 1024, "%s '%s' &", script_path, url);
+    sys->StartProcess(cmdline, quit);
 }

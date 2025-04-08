@@ -159,7 +159,7 @@ struct MemInfo_t {
 };
 
 struct mpMap_t {
-    mpMap_t& operator=( mpMap_t&& src ) = default;
+    mpMap_t& operator=(mpMap_t&& src) = default;
 
     void operator=(const mpMap_t& src)
     {

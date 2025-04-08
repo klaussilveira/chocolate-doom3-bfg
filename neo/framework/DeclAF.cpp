@@ -215,7 +215,7 @@ const char* idAFVector::ToString(idStr& str, const int precision)
     switch (type) {
     case idAFVector::VEC_COORDS: {
         char format[128];
-        sprintf(format, "( %%.%df, %%.%df, %%.%df )", precision, precision, precision);
+        idStr::snPrintf(format, sizeof(format), "( %%.%df, %%.%df, %%.%df )", precision, precision, precision);
         sprintf(str, format, vec.x, vec.y, vec.z);
         break;
     }

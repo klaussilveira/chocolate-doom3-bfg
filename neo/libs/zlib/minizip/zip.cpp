@@ -95,7 +95,7 @@ DG: The file was renamed from zip.c to zip.cpp so we can use C++ functions from 
 #define TRYFREE(p)   \
     {                \
         Mem_Free(p); \
-    }  // Mem_Free - as well as free() - check for NULL themselves, no need to do it here
+    } // Mem_Free - as well as free() - check for NULL themselves, no need to do it here
 #endif // 0
 
 /*

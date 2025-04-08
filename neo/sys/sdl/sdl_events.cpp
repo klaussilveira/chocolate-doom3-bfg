@@ -580,6 +580,28 @@ void Sys_InitScanTable()
 }
 #endif
 
+char* Sys_GetClipboardData()
+{
+    char* txt = SDL_GetClipboardText();
+
+    if (txt == NULL) {
+        return NULL;
+    } else if (txt[0] == '\0') {
+        SDL_free(txt);
+        return NULL;
+    }
+
+    char* ret = Mem_CopyString(txt);
+    SDL_free(txt);
+
+    return ret;
+}
+
+void Sys_SetClipboardData(const char* string)
+{
+    SDL_SetClipboardText(string);
+}
+
 /*
 ===============
 Sys_GetConsoleKey

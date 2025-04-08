@@ -212,7 +212,7 @@ void idTokenParser::Error(VERIFY_FORMAT_STRING const char* str, ...)
     va_list ap;
 
     va_start(ap, str);
-    vsprintf(text, str, ap);
+    idStr::vsnPrintf(text, sizeof(text), str, ap);
     va_end(ap);
 
     idLib::common->Warning(text);
@@ -223,7 +223,7 @@ void idTokenParser::Warning(VERIFY_FORMAT_STRING const char* str, ...)
     va_list ap;
 
     va_start(ap, str);
-    vsprintf(text, str, ap);
+    idStr::vsnPrintf(text, sizeof(text), str, ap);
     va_end(ap);
 
     idLib::common->Warning(text);
