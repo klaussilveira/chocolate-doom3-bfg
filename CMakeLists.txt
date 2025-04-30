@@ -39,9 +39,9 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
         # I think it is from Visual C++ .NET 2002, so it should be available on any remotely modern system.
         add_definitions(-D__MSVCRT_VERSION__=0x0700)
 
-        find_package(DirectX REQUIRED)
-        include_directories(libs/mingw-hacks)
-        include_directories(${DirectX_INCLUDE_DIR})
+        #find_package(DirectX REQUIRED)
+        include_directories(neo/libs/mingw-hacks)
+        #include_directories(${DirectX_INCLUDE_DIR})
         add_definitions(-DUSE_XINPUT)
     endif()
 
