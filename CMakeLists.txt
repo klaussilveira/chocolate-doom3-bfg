@@ -16,9 +16,9 @@ if(MSVC)
     #message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
 
     #if(CMAKE_CL_64)
-    #	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../bin/win64)
+    #   SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../bin/win64)
     #else()
-    #	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../bin/win32)
+    #   SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../bin/win32)
     #endif()
 
     #message(STATUS EXECUTABLE_OUTPUT_PATH: ${EXECUTABLE_OUTPUT_PATH})
@@ -687,7 +687,7 @@ set(WIN32_RESOURCES
 #if(USE_MFC_TOOLS)
 list(APPEND WIN32_RESOURCES neo/sys/win32/rc/doom.rc)
 #else()
-#	list(APPEND WIN32_RESOURCES neo/sys/win32/rc/doom_nomfc.rc)
+#   list(APPEND WIN32_RESOURCES neo/sys/win32/rc/doom_nomfc.rc)
 #endif()
 
 file(GLOB POSIX_INCLUDES neo/sys/posix/*.h)
@@ -1255,9 +1255,9 @@ else()
             #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/include)
 
             #if(CMAKE_CL_64)
-            #	link_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/lib/win64)
+            #   link_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/lib/win64)
             #else()
-            #	link_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/lib/win32)
+            #   link_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/lib/win32)
             #endif()
 
             list(APPEND DOOM_INCLUDES ${OPENAL_INCLUDES})

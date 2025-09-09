@@ -1,0 +1,52 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake ninja-build ccache pkg-config \
+            libsdl2-dev libopenal-dev \
+            libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev \
+            libgl1-mesa-dev
+
+      - name: Setup ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-ccache-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+
+      - name: Configure & build
+        run: |
+          mkdir -p build
+          cd build
+          cmake -G Ninja \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            ..
+          ninja
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          SHORT_SHA="${GITHUB_SHA::8}"
+          cp build/Doom3BFG "dist/ChocDoom3BFG-linux-${SHORT_SHA}"
+          cp -r base dist/
+          ls -lh dist/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChocDoom3BFG-linux
+          path: dist/*
+          if-no-files-found: error

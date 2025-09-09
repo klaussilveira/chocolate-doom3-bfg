@@ -1,8 +1,8 @@
 # Chocolate DOOM-3-BFG
 
-Chocolate DOOM-3-BFG is a source port of Doom 3: BFG Edition, forked from the excellent [RBDOOM-3-BFG](https://github.com/RobertBeckebans/RBDOOM-3-BFG) project by Robert Beckebans. Unlike other modern ports that add new features and graphical enhancements, our primary goal is to accurately reproduce the experience of playing Vanilla Doom 3, while leveraging the modernized BFG engine's compatibility and performance improvements.
+Chocolate DOOM-3-BFG is a source port of Doom 3: BFG Edition, forked from the excellent [RBDOOM-3-BFG](https://github.com/RobertBeckebans/RBDOOM-3-BFG) project by Robert Beckebans. Unlike other modern ports that add new features and graphical enhancements, our primary goal is to accurately reproduce the experience of playing Vanilla Doom 3 BFG, while leveraging the modernized BFG engine's compatibility and performance improvements.
 
-While RBDOOM-3-BFG is an impressive project that has introduced many amazing new features such as shadow mapping, Physically Based Rendering, Image Based Lighting, and more - efforts which should be genuinely commende - Chocolate DOOM-3-BFG deliberately takes the opposite approach.
+While RBDOOM-3-BFG is an impressive project that has introduced many amazing new features such as shadow mapping, Physically Based Rendering, Image Based Lighting, and more, efforts which should be genuinely commended, Chocolate DOOM-3-BFG deliberately takes the opposite approach.
 
 Chocolate DOOM-3-BFG was forked from RBDOOM-3-BFG at a specific point in its development history: right before the introduction of shadow mapping. This was a deliberate choice to maintain the authentic visual experience of the original Doom 3 while still benefiting from the underlying engine improvements of the BFG edition.
 
@@ -23,12 +23,10 @@ This project has backported bug fixes and features that match its preservation m
 
 ## Build
 
-```
-$ mkdir build
-$ cd build
-$ cmake ../neo
-$ make
-```
+    $ mkdir build
+    $ cd build
+    $ cmake ..
+    $ make
 
 ## Running
 
@@ -37,6 +35,7 @@ You will need the original game data files (`base/` directory, etc.) from a legi
 ## Contributions
 
 Contributions are welcome, especially those that:
+
 - Fix bugs present in BFG Edition
 - Improve performance without changing the vanilla experience
 - Enhance compatibility with different platforms
