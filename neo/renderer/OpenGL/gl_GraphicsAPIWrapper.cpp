@@ -277,6 +277,9 @@ void GL_SetDefaultState()
     if (r_useScissor.GetBool()) {
         qglScissor(0, 0, renderSystem->GetWidth(), renderSystem->GetHeight());
     }
+
+    renderProgManager.Unbind();
+    renderProgManager.ZeroUniforms();
 }
 
 /*
