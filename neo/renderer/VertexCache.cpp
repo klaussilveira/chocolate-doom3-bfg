@@ -159,7 +159,14 @@ call on loading a new map
 */
 void idVertexCache::FreeStaticData()
 {
+    // Destroy and recreate the static buffers to clear state
+    staticData.vertexBuffer.FreeBufferObject();
+    staticData.indexBuffer.FreeBufferObject();
+    staticData.vertexBuffer.AllocBufferObject(NULL, STATIC_VERTEX_MEMORY);
+    staticData.indexBuffer.AllocBufferObject(NULL, STATIC_INDEX_MEMORY);
+
     ClearGeoBufferSet(staticData);
+
     mostUsedVertex = 0;
     mostUsedIndex = 0;
     mostUsedJoint = 0;
