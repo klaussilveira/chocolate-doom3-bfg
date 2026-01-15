@@ -49,7 +49,7 @@ glconfig_t glConfig;
 idCVar r_requestStereoPixelFormat("r_requestStereoPixelFormat", "1", CVAR_RENDERER, "Ask for a stereo GL pixel format on startup");
 idCVar r_debugContext("r_debugContext", "0", CVAR_RENDERER, "Enable various levels of context debug.");
 idCVar r_glDriver("r_glDriver", "", CVAR_RENDERER, "\"opengl32\", etc.");
-idCVar r_skipIntelWorkarounds("r_skipIntelWorkarounds", "0", CVAR_RENDERER | CVAR_BOOL, "skip workarounds for Intel driver bugs");
+idCVar r_skipIntelWorkarounds("r_skipIntelWorkarounds", "1", CVAR_RENDERER | CVAR_BOOL, "skip workarounds for Intel driver bugs");
 idCVar r_multiSamples("r_multiSamples", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "number of antialiasing samples");
 idCVar r_vidMode("r_vidMode", "0", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_INTEGER, "fullscreen video mode number");
 idCVar r_displayRefresh("r_displayRefresh", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_NOCHEAT, "optional display refresh rate option for vid mode", 0.0f, 240.0f);
@@ -320,8 +320,6 @@ PFNGLGETSTRINGIPROC qglGetStringi;
 /*
 ========================
 glBindMultiTextureEXT
-
-As of 2011/09/16 the Intel drivers for "Sandy Bridge" and "Ivy Bridge" integrated graphics do not support this extension.
 ========================
 */
 void APIENTRY glBindMultiTextureEXT(GLenum texunit, GLenum target, GLuint texture)
@@ -557,8 +555,6 @@ static void R_CheckPortableExtensions()
 
     // GL_ARB_sync
     glConfig.syncAvailable = R_CheckExtension("GL_ARB_sync") &&
-        // as of 5/24/2012 (driver version 15.26.12.64.2761) sync objects
-        // do not appear to work for the Intel HD 4000 graphics
         (glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool());
     if (glConfig.syncAvailable) {
         qglFenceSync = (PFNGLFENCESYNCPROC)GLimp_ExtensionPointer("glFenceSync");
@@ -582,7 +578,7 @@ static void R_CheckPortableExtensions()
     }
 
     // GL_ARB_timer_query
-    glConfig.timerQueryAvailable = (R_CheckExtension("GL_ARB_timer_query") || R_CheckExtension("GL_EXT_timer_query")) && glConfig.driverType != GLDRV_OPENGL_MESA;
+    glConfig.timerQueryAvailable = R_CheckExtension("GL_ARB_timer_query") || R_CheckExtension("GL_EXT_timer_query");
     if (glConfig.timerQueryAvailable) {
         qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)GLimp_ExtensionPointer("glGetQueryObjectui64vARB");
         if (qglGetQueryObjectui64vEXT == NULL) {
