@@ -92,7 +92,7 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
         qglPixelStorei(GL_UNPACK_ROW_LENGTH, pixelPitch);
     }
     if (opts.format == FMT_RGB565) {
-        glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
+        qglPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
     }
 #ifdef DEBUG
     GL_CheckErrors();
@@ -117,7 +117,7 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
     GL_CheckErrors();
 #endif
     if (opts.format == FMT_RGB565) {
-        glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
+        qglPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
     }
     if (pixelPitch != 0) {
         qglPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
