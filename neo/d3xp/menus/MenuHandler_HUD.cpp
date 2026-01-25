@@ -60,7 +60,7 @@ void idMenuHandler_HUD::Update()
     idPlayer* player = gameLocal.GetLocalPlayer();
     if (player != NULL) {
         if (player->IsTipVisible() && autoHideTip && !hiding) {
-            if (gameLocal.time >= tipStartTime + TIP_DISPLAY_TIME) {
+            if (gameLocal.fast.time >= tipStartTime + TIP_DISPLAY_TIME) {
                 player->HideTip();
             }
         }
@@ -162,8 +162,8 @@ idMenuHandler_HUD::ShowTip
 */
 void idMenuHandler_HUD::ShowTip(const char* title, const char* tip, bool autoHide)
 {
-    autoHideTip = autoHideTip;
-    tipStartTime = gameLocal.time;
+    autoHideTip = autoHide;
+    tipStartTime = gameLocal.fast.time;
     hiding = false;
     idMenuScreen_HUD* screen = GetHud();
     if (screen != NULL) {

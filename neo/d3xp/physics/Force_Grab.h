@@ -64,6 +64,8 @@ public: // common force interface
 private:
     // properties
     float damping;
+    float adjustedLinearDamping;   // damping adjusted for current framerate (120fps fix)
+    float adjustedAngularDamping;  // angular damping adjusted for current framerate (120fps fix)
     idVec3 goalPosition;
 
     float distanceToGoal;

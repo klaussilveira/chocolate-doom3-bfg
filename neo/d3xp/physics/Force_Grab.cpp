@@ -71,6 +71,8 @@ idForce_Grab::idForce_Grab
 idForce_Grab::idForce_Grab()
 {
     damping = 0.5f;
+    adjustedLinearDamping = -1.0f;
+    adjustedAngularDamping = -1.0f;
     physics = NULL;
     id = 0;
 }
@@ -168,14 +170,23 @@ void idForce_Grab::Evaluate(int time)
     }
     physics->AddForce(id, objectCenter, forceDir * forceAmt);
 
+    // Damping values were tuned for 60fps. At higher framerates, damping is applied
+    // more frequently, so we need to adjust the per-frame damping factor.
+    if (adjustedLinearDamping < 0.0f) {
+        adjustedLinearDamping = idMath::Pow(damping, 60.0f / com_engineHz_latched);
+    }
+    if (adjustedAngularDamping < 0.0f) {
+        adjustedAngularDamping = idMath::Pow(0.99999f, 60.0f / com_engineHz_latched);
+    }
+
     if (distanceToGoal < 196.f) {
         v = physics->GetLinearVelocity(id);
-        physics->SetLinearVelocity(v * damping, id);
+        physics->SetLinearVelocity(v * adjustedLinearDamping, id);
     }
     if (distanceToGoal < 16.f) {
         v = physics->GetAngularVelocity(id);
         if (v.LengthSqr() > Square(8)) {
-            physics->SetAngularVelocity(v * 0.99999f, id);
+            physics->SetAngularVelocity(v * adjustedAngularDamping, id);
         }
     }
 }

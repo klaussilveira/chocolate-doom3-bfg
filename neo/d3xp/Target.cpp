@@ -1367,7 +1367,7 @@ void idTarget_SetKeyVal::Event_Activate(idEntity* activator)
                         if (ent->GetRenderEntity()->gui[j]) {
                             if (idStr::Icmpn(key, "gui_", 4) == 0) {
                                 ent->GetRenderEntity()->gui[j]->SetStateString(key, val);
-                                ent->GetRenderEntity()->gui[j]->StateChanged(gameLocal.time);
+                                ent->GetRenderEntity()->gui[j]->StateChanged(gameLocal.fast.time);
                             }
                         }
                     }

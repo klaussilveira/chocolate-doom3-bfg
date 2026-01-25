@@ -814,6 +814,11 @@ private:
     int landChange;
     int landTime;
 
+    // Crouch rate adjustment for 120fps (pm_crouchrate was tuned for 60fps)
+    float crouchRateBase;      // cached pm_crouchrate value
+    float crouchRateAdjusted;  // rate adjusted for current framerate
+    float GetAdjustedCrouchRate();
+
     int currentWeapon;
     idPredictedValue<int> idealWeapon;
     int previousWeapon;

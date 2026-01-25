@@ -219,7 +219,7 @@ idInventory::GivePowerUp
 void idInventory::GivePowerUp(idPlayer* player, int powerup, int msec)
 {
     powerups |= 1 << powerup;
-    powerupEndTime[powerup] = gameLocal.time + msec;
+    powerupEndTime[powerup] = gameLocal.fast.time + msec;
 }
 
 /*
@@ -1380,6 +1380,9 @@ idPlayer::idPlayer()
     landChange = 0;
     landTime = 0;
 
+    crouchRateBase = 0.0f;
+    crouchRateAdjusted = 0.0f;
+
     currentWeapon = -1;
     previousWeapon = -1;
     weaponSwitchTime = 0;
@@ -1861,7 +1864,7 @@ void idPlayer::Spawn()
             cursor = uiManager->FindGui(temp, true, common->IsMultiplayer(), common->IsMultiplayer());
         }
         if (cursor) {
-            cursor->Activate(true, gameLocal.time);
+            cursor->Activate(true, gameLocal.fast.time);
         }
 
         if (pdaMenu != NULL) {
@@ -4059,7 +4062,7 @@ void idPlayer::UpdatePowerUps()
                 }
                 }
             }
-            if (PowerUpActive(i) && inventory.powerupEndTime[i] <= gameLocal.time) {
+            if (PowerUpActive(i) && inventory.powerupEndTime[i] <= gameLocal.fast.time) {
                 ClearPowerup(i);
             }
         }
@@ -5080,7 +5083,7 @@ void idPlayer::Weapon_GUI()
         if (ui) {
             bool updateVisuals = false;
             sysEvent_t ev = sys->GenerateMouseButtonEvent(1, isDown);
-            command = ui->HandleEvent(&ev, gameLocal.time, &updateVisuals);
+            command = ui->HandleEvent(&ev, gameLocal.fast.time, &updateVisuals);
             if (updateVisuals && focusGUIent && ui == focusUI) {
                 focusGUIent->UpdateVisuals();
             }
@@ -5804,12 +5807,12 @@ void idPlayer::UpdateFocus()
 
             // clamp the mouse to the corner
             ev = sys->GenerateMouseMoveEvent(-2000, -2000);
-            command = focusUI->HandleEvent(&ev, gameLocal.time);
+            command = focusUI->HandleEvent(&ev, gameLocal.fast.time);
             HandleGuiCommands(focusGUIent, command);
 
             // move to an absolute position
             ev = sys->GenerateMouseMoveEvent(pt.x * SCREEN_WIDTH, pt.y * SCREEN_HEIGHT);
-            command = focusUI->HandleEvent(&ev, gameLocal.time);
+            command = focusUI->HandleEvent(&ev, gameLocal.fast.time);
             HandleGuiCommands(focusGUIent, command);
             focusTime = gameLocal.time + FOCUS_GUI_TIME;
             break;
@@ -5818,14 +5821,14 @@ void idPlayer::UpdateFocus()
 
     if (focusGUIent && focusUI) {
         if (!oldFocus || oldFocus != focusGUIent) {
-            command = focusUI->Activate(true, gameLocal.time);
+            command = focusUI->Activate(true, gameLocal.fast.time);
             HandleGuiCommands(focusGUIent, command);
             StartSound("snd_guienter", SND_CHANNEL_ANY, 0, false, NULL);
             // HideTip();
             // HideObjective();
         }
     } else if (oldFocus && oldUI) {
-        command = oldUI->Activate(false, gameLocal.time);
+        command = oldUI->Activate(false, gameLocal.fast.time);
         HandleGuiCommands(oldFocus, command);
         StartSound("snd_guiexit", SND_CHANNEL_ANY, 0, false, NULL);
     }
@@ -5973,6 +5976,24 @@ void idPlayer::CrashLand(const idVec3& oldOrigin, const idVec3& oldVelocity)
     } else if (delta > 3) {
         // just walk on
     }
+}
+
+/*
+===============
+idPlayer::GetAdjustedCrouchRate
+
+The pm_crouchrate value was tuned for 60fps. At higher framerates, the smoothing
+is applied more frequently, so we need to adjust the per-frame rate.
+===============
+*/
+float idPlayer::GetAdjustedCrouchRate()
+{
+    float currentRate = pm_crouchrate.GetFloat();
+    if (crouchRateBase != currentRate) {
+        crouchRateBase = currentRate;
+        crouchRateAdjusted = idMath::Pow(currentRate, 60.0f / com_engineHz_latched);
+    }
+    return crouchRateAdjusted;
 }
 
 /*
@@ -7084,7 +7105,8 @@ void idPlayer::Move_Interpolated(float fraction)
             SetEyeHeight(newEyeOffset);
         } else {
             // smooth out duck height changes
-            SetEyeHeight(EyeHeight() * pm_crouchrate.GetFloat() + newEyeOffset * (1.0f - pm_crouchrate.GetFloat()));
+            float crouchRate = GetAdjustedCrouchRate();
+            SetEyeHeight(EyeHeight() * crouchRate + newEyeOffset * (1.0f - crouchRate));
         }
     }
 
@@ -7193,7 +7215,8 @@ void idPlayer::Move()
             SetEyeHeight(newEyeOffset);
         } else {
             // smooth out duck height changes
-            SetEyeHeight(EyeHeight() * pm_crouchrate.GetFloat() + newEyeOffset * (1.0f - pm_crouchrate.GetFloat()));
+            float crouchRate = GetAdjustedCrouchRate();
+            SetEyeHeight(EyeHeight() * crouchRate + newEyeOffset * (1.0f - crouchRate));
         }
     }
 
@@ -8077,7 +8100,7 @@ void idPlayer::RouteGuiMouse(idUserInterface* gui)
 
     if (usercmd.mx != oldMouseX || usercmd.my != oldMouseY) {
         ev = sys->GenerateMouseMoveEvent(usercmd.mx - oldMouseX, usercmd.my - oldMouseY);
-        command = gui->HandleEvent(&ev, gameLocal.time);
+        command = gui->HandleEvent(&ev, gameLocal.fast.time);
         oldMouseX = usercmd.mx;
         oldMouseY = usercmd.my;
     }

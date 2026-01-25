@@ -1279,6 +1279,8 @@ void idAFEntity_Gibbable::Gib(const idVec3& dir, const char* damageDefName)
         return;
     }
 
+    SetTimeState ts(timeGroup);
+
     // Don't grab this ent after it's been gibbed (and now invisible!)
     noGrab = true;
 
@@ -1301,8 +1303,9 @@ void idAFEntity_Gibbable::Gib(const idVec3& dir, const char* damageDefName)
     UnlinkCombat();
 
     if (g_bloodEffects.GetBool()) {
-        if (gameLocal.time > gameLocal.GetGibTime()) {
-            gameLocal.SetGibTime(gameLocal.time + GIB_DELAY);
+        // Use fast.time for gib delay to ensure proper timing at any framerate
+        if (gameLocal.fast.time > gameLocal.GetGibTime()) {
+            gameLocal.SetGibTime(gameLocal.fast.time + GIB_DELAY);
             SpawnGibs(dir, damageDefName);
             renderEntity.noShadow = true;
             renderEntity.shaderParms[SHADERPARM_TIME_OF_DEATH] = gameLocal.time * 0.001f;

@@ -203,7 +203,7 @@ void UpdateGuiParms(idUserInterface* gui, const idDict* args)
         kv = args->MatchPrefix("gui_parm", kv);
     }
     gui->SetStateBool("noninteractive", args->GetBool("gui_noninteractive"));
-    gui->StateChanged(gameLocal.time);
+    gui->StateChanged(gameLocal.fast.time);
 }
 
 /*
@@ -3725,7 +3725,7 @@ void idEntity::TriggerGuis()
     int i;
     for (i = 0; i < MAX_RENDERENTITY_GUI; i++) {
         if (renderEntity.gui[i]) {
-            renderEntity.gui[i]->Trigger(gameLocal.time);
+            renderEntity.gui[i]->Trigger(gameLocal.fast.time);
         }
     }
 }
@@ -3970,7 +3970,7 @@ void idEntity::ActivateTargets(idEntity* activator) const
         }
         for (j = 0; j < MAX_RENDERENTITY_GUI; j++) {
             if (ent->renderEntity.gui[j]) {
-                ent->renderEntity.gui[j]->Trigger(gameLocal.time);
+                ent->renderEntity.gui[j]->Trigger(gameLocal.fast.time);
             }
         }
     }
@@ -4715,7 +4715,7 @@ void idEntity::Event_SetGuiParm(const char* key, const char* val)
                 spawnArgs.Set(key, val);
             }
             renderEntity.gui[i]->SetStateString(key, val);
-            renderEntity.gui[i]->StateChanged(gameLocal.time);
+            renderEntity.gui[i]->StateChanged(gameLocal.fast.time);
         }
     }
 }
@@ -4730,7 +4730,7 @@ void idEntity::Event_SetGuiFloat(const char* key, float f)
     for (int i = 0; i < MAX_RENDERENTITY_GUI; i++) {
         if (renderEntity.gui[i]) {
             renderEntity.gui[i]->SetStateString(key, va("%f", f));
-            renderEntity.gui[i]->StateChanged(gameLocal.time);
+            renderEntity.gui[i]->StateChanged(gameLocal.fast.time);
         }
     }
 }

@@ -1172,6 +1172,10 @@ private:
     bool worldConstraintsLocked; // if true world constraints cannot be moved
     bool forcePushable;          // if true can be pushed even when bound to a master
 
+public:
+    bool truncateImpulse;        // if true, truncate impulses (disable for 120fps throw fixes)
+private:
+
     // physics state
     AFPState_t current;
     AFPState_t saved;

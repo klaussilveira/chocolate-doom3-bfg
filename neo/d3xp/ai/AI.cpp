@@ -1104,7 +1104,7 @@ void idAI::DormantEnd()
 
     if (particles.Num()) {
         for (int i = 0; i < particles.Num(); i++) {
-            particles[i].time = gameLocal.time;
+            particles[i].time = gameLocal.slow.time;
         }
     }
 
@@ -3428,14 +3428,14 @@ const idDeclParticle* idAI::SpawnParticlesOnJoint(particleEmitter_t& pe, const c
         origin = renderEntity.origin + origin * renderEntity.axis;
 
         BecomeActive(TH_UPDATEPARTICLES);
-        if (!gameLocal.time) {
+        if (!gameLocal.slow.time) {
             // particles with time of 0 don't show, so set the time differently on the first frame
             pe.time = 1;
         } else {
-            pe.time = gameLocal.time;
+            pe.time = gameLocal.slow.time;
         }
         pe.particle = static_cast<const idDeclParticle*>(declManager->FindType(DECL_PARTICLE, particleName));
-        gameLocal.smokeParticles->EmitSmoke(pe.particle, pe.time, gameLocal.random.CRandomFloat(), origin, axis, timeGroup /*_D3XP*/);
+        gameLocal.smokeParticles->EmitSmoke(pe.particle, pe.time, gameLocal.random.CRandomFloat(), origin, axis, TIME_GROUP1 /*_D3XP*/);
     }
 
     return pe.particle;
@@ -4894,9 +4894,10 @@ void idAI::UpdateParticles()
                     realVector = physicsObj.GetOrigin() + (realVector + modelOffset) * (viewAxis * physicsObj.GetGravityAxis());
                 }
 
-                if (!gameLocal.smokeParticles->EmitSmoke(particles[i].particle, particles[i].time, gameLocal.random.CRandomFloat(), realVector, realAxis, timeGroup /*_D3XP*/)) {
+                // Use TIME_GROUP1 for AI smoke particles to ensure proper timing at any framerate
+                if (!gameLocal.smokeParticles->EmitSmoke(particles[i].particle, particles[i].time, gameLocal.random.CRandomFloat(), realVector, realAxis, TIME_GROUP1 /*_D3XP*/)) {
                     if (restartParticles) {
-                        particles[i].time = gameLocal.time;
+                        particles[i].time = gameLocal.slow.time;
                     } else {
                         particles[i].time = 0;
                         particlesAlive--;
@@ -4922,7 +4923,7 @@ void idAI::TriggerParticles(const char* jointName)
     jointNum = animator.GetJointHandle(jointName);
     for (int i = 0; i < particles.Num(); i++) {
         if (particles[i].joint == jointNum) {
-            particles[i].time = gameLocal.time;
+            particles[i].time = gameLocal.slow.time;
             BecomeActive(TH_UPDATEPARTICLES);
         }
     }

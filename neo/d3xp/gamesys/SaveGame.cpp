@@ -1400,7 +1400,7 @@ void idRestoreGame::ReadUserInterface(idUserInterface*& ui)
             if (ui->ReadFromSaveGame(file) == false) {
                 Error("idSaveGame::ReadUserInterface: ui failed to read properly\n");
             } else {
-                ui->StateChanged(gameLocal.time);
+                ui->StateChanged(gameLocal.fast.time);
             }
         }
     }
