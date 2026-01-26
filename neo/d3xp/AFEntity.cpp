@@ -1196,7 +1196,7 @@ idAFEntity_Gibbable::Collide
 bool idAFEntity_Gibbable::Collide(const trace_t& collision, const idVec3& velocity)
 {
 
-    if (!gibbed && wasThrown) {
+    if (!gibbed && wasThrown && !fl.grabbed) {
 
         // Everything gibs (if possible)
         if (spawnArgs.GetBool("gib")) {
