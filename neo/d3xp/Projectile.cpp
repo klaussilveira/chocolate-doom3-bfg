@@ -2450,7 +2450,7 @@ void idBFGProjectile::Explode(const trace_t& collision, idEntity* ignore)
             }
         }
 
-        if (damage[0] && (beamTargets[i].target.GetEntity()->entityNumber > gameLocal.numClients - 1)) {
+        if (!common->IsClient() && damage[0] && (beamTargets[i].target.GetEntity()->entityNumber > gameLocal.numClients - 1)) {
             dir = beamTargets[i].target.GetEntity()->GetPhysics()->GetOrigin() - GetPhysics()->GetOrigin();
             dir.Normalize();
             beamTargets[i].target.GetEntity()->Damage(this, ownerEnt, dir, damage, damageScale, (collision.c.id < 0) ? CLIPMODEL_ID_TO_JOINT_HANDLE(collision.c.id) : INVALID_JOINT);
