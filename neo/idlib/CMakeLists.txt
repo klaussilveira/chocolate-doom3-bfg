@@ -122,14 +122,16 @@ else()
 
     # precompiled magic for GCC/clang, adapted from https://gist.github.com/573926
     string(TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" _flags_var_name)
-    set(_compiler_FLAGS ${${_flags_var_name}})
+    set(_compiler_FLAGS ${CMAKE_CXX_FLAGS} ${${_flags_var_name}})
     get_directory_property(_directory_flags INCLUDE_DIRECTORIES)
     foreach(item ${_directory_flags})
         list(APPEND _compiler_FLAGS " -I${item}")
     endforeach(item)
 
-    get_directory_property(_directory_flags DEFINITIONS)
-    list(APPEND _compiler_FLAGS ${_directory_flags})
+    get_directory_property(_directory_flags COMPILE_DEFINITIONS)
+    foreach(item ${_directory_flags})
+        list(APPEND _compiler_FLAGS "-D${item}")
+    endforeach()
 
     separate_arguments(_compiler_FLAGS)
 

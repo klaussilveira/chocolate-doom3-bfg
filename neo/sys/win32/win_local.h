@@ -66,6 +66,9 @@ void Sys_DestroyConsole();
 char* Sys_ConsoleInput();
 char* Sys_GetCurrentUser();
 
+int Sys_GetSystemRam();
+int Sys_GetVideoRam();
+
 void Win_SetErrorText(const char* text);
 
 cpuid_t Sys_GetCPUId();

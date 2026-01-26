@@ -1,0 +1,45 @@
+name: Windows
+on: [push, pull_request]
+
+concurrency:
+  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-windows
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - build-type: Release
+            architecture: x64
+            triplet: x64-windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install OpenAL
+        run: |
+          vcpkg install openal-soft:${{ matrix.triplet }}
+
+      - name: CMake
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -A ${{ matrix.architecture }} "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build-type }}
+
+      - name: Package
+        run: |
+          New-Item -ItemType Directory -Force -Path dist
+          $shortSha = "${{ github.sha }}".Substring(0, 8)
+          Copy-Item "build/${{ matrix.build-type }}/Doom3BFG.exe" "dist/ChocDoom3BFG-windows-${{ matrix.architecture }}-${{ matrix.build-type }}-${shortSha}.exe"
+          Compress-Archive -Path "dist/ChocDoom3BFG-windows-${{ matrix.architecture }}-${{ matrix.build-type }}-${shortSha}.exe" -DestinationPath "dist/ChocDoom3BFG-windows-${{ matrix.architecture }}-${{ matrix.build-type }}.zip"
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'ChocDoom3BFG-${{ github.job }}-${{ matrix.architecture }}-${{ matrix.build-type }}'
+          path: dist/*.zip

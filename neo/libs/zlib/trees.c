@@ -35,7 +35,6 @@
 /* #define GEN_TREES_H */
 
 #include "deflate.h"
-#include "idlib/sys/sys_defines.h"
 
 #ifdef DEBUG
 #  include <ctype.h>

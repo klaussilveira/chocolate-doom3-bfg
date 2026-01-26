@@ -5,12 +5,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option(USE_MFC_TOOLS "Compile the built-in MFC based tools" OFF)
 option(MONOLITH "Embed game logic into main executable" ON)
-option(OPENAL "Use OpenAL soft instead of XAudio2" OFF)
+option(OPENAL "Use OpenAL soft instead of XAudio2" ON)
 option(FFMPEG "Use FMPEG to render Bink videos" OFF)
 
-if(UNIX)
-    set(OPENAL TRUE)
-endif()
+# Use OpenAL on all platforms - simpler and more portable than XAudio2
+set(OPENAL TRUE)
 
 if(MSVC)
     #message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
@@ -29,11 +28,9 @@ else()
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    add_definitions(-pipe)
-    #add_definitions(-Wall)
-    add_definitions(-Werror=format-security)
-    add_definitions(-Werror=format)
-    add_definitions(-mmmx -msse -msse2)
+    # Add compiler flags to CMAKE_C/CXX_FLAGS so they're included in PCH compilation
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe -Werror=format-security -Werror=format -mmmx -msse -msse2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -Werror=format-security -Werror=format -mmmx -msse -msse2")
     if(WIN32)
         # require msvcr70.dll or newer for _aligned_malloc etc
         # I think it is from Visual C++ .NET 2002, so it should be available on any remotely modern system.
@@ -55,8 +52,9 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
         # append clang-specific settings for warnings (the second one make sure clang doesn't complain
         # about unknown -W flags, like -Wno-unused-but-set-variable)
+        # -Wno-register: suppress C++17 'register' storage class specifier error (legacy code)
         set(my_warn_flags
-            "${my_warn_flags} -Wno-local-type-template-args -Wno-unknown-warning-option"
+            "${my_warn_flags} -Wno-local-type-template-args -Wno-unknown-warning-option -Wno-register"
         )
     endif()
 
@@ -161,6 +159,7 @@ elseif(MSVC)
         -D_MBCS
         #-DUSE_OPENAL
         -DUSE_EXCEPTIONS
+        -DUSE_WINRT  # Use modern Windows SDK - skip legacy DirectX SDK headers
     )
 
     if(NOT CMAKE_CL_64)
@@ -1012,24 +1011,22 @@ if(MSVC)
 
     # else()
     find_package(DirectX REQUIRED)
-    include_directories(${DirectX_INCLUDE_DIR})
+    if(DirectX_INCLUDE_DIRS)
+        include_directories(${DirectX_INCLUDE_DIRS})
+    endif()
     #endif()
 
     if(OPENAL)
+        find_package(OpenAL REQUIRED)
         add_definitions(-DUSE_OPENAL)
-
-        include_directories(
-            ${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/include
-        )
-
-        if(CMAKE_CL_64)
-            link_directories(
-                ${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/lib/win64
-            )
-        else()
-            link_directories(
-                ${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/lib/win32
-            )
+        # Use target include dirs if available (vcpkg), fallback to variable
+        if(TARGET OpenAL::OpenAL)
+            get_target_property(_OPENAL_INCLUDE OpenAL::OpenAL INTERFACE_INCLUDE_DIRECTORIES)
+            if(_OPENAL_INCLUDE)
+                include_directories(${_OPENAL_INCLUDE})
+            endif()
+        elseif(OPENAL_INCLUDE_DIR)
+            include_directories(${OPENAL_INCLUDE_DIR})
         endif()
 
         list(APPEND DOOM_INCLUDES ${OPENAL_INCLUDES})
@@ -1039,15 +1036,6 @@ if(MSVC)
             ${OPENAL_SOURCES}
             ${DOOMCLASSIC_OPENAL_SOURCES}
         )
-
-        set(OpenAL_LIBRARIES OpenAL32)
-
-        if(CMAKE_CL_64)
-            install(FILES neo/libs/openal-soft/lib/win64/OpenAL64.dll DESTINATION .)
-        else()
-            install(FILES neo/libs/openal-soft/lib/win32/OpenAL32.dll DESTINATION .)
-            install(FILES neo/libs/openal-soft/lib/win32/OpenAL32.pdb DESTINATION .)
-        endif()
     else()
         list(APPEND DOOM_INCLUDES ${XAUDIO2_INCLUDES})
         list(
@@ -1203,6 +1191,13 @@ if(MSVC)
     add_executable(Doom3BFG WIN32 ${DOOM_INCLUDES} ${DOOM_SOURCES})
 
     add_dependencies(Doom3BFG idlib)
+    # Use OpenAL::OpenAL target if available (vcpkg), fallback to variable
+    if(OPENAL AND TARGET OpenAL::OpenAL)
+        set(_OPENAL_LINK_LIB OpenAL::OpenAL)
+    else()
+        set(_OPENAL_LINK_LIB ${OPENAL_LIBRARY})
+    endif()
+
     target_link_libraries(
         Doom3BFG
         idlib
@@ -1213,7 +1208,7 @@ if(MSVC)
         iphlpapi
         winmm
         wsock32.lib
-        ${OpenAL_LIBRARIES}
+        ${_OPENAL_LINK_LIB}
         ${FFmpeg_LIBRARIES}
     )
 
@@ -1251,14 +1246,15 @@ else()
         if(OPENAL)
             find_package(OpenAL REQUIRED)
             add_definitions(-DUSE_OPENAL)
-
-            #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/include)
-
-            #if(CMAKE_CL_64)
-            #   link_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/lib/win64)
-            #else()
-            #   link_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/lib/win32)
-            #endif()
+            # Use target include dirs if available, fallback to variable
+            if(TARGET OpenAL::OpenAL)
+                get_target_property(_OPENAL_INCLUDE OpenAL::OpenAL INTERFACE_INCLUDE_DIRECTORIES)
+                if(_OPENAL_INCLUDE)
+                    include_directories(${_OPENAL_INCLUDE})
+                endif()
+            elseif(OPENAL_INCLUDE_DIR)
+                include_directories(${OPENAL_INCLUDE_DIR})
+            endif()
 
             list(APPEND DOOM_INCLUDES ${OPENAL_INCLUDES})
             list(
@@ -1346,14 +1342,16 @@ else()
 
     # precompiled magic for GCC/clang, adapted from https://gist.github.com/573926
     string(TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" _flags_var_name)
-    set(_compiler_FLAGS ${${_flags_var_name}})
+    set(_compiler_FLAGS ${CMAKE_CXX_FLAGS} ${${_flags_var_name}})
     get_directory_property(_directory_flags INCLUDE_DIRECTORIES)
     foreach(item ${_directory_flags})
         list(APPEND _compiler_FLAGS " -I${item}")
     endforeach(item)
 
-    get_directory_property(_directory_flags DEFINITIONS)
-    list(APPEND _compiler_FLAGS ${_directory_flags})
+    get_directory_property(_directory_flags COMPILE_DEFINITIONS)
+    foreach(item ${_directory_flags})
+        list(APPEND _compiler_FLAGS "-D${item}")
+    endforeach()
     separate_arguments(_compiler_FLAGS)
 
     # we need to recreate the precompiled header for Doom3BFG
@@ -1396,6 +1394,13 @@ else()
     # make sure precompiled header is deleted after executable is compiled
     add_dependencies(rm_precomp_header Doom3BFG)
 
+    # Use OpenAL::OpenAL target if available, fallback to variable
+    if(OPENAL AND TARGET OpenAL::OpenAL)
+        set(_OPENAL_LINK_LIB OpenAL::OpenAL)
+    else()
+        set(_OPENAL_LINK_LIB ${OPENAL_LIBRARY})
+    endif()
+
     if("${CMAKE_SYSTEM}" MATCHES "Linux")
         target_link_libraries(
             Doom3BFG
@@ -1405,7 +1410,7 @@ else()
             dl
             rt
             SDL2::SDL2
-            ${OPENAL_LIBRARY}
+            ${_OPENAL_LINK_LIB}
             ${FFMPEG_LIBRARIES}
         )
     endif()
@@ -1418,7 +1423,7 @@ else()
             pthread
             rt
             SDL2::SDL2
-            ${OPENAL_LIBRARY}
+            ${_OPENAL_LINK_LIB}
             ${FFMPEG_LIBRARIES}
         )
     endif()

@@ -1,0 +1,66 @@
+name: Linux
+on: [push, pull_request]
+
+concurrency:
+  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-linux
+  cancel-in-progress: true
+
+env:
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+
+jobs:
+  linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build-type: ${{ github.event_name == 'pull_request' && fromJSON('["Release"]') || fromJSON('["Release", "Debug"]') }}
+        compiler: ${{ github.event_name == 'pull_request' && fromJSON('["gcc"]') || fromJSON('["gcc", "clang"]') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.build-type }}-${{ github.sha }}
+          restore-keys: |
+            ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.build-type }}-
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential ccache ninja-build cmake pkg-config \
+            libgl1-mesa-dev \
+            libsdl2-dev libopenal-dev \
+            libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev
+          if [ "${{ matrix.compiler }}" = "clang" ]; then
+            sudo apt-get install -y --no-install-recommends clang
+          fi
+
+      - name: CMake
+        run: |
+          if [ "${{ matrix.compiler }}" = "clang" ]; then
+            export CC=clang
+            export CXX=clang++
+          fi
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build
+        run: cmake --build build --parallel 2 --config ${{ matrix.build-type }}
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          SHORT_SHA="${GITHUB_SHA::8}"
+          cp build/Doom3BFG "dist/ChocDoom3BFG-linux-${{ matrix.compiler }}-${{ matrix.build-type }}-${SHORT_SHA}"
+          tar -czvf "dist/ChocDoom3BFG-linux-${{ matrix.compiler }}-${{ matrix.build-type }}.tar.gz" -C dist "ChocDoom3BFG-linux-${{ matrix.compiler }}-${{ matrix.build-type }}-${SHORT_SHA}"
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'ChocDoom3BFG-${{ github.job }}-${{ matrix.compiler }}-${{ matrix.build-type }}'
+          path: dist/*.tar.gz
