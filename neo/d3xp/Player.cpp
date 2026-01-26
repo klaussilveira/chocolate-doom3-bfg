@@ -4777,17 +4777,16 @@ void idPlayer::DropWeapon(bool died)
         return;
     }
 
-    ammoavailable += inclip;
-
     // expect an ammo setup that makes sense before doing any dropping
     // ammoavailable is -1 for infinite ammo, and weapons like chainsaw
     // a bad ammo config usually indicates a bad weapon state, so we should not drop
     // used to be an assertion check, but it still happens in edge cases
 
-    if ((ammoavailable != -1) && (ammoavailable < 0)) {
+    if ((ammoavailable != -1) && (ammoavailable + inclip < 0)) {
         common->DPrintf("idPlayer::DropWeapon: bad ammo setup\n");
         return;
     }
+    ammoavailable += inclip;
     idEntity* item = NULL;
     if (died) {
         // ain't gonna throw you no weapon if I'm dead
@@ -4847,13 +4846,11 @@ void idPlayer::StealWeapon(idPlayer* player)
     int ammoavailable = player->weapon.GetEntity()->AmmoAvailable();
     int inclip = player->weapon.GetEntity()->AmmoInClip();
 
-    ammoavailable += inclip;
-
-    if ((ammoavailable != -1) && (ammoavailable < 0)) {
+    if ((ammoavailable != -1) && (ammoavailable + inclip < 0)) {
         // see DropWeapon
         common->DPrintf("idPlayer::StealWeapon: bad ammo setup\n");
         // we still steal the weapon, so let's use the default ammo levels
-        inclip = -1;
+        inclip = 0;
         const idDeclEntityDef* decl = gameLocal.FindEntityDef(weapon_classname);
         assert(decl);
         const idKeyValue* keypair = decl->dict.MatchPrefix("inv_ammo_");
