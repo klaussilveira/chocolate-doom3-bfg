@@ -349,11 +349,11 @@ float CM_TranslationPlaneFraction(const idPlane& plane, const idVec3& start, con
     const float d1 = plane.Distance(start);
 
     // if completely behind the polygon
-    if (d1 <= 0.0f) {
+    if (d1 < 0.0f) {
         return 1.0f;
     }
     // leaves polygon
-    if (d1 - d2 < idMath::FLT_SMALLEST_NON_DENORMAL) {
+    if (d1 - d2 <= 0.0f) {
         return 1.0f;
     }
     return (d1 - CM_CLIP_EPSILON) / (d1 - d2);
