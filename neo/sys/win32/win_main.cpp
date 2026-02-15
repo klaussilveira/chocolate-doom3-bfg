@@ -49,6 +49,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "win_local.h"
 #include "../../renderer/tr_local.h"
 
+// forward declarations for functions in win_shared.cpp
+int Sys_GetSystemRam();
+int Sys_GetVideoRam();
+
 idCVar Win32Vars_t::sys_arch("sys_arch", "", CVAR_SYSTEM | CVAR_INIT, "");
 idCVar Win32Vars_t::sys_cpustring("sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "");
 idCVar Win32Vars_t::in_mouse("in_mouse", "1", CVAR_SYSTEM | CVAR_BOOL, "enable mouse input");
@@ -724,7 +728,7 @@ ExecOutputFn
 */
 static void ExecOutputFn(const char* text)
 {
-    idLib::Printf(text);
+    idLib::Printf("%s", text);
 }
 
 /*
@@ -898,7 +902,7 @@ Sys_DLL_Load
 intptr_t Sys_DLL_Load(const char* dllName)
 {
     HINSTANCE libHandle = LoadLibrary(dllName);
-    return (int)libHandle;
+    return (intptr_t)libHandle;
 }
 
 /*

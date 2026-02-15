@@ -1233,13 +1233,14 @@ GLuint idRenderProgManager::LoadGLSLShader(GLenum target, const char* name, idLi
     if ((glslFileLength <= 0) || (hlslTimeStamp > glslTimeStamp) || r_alwaysExportGLSL.GetBool()) {
         if (hlslFileLength <= 0) {
             // hlsl file doesn't even exist bail out
-            return false;
+            idLib::Warning("Couldn't load shader source '%s'", inFile.c_str());
+            return INVALID_PROGID;
         }
 
         void* hlslFileBuffer = NULL;
         int len = fileSystem->ReadFile(inFile.c_str(), &hlslFileBuffer);
         if (len <= 0) {
-            return false;
+            return INVALID_PROGID;
         }
         idStr hlslCode((const char*)hlslFileBuffer);
         idStr programHLSL = StripDeadCode(hlslCode, inFile);

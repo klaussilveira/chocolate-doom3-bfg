@@ -29,7 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 
 // RB: missing __analysis_assume
 #if defined(__MINGW32__)
-#include <sal.h>
+#ifndef __analysis_assume
+#define __analysis_assume(x)
+#endif
 #endif
 // RB end
 
@@ -37,6 +39,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef _WIN32
 #include <windows.h> // for DebugBreak
+// MinGW SAL macros break C++ STL headers
+#ifdef __MINGW32__
+#undef __in
+#undef __out
+#undef __inout
+#endif
 #else                // POSIX for raise()
 #include <signal.h>
 #endif

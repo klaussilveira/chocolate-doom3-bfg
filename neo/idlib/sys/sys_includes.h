@@ -108,6 +108,22 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <windows.h> // for gl.h
 
+// MinGW Windows headers define SAL annotation macros (__in, __out, etc.) that
+// break GCC's libstdc++ which uses these as template parameter names.
+#ifdef __MINGW32__
+#undef __in
+#undef __out
+#undef __inout
+#undef __in_opt
+#undef __out_opt
+#undef __inout_opt
+#undef __in_ecount
+#undef __out_ecount
+#undef __in_bcount
+#undef __out_bcount
+#undef __deref_out
+#endif
+
 #elif defined(__linux__) || defined(__FreeBSD__)
 
 #include <signal.h>

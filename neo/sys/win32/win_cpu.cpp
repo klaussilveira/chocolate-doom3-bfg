@@ -115,11 +115,10 @@ double Sys_ClockTicksPerSecond()
 
     if (!ticks) {
         HKEY hKey;
-        LPBYTE ProcSpeed;
+        DWORD ProcSpeed = 0;
         DWORD buflen, ret;
 
         if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_READ, &hKey)) {
-            ProcSpeed = 0;
             buflen = sizeof(ProcSpeed);
             ret = RegQueryValueEx(hKey, "~MHz", NULL, NULL, (LPBYTE)&ProcSpeed, &buflen);
             // If we don't succeed, try some other spellings.
@@ -131,7 +130,7 @@ double Sys_ClockTicksPerSecond()
             }
             RegCloseKey(hKey);
             if (ret == ERROR_SUCCESS) {
-                ticks = (double)((unsigned long)ProcSpeed) * 1000000;
+                ticks = (double)ProcSpeed * 1000000;
             }
         }
     }
@@ -681,7 +680,7 @@ bool GetCPUInfo(cpuInfo_t& cpuInfo)
 
                 buffer = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(returnLength);
             } else {
-                idLib::Printf("Sys_CPUCount error: %d\n", GetLastError());
+                idLib::Printf("Sys_CPUCount error: %lu\n", (unsigned long)GetLastError());
                 return false;
             }
         } else {

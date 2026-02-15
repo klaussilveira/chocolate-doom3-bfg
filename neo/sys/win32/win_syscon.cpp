@@ -118,7 +118,7 @@ static LONG WINAPI ConWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
         if ((HWND)lParam == s_wcd.hwndBuffer) {
             SetBkColor((HDC)wParam, RGB(0x00, 0x00, 0x80));
             SetTextColor((HDC)wParam, RGB(0xff, 0xff, 0x00));
-            return (long)s_wcd.hbrEditBackground;
+            return (LRESULT)s_wcd.hbrEditBackground;
         } else if ((HWND)lParam == s_wcd.hwndErrorBox) {
             if (s_timePolarity & 1) {
                 SetBkColor((HDC)wParam, RGB(0x80, 0x80, 0x80));
@@ -127,7 +127,7 @@ static LONG WINAPI ConWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
                 SetBkColor((HDC)wParam, RGB(0x80, 0x80, 0x80));
                 SetTextColor((HDC)wParam, RGB(0x00, 0x0, 0x00));
             }
-            return (long)s_wcd.hbrErrorBackground;
+            return (LRESULT)s_wcd.hbrErrorBackground;
         }
         break;
     case WM_SYSCOMMAND:

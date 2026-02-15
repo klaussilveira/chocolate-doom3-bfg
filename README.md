@@ -23,10 +23,24 @@ This project has backported bug fixes and features that match its preservation m
 
 ## Build
 
-    $ mkdir build
-    $ cd build
-    $ cmake ..
-    $ make
+### Linux
+
+    $ cmake -B build -DCMAKE_BUILD_TYPE=Release
+    $ cmake --build build -j$(nproc)
+
+### Windows (cross-compile from Linux with MinGW)
+
+Install the MinGW-w64 toolchain:
+
+    $ sudo apt install mingw-w64        # Debian/Ubuntu
+    $ sudo dnf install mingw64-gcc-c++  # Fedora
+
+Build:
+
+    $ cmake -B build-mingw -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-w64-toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+    $ cmake --build build-mingw -j$(nproc)
+
+The OpenAL DLLs are copied into the build directory automatically. The resulting `Doom3BFG.exe` and accompanying DLLs can be found in `build-mingw/`.
 
 ## Running
 

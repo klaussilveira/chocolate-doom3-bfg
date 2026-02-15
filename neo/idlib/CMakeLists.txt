@@ -15,7 +15,7 @@ file(GLOB ID_MATH_SOURCES math/*.cpp)
 file(GLOB ID_SYS_INCLUDES sys/*.h)
 file(GLOB ID_SYS_SOURCES sys/*.cpp)
 
-if(MSVC)
+if(WIN32)
     file(GLOB ID_SYS_WIN32_INCLUDES sys/win32/*.h)
     file(GLOB ID_SYS_WIN32_SOURCES sys/win32/*.cpp)
 else()
@@ -43,7 +43,7 @@ set(ID_SOURCES_ALL
     ${ID_SYS_SOURCES}
 )
 
-if(MSVC)
+if(WIN32)
     list(APPEND ID_INCLUDES_ALL ${ID_SYS_WIN32_INCLUDES})
     list(APPEND ID_SOURCES_ALL ${ID_SYS_WIN32_SOURCES})
 else()
@@ -66,7 +66,7 @@ source_group("math" FILES ${ID_MATH_SOURCES})
 source_group("sys" FILES ${ID_SYS_INCLUDES})
 source_group("sys" FILES ${ID_SYS_SOURCES})
 
-if(MSVC)
+if(WIN32)
     source_group("sys\\win32" FILES ${ID_SYS_WIN32_INCLUDES})
     source_group("sys\\win32" FILES ${ID_SYS_WIN32_SOURCES})
 else()

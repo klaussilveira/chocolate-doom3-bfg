@@ -38,6 +38,13 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
         # require msvcr70.dll or newer for _aligned_malloc etc
         # I think it is from Visual C++ .NET 2002, so it should be available on any remotely modern system.
         add_definitions(-D__MSVCRT_VERSION__=0x0700)
+        # Use MinGW's own printf implementation which supports C99 format specifiers (%z, etc.)
+        # GCC's compile-time format checker still uses MSVCRT format tables though,
+        # so demote format errors to warnings for MinGW builds.
+        add_definitions(-D__USE_MINGW_ANSI_STDIO=1)
+        add_compile_options(-Wno-error=format -Wno-error=format-extra-args)
+        # Statically link the GCC runtime so the exe doesn't need libgcc_s_seh-1.dll / libstdc++-6.dll
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 
         #find_package(DirectX REQUIRED)
         include_directories(neo/libs/mingw-hacks)
@@ -616,7 +623,7 @@ set(WIN32_SOURCES
     neo/sys/win32/win_wndproc.cpp
 )
 
-if(MSVC)
+if(WIN32)
     list(APPEND WIN32_SOURCES neo/sys/win32/win_cpu.cpp)
 endif()
 
@@ -1226,7 +1233,45 @@ if(MSVC)
 else()
     list(APPEND DOOM_SOURCES ${SYS_INCLUDES} ${SYS_SOURCES})
 
-    if(UNIX)
+    if(WIN32)
+        # MinGW cross-compilation for Windows
+        set(OPENAL TRUE)
+
+        list(APPEND DOOM_INCLUDES ${SYS_INCLUDES} ${WIN32_INCLUDES})
+        list(APPEND DOOM_SOURCES ${WIN32_SOURCES})
+
+        add_definitions(-DUSE_OPENAL)
+
+        include_directories(
+            ${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft-1.25.1/include
+        )
+        link_directories(
+            ${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft-1.25.1/libs/Win64
+        )
+
+        list(APPEND DOOM_INCLUDES ${OPENAL_INCLUDES})
+        list(
+            APPEND
+            DOOM_SOURCES
+            ${OPENAL_SOURCES}
+            ${DOOMCLASSIC_OPENAL_SOURCES}
+        )
+
+        set(OpenAL_LIBRARIES OpenAL32)
+
+        # Copy OpenAL DLLs to the build directory so the exe can find them
+        set(OPENAL_ROUTER_DLL ${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft-1.25.1/router/Win64/OpenAL32.dll)
+        set(OPENAL_SOFT_DLL ${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft-1.25.1/bin/Win64/soft_oal.dll)
+        configure_file(${OPENAL_ROUTER_DLL} ${CMAKE_BINARY_DIR}/OpenAL32.dll COPYONLY)
+        configure_file(${OPENAL_SOFT_DLL} ${CMAKE_BINARY_DIR}/soft_oal.dll COPYONLY)
+
+        # Copy base/renderprogs to build directory so the exe can find shader sources
+        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/base/renderprogs
+             DESTINATION ${CMAKE_BINARY_DIR}/base)
+        # Copy base/default.cfg
+        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/base/default.cfg
+             DESTINATION ${CMAKE_BINARY_DIR}/base)
+    elseif(UNIX)
         if(FFMPEG)
             find_package(FFmpeg REQUIRED)
             add_definitions(-DUSE_FFMPEG)
@@ -1251,14 +1296,6 @@ else()
         if(OPENAL)
             find_package(OpenAL REQUIRED)
             add_definitions(-DUSE_OPENAL)
-
-            #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/include)
-
-            #if(CMAKE_CL_64)
-            #   link_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/lib/win64)
-            #else()
-            #   link_directories(${CMAKE_CURRENT_SOURCE_DIR}/neo/libs/openal-soft/lib/win32)
-            #endif()
 
             list(APPEND DOOM_INCLUDES ${OPENAL_INCLUDES})
             list(
@@ -1369,18 +1406,13 @@ else()
         COMMENT "Creating idlib/precompiled.h.gch for Doom3BFG"
     )
 
-    if(WIN32)
-        set(remove_command "del")
-    else()
-        set(remove_command "rm")
-    endif()
     # it's ugly enough that the precompiled header binary needs to be in the
     # source directory (instead of the build directory), so let's at least
     # delete it after build.
     add_custom_target(
         rm_precomp_header
         ALL
-        COMMAND ${remove_command} "neo/idlib/precompiled.h.gch"
+        COMMAND ${CMAKE_COMMAND} -E remove "neo/idlib/precompiled.h.gch"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "remove idlib/precompiled.h.gch"
     )
@@ -1395,6 +1427,27 @@ else()
 
     # make sure precompiled header is deleted after executable is compiled
     add_dependencies(rm_precomp_header Doom3BFG)
+
+    if("${CMAKE_SYSTEM}" MATCHES "Windows")
+        target_link_libraries(
+            Doom3BFG
+            idlib
+            opengl32
+            glu32
+            dinput8
+            dsound
+            dxguid
+            xinput1_4
+            dbghelp
+            iphlpapi
+            winmm
+            wsock32
+            imm32
+            ole32
+            ${OpenAL_LIBRARIES}
+            ${FFmpeg_LIBRARIES}
+        )
+    endif()
 
     if("${CMAKE_SYSTEM}" MATCHES "Linux")
         target_link_libraries(
