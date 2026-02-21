@@ -1,0 +1,44 @@
+name: Release
+on:
+  push:
+    tags: ['v*', '[0-9]*']
+
+jobs:
+  linux:
+    uses: ./.github/workflows/linux.yaml
+  windows:
+    uses: ./.github/workflows/windows.yaml
+  appimage:
+    uses: ./.github/workflows/appimage.yaml
+  flatpak:
+    uses: ./.github/workflows/flatpak.yaml
+
+  release:
+    needs: [linux, windows, appimage, flatpak]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Package archives
+        run: |
+          tag="${GITHUB_REF_NAME}"
+
+          tar -czf "ChocDoom3BFG-linux-ubuntu-${tag}.tar.gz" -C ChocDoom3BFG-linux-ubuntu .
+          tar -czf "ChocDoom3BFG-linux-fedora-${tag}.tar.gz" -C ChocDoom3BFG-linux-fedora .
+          (cd ChocDoom3BFG-windows-mingw && zip -r "../ChocDoom3BFG-windows-${tag}.zip" .)
+          mv ChocDoom3BFG-appimage-x86_64/*.AppImage "ChocDoom3BFG-${tag}-x86_64.AppImage"
+          mv ChocDoom3BFG-flatpak-x86_64/*.flatpak "ChocDoom3BFG-${tag}.flatpak"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            ChocDoom3BFG-linux-ubuntu-*.tar.gz
+            ChocDoom3BFG-linux-fedora-*.tar.gz
+            ChocDoom3BFG-windows-*.zip
+            ChocDoom3BFG-*-x86_64.AppImage
+            ChocDoom3BFG-*.flatpak

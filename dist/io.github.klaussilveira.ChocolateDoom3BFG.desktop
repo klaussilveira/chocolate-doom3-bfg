@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Chocolate DOOM-3-BFG
+Comment=Vanilla-faithful Doom 3: BFG Edition source port
+Exec=Doom3BFG
+Icon=io.github.klaussilveira.ChocolateDoom3BFG
+Categories=Game;ActionGame;

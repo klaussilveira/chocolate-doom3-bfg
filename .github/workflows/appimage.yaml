@@ -1,0 +1,76 @@
+name: AppImage
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_call:
+
+concurrency:
+  group: appimage-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: AppImage x86_64
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build pkg-config \
+            libsdl2-dev libopenal-dev libgl1-mesa-dev \
+            libfuse2
+
+      - name: Configure
+        run: >
+          cmake -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_INSTALL_PREFIX=/usr
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Create AppDir
+        run: |
+          mkdir -p AppDir/usr/bin
+          mkdir -p AppDir/usr/share/applications
+          mkdir -p AppDir/usr/share/icons/hicolor/64x64/apps
+          mkdir -p AppDir/usr/share/metainfo
+
+          # Binary
+          cp build/Doom3BFG AppDir/usr/bin/
+
+          # Game data
+          cp -r base AppDir/usr/bin/
+
+          # Desktop file and metadata
+          cp dist/io.github.klaussilveira.ChocolateDoom3BFG.desktop AppDir/usr/share/applications/
+          cp dist/io.github.klaussilveira.ChocolateDoom3BFG.metainfo.xml AppDir/usr/share/metainfo/
+
+          # Icon
+          cp dist/io.github.klaussilveira.ChocolateDoom3BFG.png \
+            AppDir/usr/share/icons/hicolor/64x64/apps/io.github.klaussilveira.ChocolateDoom3BFG.png
+
+      - name: Build AppImage
+        run: |
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --desktop-file AppDir/usr/share/applications/io.github.klaussilveira.ChocolateDoom3BFG.desktop \
+            --icon-file AppDir/usr/share/icons/hicolor/64x64/apps/io.github.klaussilveira.ChocolateDoom3BFG.png \
+            --output appimage
+
+          rm linuxdeploy-x86_64.AppImage
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChocDoom3BFG-appimage-x86_64
+          path: "*.AppImage"

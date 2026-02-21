@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.klaussilveira.ChocolateDoom3BFG</id>
+  <name>Chocolate DOOM-3-BFG</name>
+  <summary>Vanilla-faithful Doom 3: BFG Edition source port</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <description>
+    <p>
+      Chocolate DOOM-3-BFG is a source port of Doom 3: BFG Edition that aims to
+      accurately reproduce the experience of playing vanilla Doom 3 BFG.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.klaussilveira.ChocolateDoom3BFG.desktop</launchable>
+  <url type="homepage">https://github.com/klaussilveira/chocolate-doom3-bfg</url>
+  <url type="bugtracker">https://github.com/klaussilveira/chocolate-doom3-bfg/issues</url>
+  <provides>
+    <binary>Doom3BFG</binary>
+  </provides>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-fantasy">intense</content_attribute>
+    <content_attribute id="violence-bloodshed">intense</content_attribute>
+  </content_rating>
+</component>

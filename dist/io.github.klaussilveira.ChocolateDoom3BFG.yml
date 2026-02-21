@@ -1,0 +1,27 @@
+app-id: io.github.klaussilveira.ChocolateDoom3BFG
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: Doom3BFG
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --socket=pulseaudio
+  - --device=dri
+  - --persist=.doom3bfg
+
+modules:
+  - name: chocolate-doom3-bfg
+    buildsystem: simple
+    sources:
+      - type: dir
+        path: ..
+    build-commands:
+      - cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - cmake --build build --parallel ${FLATPAK_BUILDER_N_JOBS}
+      - install -Dm755 build/Doom3BFG /app/bin/Doom3BFG
+      - cp -r base /app/bin/base
+      - install -Dm644 dist/io.github.klaussilveira.ChocolateDoom3BFG.desktop /app/share/applications/io.github.klaussilveira.ChocolateDoom3BFG.desktop
+      - install -Dm644 dist/io.github.klaussilveira.ChocolateDoom3BFG.metainfo.xml /app/share/metainfo/io.github.klaussilveira.ChocolateDoom3BFG.metainfo.xml
+      - install -Dm644 dist/io.github.klaussilveira.ChocolateDoom3BFG.png /app/share/icons/hicolor/64x64/apps/io.github.klaussilveira.ChocolateDoom3BFG.png

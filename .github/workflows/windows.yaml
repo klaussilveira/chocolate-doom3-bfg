@@ -1,0 +1,63 @@
+name: Windows
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_call:
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mingw:
+    name: Windows (MinGW cross-compile)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build ccache \
+            mingw-w64 zip
+
+      - name: Setup ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: mingw-ccache-${{ github.sha }}
+          restore-keys: mingw-ccache-
+
+      - name: Configure
+        run: >
+          cmake -B build-mingw -G Ninja
+          -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-w64-toolchain.cmake
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build
+        run: cmake --build build-mingw --parallel $(nproc)
+
+      - name: Package
+        run: |
+          mkdir -p dist/base
+          SHORT_SHA="${GITHUB_SHA::8}"
+          cp build-mingw/Doom3BFG.exe "dist/ChocDoom3BFG-${SHORT_SHA}.exe"
+          cp build-mingw/OpenAL32.dll dist/
+          cp build-mingw/soft_oal.dll dist/
+          cp -r build-mingw/base/renderprogs dist/base/
+          cp base/default.cfg dist/base/
+          ls -lh dist/
+          ls dist/base/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChocDoom3BFG-windows-mingw
+          path: dist/*
+          if-no-files-found: error

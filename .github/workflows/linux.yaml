@@ -1,0 +1,105 @@
+name: Linux
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_call:
+
+concurrency:
+  group: linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ubuntu:
+    name: Linux (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build ccache pkg-config \
+            libsdl2-dev libopenal-dev libgl1-mesa-dev
+
+      - name: Setup ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ubuntu-ccache-${{ github.sha }}
+          restore-keys: ubuntu-ccache-
+
+      - name: Configure
+        run: >
+          cmake -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          SHORT_SHA="${GITHUB_SHA::8}"
+          cp build/Doom3BFG "dist/ChocDoom3BFG-linux-${SHORT_SHA}"
+          cp -r base dist/
+          ls -lh dist/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChocDoom3BFG-linux-ubuntu
+          path: dist/*
+          if-no-files-found: error
+
+  fedora:
+    name: Linux (Fedora)
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          dnf install -y \
+            gcc gcc-c++ cmake ninja-build ccache pkg-config \
+            SDL2-devel openal-soft-devel mesa-libGL-devel \
+            git tar gzip
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: fedora-ccache-${{ github.sha }}
+          restore-keys: fedora-ccache-
+
+      - name: Configure
+        run: >
+          cmake -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          SHORT_SHA="${GITHUB_SHA::8}"
+          cp build/Doom3BFG "dist/ChocDoom3BFG-linux-${SHORT_SHA}"
+          cp -r base dist/
+          ls -lh dist/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChocDoom3BFG-linux-fedora
+          path: dist/*
+          if-no-files-found: error
