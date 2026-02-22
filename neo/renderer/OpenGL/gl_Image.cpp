@@ -66,7 +66,7 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
             width = opts.width - x;
         }
         if (y + height > opts.height) {
-            height = opts.height - x;
+            height = opts.height - y;
         }
     } else {
         assert(x + width <= opts.width && y + height <= opts.height);
