@@ -8,6 +8,8 @@ option(MONOLITH "Embed game logic into main executable" ON)
 option(OPENAL "Use OpenAL soft instead of XAudio2" OFF)
 option(FFMPEG "Use FMPEG to render Bink videos" OFF)
 
+option(USE_OPENGL_ES "Use OpenGL ES instead of Desktop GL" OFF)
+
 if(UNIX)
     set(OPENAL TRUE)
 endif()
@@ -28,13 +30,27 @@ else()
     message(STATUS CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 endif()
 
+# DG: C++14 is enough and avoids some warnings
+set (CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+if(USE_OPENGL_ES)
+    add_definitions(-DUSE_GLES2=1)
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     add_definitions(-pipe)
     #add_definitions(-Wall)
     add_definitions(-Werror=format-security)
     add_definitions(-Werror=format)
-    add_definitions(-mmmx -msse -msse2)
+    add_definitions(-Wno-multichar)
+
+    add_definitions(-Wno-pragmas -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value -Wno-invalid-pch -Wno-multichar)
+
     if(WIN32)
+        # let's assume that on other platforms x86_64 is used where these things are default
+        # (or they aren't even x86 and don't support this)
+        add_definitions(-mmmx -msse -msse2)
         # require msvcr70.dll or newer for _aligned_malloc etc
         # I think it is from Visual C++ .NET 2002, so it should be available on any remotely modern system.
         add_definitions(-D__MSVCRT_VERSION__=0x0700)
@@ -54,30 +70,23 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 
     add_definitions(-DUSE_EXCEPTIONS)
 
-    # the warnings are used for every profile anyway, so put them in a variable
-    set(my_warn_flags
-        "-Wno-pragmas -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value -Winvalid-pch -Wno-multichar"
-    )
-
-    if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
         # append clang-specific settings for warnings (the second one make sure clang doesn't complain
         # about unknown -W flags, like -Wno-unused-but-set-variable)
-        set(my_warn_flags
-            "${my_warn_flags} -Wno-local-type-template-args -Wno-unknown-warning-option"
-        )
+        add_definitions(-Wno-local-type-template-args -Wno-unknown-warning-option)
     endif()
 
     set(CMAKE_C_FLAGS_DEBUG
-        "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O0 -ggdb -fno-strict-aliasing ${my_warn_flags}"
+        "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O0 -ggdb -fno-strict-aliasing"
     )
     set(CMAKE_C_FLAGS_RELEASE
-        "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -fno-strict-aliasing ${my_warn_flags}"
+        "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -fno-strict-aliasing"
     )
     set(CMAKE_C_FLAGS_RELWITHDEBINFO
-        "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -fno-strict-aliasing ${my_warn_flags}"
+        "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -fno-strict-aliasing"
     )
     set(CMAKE_C_FLAGS_MINSIZEREL
-        "${CMAKE_C_FLAGS_MINSIZEREL} -Os -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -fno-strict-aliasing ${my_warn_flags}"
+        "${CMAKE_C_FLAGS_MINSIZEREL} -Os -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -fno-strict-aliasing"
     )
 
     set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
@@ -1400,7 +1409,7 @@ else()
         precomp_header_rbdoom3bfg
         ALL
         COMMAND
-            ${CMAKE_CXX_COMPILER} ${_compiler_FLAGS} -x c++-header
+            ${CMAKE_CXX_COMPILER} ${_compiler_FLAGS} -std=gnu++14 -x c++-header
             neo/idlib/precompiled.h -o neo/idlib/precompiled.h.gch
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Creating idlib/precompiled.h.gch for Doom3BFG"

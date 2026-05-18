@@ -214,6 +214,7 @@ See if some cvars that we watch have changed
 */
 static void R_CheckCvars()
 {
+    const bool isGLES = (glConfig.driverType == GLDRV_OPENGL_ES2) || (glConfig.driverType == GLDRV_OPENGL_ES3);
 
     // gamma stuff
     if (r_gamma.IsModified() || r_brightness.IsModified()) {
@@ -260,7 +261,8 @@ static void R_CheckCvars()
         }
     }
 
-    if (r_multiSamples.IsModified()) {
+    if (r_multiSamples.IsModified() && !isGLES) {
+        r_multiSamples.ClearModified();
         if (r_multiSamples.GetInteger() > 0) {
             qglEnable(GL_MULTISAMPLE_ARB);
         } else {

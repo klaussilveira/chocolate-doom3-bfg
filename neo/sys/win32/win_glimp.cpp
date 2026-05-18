@@ -1414,14 +1414,20 @@ GLimp_ExtensionPointer
 Returns a function pointer for an OpenGL extension entry point
 ===================
 */
-GLExtension_t GLimp_ExtensionPointer(const char* name)
+GLExtension_t GLimp_ExtensionPointer(const char* name, bool tryAddingARB)
 {
     void (*proc)();
 
     proc = (GLExtension_t)qwglGetProcAddress(name);
 
+    if (!proc && tryAddingARB) {
+        idStr arbname(name);
+        arbname += "ARB";
+        proc = (GLExtension_t)qwglGetProcAddress(arbname.c_str());
+    }
+
     if (!proc) {
-        common->Printf("Couldn't find proc address for: %s\n", name);
+        common->Printf("Couldn't find proc address for: %s%s\n", name, tryAddingARB ? "(ARB)" : "");
     }
 
     return proc;

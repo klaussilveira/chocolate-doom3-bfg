@@ -512,6 +512,8 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds)
 
     renderLog.StartFrame();
 
+    const bool isGLES = (glConfig.driverType == GLDRV_OPENGL_ES2) || (glConfig.driverType == GLDRV_OPENGL_ES3);
+
     if (cmds->commandId == RC_NOP && !cmds->next) {
         return;
     }
@@ -530,7 +532,8 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds)
     // If we have a stereo pixel format, this will draw to both
     // the back left and back right buffers, which will have a
     // performance penalty.
-    qglDrawBuffer(GL_BACK);
+    if (!isGLES)
+        qglDrawBuffer(GL_BACK);
 
     for (; cmds != NULL; cmds = (const emptyCommand_t*)cmds->next) {
         switch (cmds->commandId) {
