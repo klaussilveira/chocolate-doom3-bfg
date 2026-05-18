@@ -200,6 +200,10 @@ bool GLimp_Init(glimpParms_t parms)
 
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         }
+        else
+        {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+        }
         // RB end
 
         // DG: set display num for fullscreen
@@ -508,11 +512,17 @@ void GLimp_SetGamma(unsigned short red[256], unsigned short green[256], unsigned
 GLimp_ExtensionPointer
 ===================
 */
-GLExtension_t GLimp_ExtensionPointer(const char* name)
+GLExtension_t GLimp_ExtensionPointer(const char* name, bool tryAddingARB)
 {
     assert(SDL_WasInit(SDL_INIT_VIDEO));
 
-    return (GLExtension_t)SDL_GL_GetProcAddress(name);
+    GLExtension_t ret = (GLExtension_t)SDL_GL_GetProcAddress(name);
+    if (!ret && tryAddingARB) {
+        idStr arbname(name);
+        arbname += "ARB";
+        ret = (GLExtension_t)SDL_GL_GetProcAddress(arbname.c_str());
+    }
+    return ret;
 }
 
 void GLimp_GrabInput(int flags)

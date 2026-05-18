@@ -55,7 +55,7 @@ typedef void (*GLExtension_t)(void);
 extern "C" {
 #endif
 
-GLExtension_t GLimp_ExtensionPointer(const char* name);
+GLExtension_t GLimp_ExtensionPointer(const char* name, bool tryAddingARB = false);
 
 #ifdef __cplusplus
 }
