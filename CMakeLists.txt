@@ -8,6 +8,8 @@ option(MONOLITH "Embed game logic into main executable" ON)
 option(OPENAL "Use OpenAL soft instead of XAudio2" OFF)
 option(FFMPEG "Use FMPEG to render Bink videos" OFF)
 
+option(USE_OPENGL_ES "Use OpenGL ES instead of Desktop GL" OFF)
+
 if(UNIX)
     set(OPENAL TRUE)
 endif()
@@ -31,6 +33,10 @@ endif()
 # DG: C++14 is enough and avoids some warnings
 set (CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+if(USE_OPENGL_ES)
+    add_definitions(-DUSE_GLES2=1)
+endif()
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     add_definitions(-pipe)

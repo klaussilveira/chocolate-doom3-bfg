@@ -126,12 +126,21 @@ attribInfo_t attribsPC[] = {
     { "float", "facing", "FACE", "gl_FrontFacing", 0, AT_PS_IN | AT_PS_IN_RESERVED, 0 },
 
     // fragment program output
+#if USE_GLES2
+    { "float4", "color", "COLOR", "gl_FragColor", 0, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
+    { "half4", "hcolor", "COLOR", "gl_FragColor", 0, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
+    { "float4", "color0", "COLOR0", "gl_FragColor", 0, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
+    { "float4", "color1", "COLOR1", "gl_FragColor", 1, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
+    { "float4", "color2", "COLOR2", "gl_FragColor", 2, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
+    { "float4", "color3", "COLOR3", "gl_FragColor", 3, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
+#else
     { "float4", "color", "COLOR", "fo_FragColor", 0, AT_PS_OUT, 0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
     { "half4", "hcolor", "COLOR", "fo_FragColor", 0, AT_PS_OUT, 0 },
     { "float4", "color0", "COLOR0", "fo_FragColor", 0, AT_PS_OUT, 0 },
     { "float4", "color1", "COLOR1", "fo_FragColor", 1, AT_PS_OUT, 0 },
     { "float4", "color2", "COLOR2", "fo_FragColor", 2, AT_PS_OUT, 0 },
     { "float4", "color3", "COLOR3", "fo_FragColor", 3, AT_PS_OUT, 0 },
+#endif
     { "float", "depth", "DEPTH", "gl_FragDepth", 4, AT_PS_OUT | AT_PS_OUT_RESERVED, 0 },
 
 // vertex to fragment program pass through
@@ -550,15 +559,16 @@ const char* vertexInsert_GLSL_ES_1_0 = {
 
     "#define PC\n"
 
+#if defined(USE_GPU_SKINNING) && !defined(__ANDROID__)
+    "#extension GL_ARB_gpu_shader5 : enable\n"
+#endif
+
 #if 1 // defined(__ANDROID__)
     "precision mediump float;\n"
 #else
     "precision highp float;\n"
 #endif
 
-#if defined(USE_GPU_SKINNING) && !defined(__ANDROID__)
-    "#extension GL_ARB_gpu_shader5 : enable\n"
-#endif
     "\n"
     "float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
     "vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
@@ -570,7 +580,7 @@ const char* vertexInsert_GLSL_ES_1_0 = {
 #endif // #if defined(USE_GLES2)
 
 const char* vertexInsert_GLSL_1_50 = {
-    "#version 150\n"
+    "#version 140\n"
     "#define PC\n"
     "\n"
     "float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
@@ -586,8 +596,8 @@ const char* fragmentInsert_GLSL_ES_1_0 = {
     "#version 100\n"
     "#define GLES2\n"
     "#define PC\n"
-    "precision mediump float;\n"
     "#extension GL_OES_standard_derivatives : enable\n"
+    "precision mediump float;\n"
     "\n"
     "void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
     "void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
@@ -677,7 +687,7 @@ const char* fragmentInsert_GLSL_ES_1_0 = {
 #endif // #if defined(USE_GLES2)
 
 const char* fragmentInsert_GLSL_1_50 = {
-    "#version 150\n"
+    "#version 140\n"
     "#define PC\n"
     "\n"
     "void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"

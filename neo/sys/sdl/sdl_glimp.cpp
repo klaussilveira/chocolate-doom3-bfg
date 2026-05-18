@@ -184,6 +184,18 @@ bool GLimp_Init(glimpParms_t parms)
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 
         // RB begin
+#if USE_GLES2
+        glConfig.driverType = GLDRV_OPENGL_ES2;
+
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+
+        if (r_debugContext.GetBool()) {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+        }
+
+#else
         if (r_useOpenGL32.GetInteger() > 0) {
             glConfig.driverType = GLDRV_OPENGL32_COMPATIBILITY_PROFILE;
 
@@ -204,6 +216,7 @@ bool GLimp_Init(glimpParms_t parms)
         {
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
         }
+#endif
         // RB end
 
         // DG: set display num for fullscreen

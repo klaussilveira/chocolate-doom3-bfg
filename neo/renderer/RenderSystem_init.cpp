@@ -397,8 +397,10 @@ static void R_CheckPortableExtensions()
 #endif
     // RB end
 
+    const bool isGLES = (glConfig.driverType == GLDRV_OPENGL_ES2) || (glConfig.driverType == GLDRV_OPENGL_ES3);
+
     // GL_ARB_multitexture
-    glConfig.multitextureAvailable = R_CheckExtension("GL_ARB_multitexture");
+    glConfig.multitextureAvailable = isGLES || glConfig.glVersion >= 3.0 || R_CheckExtension("GL_ARB_multitexture");
     if (glConfig.multitextureAvailable) {
         qglActiveTextureARB = (void(APIENTRY*)(GLenum))GLimp_ExtensionPointer("glActiveTexture", true);
         // RB: deprecated
@@ -416,7 +418,8 @@ static void R_CheckPortableExtensions()
 
     // GL_ARB_texture_compression + GL_S3_s3tc
     // DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
-    glConfig.textureCompressionAvailable = R_CheckExtension("GL_ARB_texture_compression") && R_CheckExtension("GL_EXT_texture_compression_s3tc");
+    glConfig.textureCompressionAvailable = ( isGLES || glConfig.glVersion >= 3.0 || R_CheckExtension("GL_ARB_texture_compression") )
+                                            && R_CheckExtension("GL_EXT_texture_compression_s3tc");
     if (glConfig.textureCompressionAvailable) {
         qglCompressedTexImage2DARB = (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)GLimp_ExtensionPointer("glCompressedTexImage2D", true);
         qglCompressedTexSubImage2DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC)GLimp_ExtensionPointer("glCompressedTexSubImage2D", true);
@@ -435,7 +438,7 @@ static void R_CheckPortableExtensions()
     // GL_EXT_texture_lod_bias
     // The actual extension is broken as specificed, storing the state in the texture unit instead
     // of the texture object.  The behavior in GL 1.4 is the behavior we use.
-    glConfig.textureLODBiasAvailable = (glConfig.glVersion >= 1.4 || R_CheckExtension("GL_EXT_texture_lod_bias"));
+    glConfig.textureLODBiasAvailable = !isGLES && (glConfig.glVersion >= 1.4 || R_CheckExtension("GL_EXT_texture_lod_bias"));
     if (glConfig.textureLODBiasAvailable) {
         common->Printf("...using %s\n", "GL_EXT_texture_lod_bias");
     } else {
@@ -451,7 +454,7 @@ static void R_CheckPortableExtensions()
     r_useSRGB.SetModified(); // the CheckCvars() next frame will enable / disable it
 
     // GL_ARB_vertex_buffer_object
-    glConfig.vertexBufferObjectAvailable = R_CheckExtension("GL_ARB_vertex_buffer_object");
+    glConfig.vertexBufferObjectAvailable = isGLES || glConfig.glVersion >= 3.0 || R_CheckExtension("GL_ARB_vertex_buffer_object");
     if (glConfig.vertexBufferObjectAvailable) {
         qglBindBufferARB = (PFNGLBINDBUFFERARBPROC)GLimp_ExtensionPointer("glBindBuffer", true);
         qglBindBufferRange = (PFNGLBINDBUFFERRANGEPROC)GLimp_ExtensionPointer("glBindBufferRange");
@@ -468,13 +471,13 @@ static void R_CheckPortableExtensions()
     }
 
     // GL_ARB_map_buffer_range, map a section of a buffer object's data store
-    glConfig.mapBufferRangeAvailable = R_CheckExtension("GL_ARB_map_buffer_range");
+    glConfig.mapBufferRangeAvailable = glConfig.glVersion >= 3.0 || R_CheckExtension("GL_ARB_map_buffer_range");
     if (glConfig.mapBufferRangeAvailable) {
         qglMapBufferRange = (PFNGLMAPBUFFERRANGEPROC)GLimp_ExtensionPointer("glMapBufferRange");
     }
 
     // GL_ARB_vertex_array_object
-    glConfig.vertexArrayObjectAvailable = R_CheckExtension("GL_ARB_vertex_array_object");
+    glConfig.vertexArrayObjectAvailable = glConfig.glVersion >= 3.0 || R_CheckExtension("GL_ARB_vertex_array_object");
     if (glConfig.vertexArrayObjectAvailable) {
         qglGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)GLimp_ExtensionPointer("glGenVertexArrays");
         qglBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)GLimp_ExtensionPointer("glBindVertexArray");
@@ -485,10 +488,16 @@ static void R_CheckPortableExtensions()
     glConfig.drawElementsBaseVertexAvailable = R_CheckExtension("GL_ARB_draw_elements_base_vertex");
     if (glConfig.drawElementsBaseVertexAvailable) {
         qglDrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)GLimp_ExtensionPointer("glDrawElementsBaseVertex");
+    } else if(R_CheckExtension("GL_EXT_draw_elements_base_vertex")) {
+        glConfig.drawElementsBaseVertexAvailable = true;
+        qglDrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)GLimp_ExtensionPointer("glDrawElementsBaseVertexEXT");
+    } else if(R_CheckExtension("GL_OES_draw_elements_base_vertex")) {
+        glConfig.drawElementsBaseVertexAvailable = true;
+        qglDrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)GLimp_ExtensionPointer("glDrawElementsBaseVertexOES");
     }
 
     // GL_ARB_vertex_program / GL_ARB_fragment_program
-    glConfig.fragmentProgramAvailable = R_CheckExtension("GL_ARB_fragment_program");
+    glConfig.fragmentProgramAvailable = isGLES || glConfig.glVersion >= 3.0 || R_CheckExtension("GL_ARB_fragment_program");
     if (glConfig.fragmentProgramAvailable) {
         qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC)GLimp_ExtensionPointer("glVertexAttribPointer", true);
         qglEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYARBPROC)GLimp_ExtensionPointer("glEnableVertexAttribArray", true);
@@ -538,7 +547,7 @@ static void R_CheckPortableExtensions()
             glConfig.uniformBufferOffsetAlignment = 256;
         }
     }
-    // RB: make GPU skinning optional for weak OpenGL drivers
+    // RB: make GPU skinning optional for weak OpenGL drivers - TODO: GLES?
     glConfig.gpuSkinningAvailable = glConfig.uniformBufferAvailable && (glConfig.driverType == GLDRV_OPENGL3X || glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE || glConfig.driverType == GLDRV_OPENGL32_COMPATIBILITY_PROFILE);
 
     // ATI_separate_stencil / OpenGL 2.0 separate stencil
@@ -870,9 +879,20 @@ void R_InitOpenGL()
 
         glConfig.glVersion += div*minor;
     }
+    else if (glConfig.driverType == GLDRV_OPENGL_ES2)
+    {
+        // atof() doesn't work for ES, e.g. "OpenGL ES 3.2 Mesa 26.1.0 - kisak-mesa PPA"
+        // but at least ES 3.0 should support glGet with GL_*_VERSION
+        glConfig.glVersion = 2.0f;
+    }
     else
     {
         glConfig.glVersion = atof(glConfig.version_string);
+    }
+
+    if (glConfig.driverType == GLDRV_OPENGL_ES2 && glConfig.glVersion >= 3.0f)
+    {
+        glConfig.driverType = GLDRV_OPENGL_ES3;
     }
 
     idLib::Printf("OpenGL Version : %3.1f (%s)\n", glConfig.glVersion, glConfig.version_string);

@@ -45,6 +45,8 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
 {
     assert(x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels);
 
+    const bool isGLES = (glConfig.driverType == GLDRV_OPENGL_ES2) || (glConfig.driverType == GLDRV_OPENGL_ES3);
+
     int compressedSize = 0;
 
     if (IsCompressed()) {
@@ -91,7 +93,8 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
     if (pixelPitch != 0) {
         qglPixelStorei(GL_UNPACK_ROW_LENGTH, pixelPitch);
     }
-    if (opts.format == FMT_RGB565) {
+    if (opts.format == FMT_RGB565 && !isGLES) {
+        // FIXME: GLES doesn't support this, but probably it is necessary..
         qglPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
     }
 #ifdef DEBUG
@@ -116,7 +119,8 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
 #ifdef DEBUG
     GL_CheckErrors();
 #endif
-    if (opts.format == FMT_RGB565) {
+    if (opts.format == FMT_RGB565 && !isGLES) {
+        // FIXME: GLES doesn't support this
         qglPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
     }
     if (pixelPitch != 0) {

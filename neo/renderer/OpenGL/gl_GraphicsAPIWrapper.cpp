@@ -244,7 +244,10 @@ void GL_SetDefaultState()
 {
     RENDERLOG_PRINTF("--- GL_SetDefaultState ---\n");
 
-    qglClearDepth(1.0f);
+    const bool isGLES = (glConfig.driverType == GLDRV_OPENGL_ES2) || (glConfig.driverType == GLDRV_OPENGL_ES3);
+
+    if (!isGLES)
+        qglClearDepth(1.0f);
 
     // make sure our GL state vector is set correctly
     memset(&backEnd.glState, 0, sizeof(backEnd.glState));
@@ -260,9 +263,12 @@ void GL_SetDefaultState()
     qglDepthMask(GL_TRUE);
     qglDepthFunc(GL_LESS);
     qglDisable(GL_STENCIL_TEST);
+
     qglDisable(GL_POLYGON_OFFSET_FILL);
-    qglDisable(GL_POLYGON_OFFSET_LINE);
-    qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    if (!isGLES) {
+        qglDisable(GL_POLYGON_OFFSET_LINE);
+        qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
     // These should never be changed
     // DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
@@ -271,7 +277,10 @@ void GL_SetDefaultState()
     qglEnable(GL_DEPTH_TEST);
     qglEnable(GL_BLEND);
     qglEnable(GL_SCISSOR_TEST);
-    qglDrawBuffer(GL_BACK);
+
+    if (!isGLES) {
+        qglDrawBuffer(GL_BACK);
+    }
     qglReadBuffer(GL_BACK);
 
     if (r_useScissor.GetBool()) {
@@ -300,6 +309,8 @@ void GL_State(uint64 stateBits, bool forceGlState)
     } else if (diff == 0) {
         return;
     }
+
+    const bool isGLES = (glConfig.driverType == GLDRV_OPENGL_ES2) || (glConfig.driverType == GLDRV_OPENGL_ES3);
 
     //
     // check depthFunc bits
@@ -422,7 +433,7 @@ void GL_State(uint64 stateBits, bool forceGlState)
     //
     // fill/line mode
     //
-    if (diff & GLS_POLYMODE_LINE) {
+    if (!isGLES && (diff & GLS_POLYMODE_LINE)) {
         if (stateBits & GLS_POLYMODE_LINE) {
             qglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         } else {
@@ -437,10 +448,12 @@ void GL_State(uint64 stateBits, bool forceGlState)
         if (stateBits & GLS_POLYGON_OFFSET) {
             qglPolygonOffset(backEnd.glState.polyOfsScale, backEnd.glState.polyOfsBias);
             qglEnable(GL_POLYGON_OFFSET_FILL);
-            qglEnable(GL_POLYGON_OFFSET_LINE);
+            if(!isGLES)
+                qglEnable(GL_POLYGON_OFFSET_LINE);
         } else {
             qglDisable(GL_POLYGON_OFFSET_FILL);
-            qglDisable(GL_POLYGON_OFFSET_LINE);
+            if(!isGLES)
+                qglDisable(GL_POLYGON_OFFSET_LINE);
         }
     }
 
