@@ -1,7 +1,6 @@
 name: Linux
 on:
-  push:
-    branches: [master]
+  push: ~
   pull_request:
     branches: [master]
   workflow_call:
@@ -23,7 +22,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             build-essential cmake ninja-build ccache pkg-config \
-            libsdl2-dev libopenal-dev libgl1-mesa-dev
+            libsdl2-dev libopenal-dev libgl1-mesa-dev \
+            libgl1-mesa-dri libegl-mesa0
 
       - name: Setup ccache
         uses: actions/cache@v4
@@ -50,6 +50,38 @@ jobs:
           cp -r base dist/
           ls -lh dist/
 
+      - name: Smoke Test
+        env:
+          SDL_VIDEODRIVER: offscreen
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          ALSOFT_DRIVERS: "null"
+        run: |
+          cd dist
+          status=0
+          timeout 180 ./ChocDoom3BFG-linux-* > ../smoke.log 2>&1 || status=$?
+          tail -40 ../smoke.log
+
+          if [ $status -eq 124 ]; then
+            echo "::error::the engine hung during startup"
+            exit 1
+          fi
+          if [ $status -ge 128 ]; then
+            echo "::error::the engine died from signal $((status - 128))"
+            exit 1
+          fi
+
+          for marker in \
+            "OpenGL Renderer:" \
+            "Initializing Render Shaders" \
+            "sound system initialized."
+          do
+            if ! grep -qF "$marker" ../smoke.log; then
+              echo "::error::startup never reached: $marker"
+              exit 1
+            fi
+          done
+          echo "startup reached the renderer and the sound system"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -67,6 +99,7 @@ jobs:
           dnf install -y \
             gcc gcc-c++ cmake ninja-build ccache pkg-config \
             SDL2-devel openal-soft-devel mesa-libGL-devel \
+            mesa-dri-drivers mesa-libEGL \
             git tar gzip
 
       - name: Checkout
@@ -96,6 +129,38 @@ jobs:
           cp build/Doom3BFG "dist/ChocDoom3BFG-linux-${SHORT_SHA}"
           cp -r base dist/
           ls -lh dist/
+
+      - name: Smoke test
+        env:
+          SDL_VIDEODRIVER: offscreen
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          ALSOFT_DRIVERS: "null"
+        run: |
+          cd dist
+          status=0
+          timeout 180 ./ChocDoom3BFG-linux-* > ../smoke.log 2>&1 || status=$?
+          tail -40 ../smoke.log
+
+          if [ $status -eq 124 ]; then
+            echo "::error::the engine hung during startup"
+            exit 1
+          fi
+          if [ $status -ge 128 ]; then
+            echo "::error::the engine died from signal $((status - 128))"
+            exit 1
+          fi
+
+          for marker in \
+            "OpenGL Renderer:" \
+            "Initializing Render Shaders" \
+            "sound system initialized."
+          do
+            if ! grep -qF "$marker" ../smoke.log; then
+              echo "::error::startup never reached: $marker"
+              exit 1
+            fi
+          done
+          echo "startup reached the renderer and the sound system"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

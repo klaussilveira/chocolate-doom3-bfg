@@ -330,6 +330,18 @@ void APIENTRY glBindMultiTextureEXT(GLenum texunit, GLenum target, GLuint textur
 
 /*
 =================
+R_GetStringOrEmpty
+=================
+*/
+static const char* R_GetStringOrEmpty(GLenum name)
+{
+    const char* string = (const char*)qglGetString(name);
+
+    return (string != NULL) ? string : "";
+}
+
+/*
+=================
 R_CheckExtension
 =================
 */
@@ -337,7 +349,7 @@ R_CheckExtension
 static bool R_CheckExtension(const char* name)
 // RB end
 {
-    if (!strstr(glConfig.extensions_string, name)) {
+    if (glConfig.extensions_string == NULL || !strstr(glConfig.extensions_string, name)) {
         common->Printf("X..%s not found\n", name);
         return false;
     }
@@ -412,7 +424,9 @@ static void R_CheckPortableExtensions()
     glConfig.directStateAccess = R_CheckExtension("GL_EXT_direct_state_access");
     if (glConfig.directStateAccess) {
         qglBindMultiTextureEXT = (PFNGLBINDMULTITEXTUREEXTPROC)GLimp_ExtensionPointer("glBindMultiTextureEXT");
-    } else {
+    }
+    if (qglBindMultiTextureEXT == NULL) {
+        glConfig.directStateAccess = false;
         qglBindMultiTextureEXT = glBindMultiTextureEXT;
     }
 
@@ -782,10 +796,6 @@ void R_SetNewMode(const bool fullInit)
             }
         }
 
-        if (i == 2) {
-            common->FatalError("Unable to initialize OpenGL");
-        }
-
         if (i == 0) {
             // same settings, no stereo
             continue;
@@ -798,6 +808,10 @@ void R_SetNewMode(const bool fullInit)
         r_fullscreen.SetInteger(1);
         r_displayRefresh.SetInteger(0);
         r_multiSamples.SetInteger(0);
+
+        if (i == 2) {
+            common->FatalError("Unable to initialize OpenGL");
+        }
     }
 }
 
@@ -838,10 +852,10 @@ void R_InitOpenGL()
     Sys_InitInput();
 
     // get our config strings
-    glConfig.vendor_string = (const char*)qglGetString(GL_VENDOR);
-    glConfig.renderer_string = (const char*)qglGetString(GL_RENDERER);
-    glConfig.version_string = (const char*)qglGetString(GL_VERSION);
-    glConfig.shading_language_string = (const char*)qglGetString(GL_SHADING_LANGUAGE_VERSION);
+    glConfig.vendor_string = R_GetStringOrEmpty(GL_VENDOR);
+    glConfig.renderer_string = R_GetStringOrEmpty(GL_RENDERER);
+    glConfig.version_string = R_GetStringOrEmpty(GL_VERSION);
+    glConfig.shading_language_string = R_GetStringOrEmpty(GL_SHADING_LANGUAGE_VERSION);
     glConfig.extensions_string = (const char*)qglGetString(GL_EXTENSIONS);
 
     if (glConfig.extensions_string == NULL) {
@@ -849,15 +863,21 @@ void R_InitOpenGL()
         qglGetStringi = (PFNGLGETSTRINGIPROC)GLimp_ExtensionPointer("glGetStringi");
 
         // Build the extensions string
-        GLint numExtensions;
-        qglGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+        GLint numExtensions = 0;
+        if (qglGetStringi != NULL) {
+            qglGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+        }
         extensions_string.Clear();
         for (int i = 0; i < numExtensions; i++) {
-            extensions_string.Append((const char*)qglGetStringi(GL_EXTENSIONS, i));
+            const char* extension = (const char*)qglGetStringi(GL_EXTENSIONS, i);
+            if (extension == NULL) {
+                continue;
+            }
             // the now deprecated glGetString method usaed to create a single string with each extension separated by a space
-            if (i < numExtensions - 1) {
+            if (extensions_string.Length() > 0) {
                 extensions_string.Append(' ');
             }
+            extensions_string.Append(extension);
         }
         glConfig.extensions_string = extensions_string.c_str();
     }
@@ -931,7 +951,7 @@ void R_InitOpenGL()
     // RB begin
 #if defined(_WIN32)
     static bool glCheck = false;
-    if (!glCheck && win32.osversion.dwMajorVersion == 6) {
+    if (!glCheck && win32.osversion.dwMajorVersion >= 6) {
         glCheck = true;
         if (!idStr::Icmp(glConfig.vendor_string, "Microsoft") && idStr::FindText(glConfig.renderer_string, "OpenGL-D3D") != -1) {
             if (cvarSystem->GetCVarBool("r_fullscreen")) {

@@ -1249,6 +1249,32 @@ else()
         list(APPEND DOOM_INCLUDES ${SYS_INCLUDES} ${WIN32_INCLUDES})
         list(APPEND DOOM_SOURCES ${WIN32_SOURCES})
 
+        enable_language(RC)
+        set(WIN32_RC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/neo/sys/win32/rc)
+        set(WIN32_RC_DATA
+            ${WIN32_RC_DIR}/doom_resource.h
+            ${WIN32_RC_DIR}/doom.manifest
+            ${WIN32_RC_DIR}/res/doom.ico
+        )
+        set(WIN32_RC_OBJECTS "")
+        foreach(rc_name doom doom_manifest)
+            add_custom_command(
+                OUTPUT ${CMAKE_BINARY_DIR}/${rc_name}.rc.obj
+                COMMAND
+                    ${CMAKE_RC_COMPILER} -I ${WIN32_RC_DIR} -O coff -i
+                    ${WIN32_RC_DIR}/${rc_name}.rc -o
+                    ${CMAKE_BINARY_DIR}/${rc_name}.rc.obj
+                DEPENDS ${WIN32_RC_DIR}/${rc_name}.rc ${WIN32_RC_DATA}
+                COMMENT "Compiling resources ${rc_name}.rc"
+                VERBATIM
+            )
+            list(APPEND WIN32_RC_OBJECTS ${CMAKE_BINARY_DIR}/${rc_name}.rc.obj)
+        endforeach()
+        set_source_files_properties(
+            ${WIN32_RC_OBJECTS}
+            PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE
+        )
+
         add_definitions(-DUSE_OPENAL)
 
         include_directories(
@@ -1428,6 +1454,10 @@ else()
 
     # make sure this is run after creating idlib
     add_dependencies(precomp_header_rbdoom3bfg idlib)
+
+    if(WIN32)
+        list(APPEND DOOM_SOURCES ${WIN32_RC_OBJECTS})
+    endif()
 
     add_executable(Doom3BFG WIN32 ${DOOM_SOURCES})
 

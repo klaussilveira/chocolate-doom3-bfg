@@ -83,7 +83,9 @@ void GLimp_TestSwapBuffers(const idCmdArgs& args)
 
     int frameMilliseconds = 16;
     for (int swapInterval = 2; swapInterval >= -1; swapInterval--) {
-        wglSwapIntervalEXT(swapInterval);
+        if (wglSwapIntervalEXT != NULL) {
+            wglSwapIntervalEXT(swapInterval);
+        }
         for (int i = 0; i < MAX_FRAMES; i++) {
             if (swapInterval == -1) {
                 Sys_Sleep(frameMilliseconds);
@@ -189,7 +191,7 @@ R_CheckWinExtension
 bool R_CheckWinExtension(const char* name)
 {
 
-    if (!strstr(glConfig.wgl_extensions_string, name)) {
+    if (glConfig.wgl_extensions_string == NULL || !strstr(glConfig.wgl_extensions_string, name)) {
         idLib::Printf("X..%s not found\n", name);
         return false;
     }
@@ -278,7 +280,8 @@ void GLW_CheckWGLExtensions(HDC hDC)
         GLimp_ExtensionPointer("wglGetExtensionsStringARB");
     if (wglGetExtensionsStringARB) {
         glConfig.wgl_extensions_string = (const char*)wglGetExtensionsStringARB(hDC);
-    } else {
+    }
+    if (glConfig.wgl_extensions_string == NULL) {
         glConfig.wgl_extensions_string = "";
     }
 
@@ -355,6 +358,19 @@ static HGLRC CreateOpenGLContextOnDC(const HDC hdc, const bool debugContext)
     int useOpenGL32 = r_useOpenGL32.GetInteger();
     HGLRC m_hrc = NULL;
 
+    if (wglCreateContextAttribsARB == NULL) {
+        idLib::Printf("WGL_ARB_create_context not available, falling back to a legacy context\n");
+
+        m_hrc = qwglCreateContext(hdc);
+        if (m_hrc != NULL) {
+            glConfig.driverType = GLDRV_OPENGL3X;
+        } else {
+            idLib::Printf("wglCreateContext failed: 0x%x\n", (unsigned int)GetLastError());
+        }
+
+        return m_hrc;
+    }
+
     for (int i = 0; i < 2; i++) {
         const int glMajorVersion = (useOpenGL32 != 0) ? 3 : 2;
         const int glMinorVersion = (useOpenGL32 != 0) ? 2 : 0;
@@ -415,6 +431,10 @@ Returns -1 on failure, or a pixel format
 */
 static int GLW_ChoosePixelFormat(const HDC hdc, const int multisamples, const bool stereo3D)
 {
+    if (wglChoosePixelFormatARB == NULL) {
+        return -1;
+    }
+
     FLOAT fAttributes[] = { 0, 0 };
     int iAttributes[] = {
         WGL_SAMPLE_BUFFERS_ARB, ((multisamples > 1) ? 1 : 0),

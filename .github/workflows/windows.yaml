@@ -1,7 +1,6 @@
 name: Windows
 on:
-  push:
-    branches: [master]
+  push: ~
   pull_request:
     branches: [master]
   workflow_call:
@@ -12,7 +11,7 @@ concurrency:
 
 jobs:
   mingw:
-    name: Windows (MinGW cross-compile)
+    name: Windows (MinGW)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,6 +42,18 @@ jobs:
       - name: Build
         run: cmake --build build-mingw --parallel $(nproc)
 
+      - name: Verify embedded resources
+        run: |
+          if ! x86_64-w64-mingw32-objdump -h build-mingw/Doom3BFG.exe | grep -q '\.rsrc'; then
+            echo "::error::Doom3BFG.exe has no .rsrc section (the .rc files were not linked in)"
+            exit 1
+          fi
+          if ! grep -qa 'requestedExecutionLevel' build-mingw/Doom3BFG.exe; then
+            echo "::error::Doom3BFG.exe has no application manifest"
+            exit 1
+          fi
+          echo "resource section present, manifest embedded"
+
       - name: Package
         run: |
           mkdir -p dist/base
@@ -61,3 +72,77 @@ jobs:
           name: ChocDoom3BFG-windows-mingw
           path: dist/*
           if-no-files-found: error
+
+  smoke-test:
+    name: Smoke Test
+    needs: mingw
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ChocDoom3BFG-windows-mingw
+          path: dist
+
+      - name: Show version resource
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem dist/*.exe | Select-Object -First 1
+          $info = $exe.VersionInfo
+          Write-Host "File:        $($exe.Name)"
+          Write-Host "ProductName: $($info.ProductName)"
+          Write-Host "FileVersion: $($info.FileVersion)"
+          if ([string]::IsNullOrWhiteSpace($info.FileVersion)) {
+            throw "no version resource in the shipped exe"
+          }
+
+      - name: Launch
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem dist/*.exe | Select-Object -First 1
+          $dir = (Resolve-Path dist).Path
+
+          $p = Start-Process -FilePath $exe.FullName -WorkingDirectory $dir -PassThru `
+            -ArgumentList '+set', 'logFile', '2', '+set', 'fs_savepath', $dir, '+set', 'r_fullscreen', '0'
+          Start-Sleep -Seconds 30
+
+          $crashed = $false
+          $code = $null
+          if (-not $p.HasExited) {
+            Write-Host "still running after 30s, so it started up cleanly"
+            Stop-Process -Id $p.Id -Force
+          } else {
+            $p.WaitForExit()
+            $code = $p.ExitCode
+            if ($null -eq $code) {
+              $crashed = $true
+              Write-Host "::error::process exited but no exit code was reported"
+            } elseif ($code -lt 0) {
+              $crashed = $true
+              Write-Host ("::error::crashed with 0x{0:X8}" -f $code)
+            } else {
+              Write-Host "exited with $code"
+            }
+          }
+
+          $log = Get-ChildItem -Path $dir -Filter qconsole.log -Recurse -ErrorAction SilentlyContinue |
+                 Select-Object -First 1
+          if ($log) {
+            Write-Host "--- qconsole.log (last 80 lines) ---"
+            Get-Content $log.FullName -Tail 80 | ForEach-Object { Write-Host $_ }
+            Write-Host "--- end of qconsole.log ---"
+            Copy-Item $log.FullName -Destination "$dir\smoke-qconsole.log" -Force
+          } else {
+            Write-Host "no qconsole.log was produced (it died before the file system came up)"
+          }
+
+          if ($crashed) { exit 1 }
+
+      - name: Upload smoke test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-log
+          path: dist/smoke-qconsole.log
+          if-no-files-found: ignore

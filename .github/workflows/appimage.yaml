@@ -1,7 +1,6 @@
 name: AppImage
 on:
-  push:
-    branches: [master]
+  push: ~
   pull_request:
     branches: [master]
   workflow_call:

@@ -88,6 +88,16 @@ ID_INLINE void operator delete[](void* p) noexcept
 {
     Mem_Free(p);
 }
+
+ID_INLINE void operator delete(void* p, size_t) noexcept
+{
+    Mem_Free(p);
+}
+
+ID_INLINE void operator delete[](void* p, size_t) noexcept
+{
+    Mem_Free(p);
+}
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
