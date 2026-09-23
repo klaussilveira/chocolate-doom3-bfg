@@ -29,6 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_INTRIINSICS_H__
 #define __SYS_INTRIINSICS_H__
 
+#if defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
+#define USE_INTRINSICS
+#define USE_INTRINSICS_SSE
+#endif
+
 #if defined(USE_INTRINSICS_SSE)
 #include <emmintrin.h>
 #endif

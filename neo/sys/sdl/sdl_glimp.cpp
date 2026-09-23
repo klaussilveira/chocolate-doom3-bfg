@@ -85,12 +85,12 @@ void GLimp_PreInit() // DG: added this function for SDL compatibility
     }
 }
 
+#if SDL_VERSION_ATLEAST(2, 0, 0)
 /*
 ===================
-GLimp_Init
+GLimp_ApplySwapInterval
 ===================
 */
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 static void GLimp_ApplySwapInterval()
 {
     r_swapInterval.ClearModified();
@@ -115,6 +115,11 @@ static void GLimp_ApplySwapInterval()
 }
 #endif
 
+/*
+===================
+GLimp_Init
+===================
+*/
 bool GLimp_Init(glimpParms_t parms)
 {
     common->Printf("Initializing OpenGL subsystem\n");
