@@ -744,7 +744,7 @@ void idCommonLocal::Frame()
             int nowTime = Sys_Milliseconds();
             int com_frameMsec = nowTime - lastTime;
             lastTime = nowTime;
-            Printf("frame:%d all:%3d gfr:%3d rf:%3lld bk:%3lld\n", idLib::frameNumber, com_frameMsec, time_gameFrame, time_frontend / 1000, time_backend / 1000);
+            Printf("frame:%d all:%3d gfr:%3d rf:%3lld bk:%3lld gpu:%3lld\n", idLib::frameNumber, com_frameMsec, time_gameFrame, time_frontend / 1000, time_backend / 1000, time_gpu / 1000);
             time_gameFrame = 0;
             time_gameDraw = 0;
         }
