@@ -90,6 +90,31 @@ void GLimp_PreInit() // DG: added this function for SDL compatibility
 GLimp_Init
 ===================
 */
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+static void GLimp_ApplySwapInterval()
+{
+    r_swapInterval.ClearModified();
+
+    int interval = 0;
+    if (r_swapInterval.GetInteger() == 1) {
+        interval = -1;
+    } else if (r_swapInterval.GetInteger() == 2) {
+        interval = 1;
+    }
+
+    if (SDL_GL_SetSwapInterval(interval) < 0) {
+        if (interval == -1 && SDL_GL_SetSwapInterval(1) == 0) {
+            interval = 1;
+        } else {
+            common->Warning("SDL_GL_SetSwapInterval(%d) not supported: %s", interval, SDL_GetError());
+            return;
+        }
+    }
+
+    common->Printf("swap interval set to %d (effective %d)\n", interval, SDL_GL_GetSwapInterval());
+}
+#endif
+
 bool GLimp_Init(glimpParms_t parms)
 {
     common->Printf("Initializing OpenGL subsystem\n");
@@ -250,8 +275,7 @@ bool GLimp_Init(glimpParms_t parms)
             continue;
         }
 
-        if (SDL_GL_SetSwapInterval(r_swapInterval.GetInteger()) < 0)
-            common->Warning("SDL_GL_SWAP_CONTROL not supported");
+        GLimp_ApplySwapInterval();
 
         // RB begin
         SDL_GetWindowSize(window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight);
@@ -494,6 +518,9 @@ GLimp_SwapBuffers
 void GLimp_SwapBuffers()
 {
 #if SDL_VERSION_ATLEAST(2, 0, 0)
+    if (r_swapInterval.IsModified()) {
+        GLimp_ApplySwapInterval();
+    }
     SDL_GL_SwapWindow(window);
 #else
     SDL_GL_SwapBuffers();
