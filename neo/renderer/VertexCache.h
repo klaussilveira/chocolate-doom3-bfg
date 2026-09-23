@@ -66,6 +66,9 @@ struct geoBufferSet_t {
     byte* mappedVertexBase;
     byte* mappedIndexBase;
     byte* mappedJointBase;
+    int mappedVertexStart;
+    int mappedIndexStart;
+    int mappedJointStart;
     idSysInterlockedInteger indexMemUsed;
     idSysInterlockedInteger vertexMemUsed;
     idSysInterlockedInteger jointMemUsed;

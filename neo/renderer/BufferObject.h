@@ -40,7 +40,8 @@ class idIndexBuffer;
 
 enum bufferMapType_t {
     BM_READ, // map for reading
-    BM_WRITE // map for writing
+    BM_WRITE, // map for writing
+    BM_WRITE_NOINVALIDATE
 };
 
 // Returns all targets to virtual memory use instead of buffer object use.
@@ -73,7 +74,7 @@ public:
     {
         return static_cast<idDrawVert*>(MapBuffer(mapType));
     }
-    void UnmapBuffer() const;
+    void UnmapBuffer(int flushStart = 0, int flushEnd = -1) const;
     bool IsMapped() const
     {
         return (size & MAPPED_FLAG) != 0;
@@ -100,6 +101,7 @@ private:
     int size;                // size in bytes
     int offsetInOtherBuffer; // offset in bytes
     void* apiObject;
+    bool explicitFlush;
 
     // sizeof() confuses typeinfo...
     static const int MAPPED_FLAG = 1 << (4 /* sizeof( int ) */ * 8 - 1);
@@ -149,7 +151,7 @@ public:
     {
         return static_cast<triIndex_t*>(MapBuffer(mapType));
     }
-    void UnmapBuffer() const;
+    void UnmapBuffer(int flushStart = 0, int flushEnd = -1) const;
     bool IsMapped() const
     {
         return (size & MAPPED_FLAG) != 0;
@@ -176,6 +178,7 @@ private:
     int size;                // size in bytes
     int offsetInOtherBuffer; // offset in bytes
     void* apiObject;
+    bool explicitFlush;
 
     // sizeof() confuses typeinfo...
     static const int MAPPED_FLAG = 1 << (4 /* sizeof( int ) */ * 8 - 1);
@@ -225,7 +228,7 @@ public:
     void Update(const float* joints, int numUpdateJoints) const;
 
     float* MapBuffer(bufferMapType_t mapType) const;
-    void UnmapBuffer() const;
+    void UnmapBuffer(int flushStart = 0, int flushEnd = -1) const;
     bool IsMapped() const
     {
         return (numJoints & MAPPED_FLAG) != 0;

@@ -238,6 +238,7 @@ PFNGLGETBUFFERPOINTERVARBPROC qglGetBufferPointervARB;
 
 // GL_ARB_map_buffer_range
 PFNGLMAPBUFFERRANGEPROC qglMapBufferRange;
+PFNGLFLUSHMAPPEDBUFFERRANGEPROC qglFlushMappedBufferRange;
 
 // GL_ARB_draw_elements_base_vertex
 PFNGLDRAWELEMENTSBASEVERTEXPROC qglDrawElementsBaseVertex;
@@ -488,6 +489,7 @@ static void R_CheckPortableExtensions()
     glConfig.mapBufferRangeAvailable = glConfig.glVersion >= 3.0 || R_CheckExtension("GL_ARB_map_buffer_range");
     if (glConfig.mapBufferRangeAvailable) {
         qglMapBufferRange = (PFNGLMAPBUFFERRANGEPROC)GLimp_ExtensionPointer("glMapBufferRange");
+        qglFlushMappedBufferRange = (PFNGLFLUSHMAPPEDBUFFERRANGEPROC)GLimp_ExtensionPointer("glFlushMappedBufferRange");
     }
 
     // GL_ARB_vertex_array_object

@@ -46,6 +46,9 @@ static void ClearGeoBufferSet(geoBufferSet_t& gbs)
     gbs.indexMemUsed.SetValue(0);
     gbs.vertexMemUsed.SetValue(0);
     gbs.jointMemUsed.SetValue(0);
+    gbs.mappedVertexStart = 0;
+    gbs.mappedIndexStart = 0;
+    gbs.mappedJointStart = 0;
     gbs.allocations = 0;
 }
 
@@ -54,16 +57,19 @@ static void ClearGeoBufferSet(geoBufferSet_t& gbs)
 MapGeoBufferSet
 ==============
 */
-static void MapGeoBufferSet(geoBufferSet_t& gbs)
+static void MapGeoBufferSet(geoBufferSet_t& gbs, bufferMapType_t mapType = BM_WRITE)
 {
     if (gbs.mappedVertexBase == NULL) {
-        gbs.mappedVertexBase = (byte*)gbs.vertexBuffer.MapBuffer(BM_WRITE);
+        gbs.mappedVertexBase = (byte*)gbs.vertexBuffer.MapBuffer(mapType);
+        gbs.mappedVertexStart = gbs.vertexMemUsed.GetValue();
     }
     if (gbs.mappedIndexBase == NULL) {
-        gbs.mappedIndexBase = (byte*)gbs.indexBuffer.MapBuffer(BM_WRITE);
+        gbs.mappedIndexBase = (byte*)gbs.indexBuffer.MapBuffer(mapType);
+        gbs.mappedIndexStart = gbs.indexMemUsed.GetValue();
     }
     if (gbs.mappedJointBase == NULL && gbs.jointBuffer.GetAllocedSize() != 0) {
         gbs.mappedJointBase = (byte*)gbs.jointBuffer.MapBuffer(BM_WRITE);
+        gbs.mappedJointStart = gbs.jointMemUsed.GetValue();
     }
 }
 
@@ -75,15 +81,15 @@ UnmapGeoBufferSet
 static void UnmapGeoBufferSet(geoBufferSet_t& gbs)
 {
     if (gbs.mappedVertexBase != NULL) {
-        gbs.vertexBuffer.UnmapBuffer();
+        gbs.vertexBuffer.UnmapBuffer(gbs.mappedVertexStart, Min(gbs.vertexMemUsed.GetValue(), gbs.vertexBuffer.GetAllocedSize()));
         gbs.mappedVertexBase = NULL;
     }
     if (gbs.mappedIndexBase != NULL) {
-        gbs.indexBuffer.UnmapBuffer();
+        gbs.indexBuffer.UnmapBuffer(gbs.mappedIndexStart, Min(gbs.indexMemUsed.GetValue(), gbs.indexBuffer.GetAllocedSize()));
         gbs.mappedIndexBase = NULL;
     }
     if (gbs.mappedJointBase != NULL) {
-        gbs.jointBuffer.UnmapBuffer();
+        gbs.jointBuffer.UnmapBuffer(gbs.mappedJointStart, Min(gbs.jointMemUsed.GetValue(), gbs.jointBuffer.GetAllocedSize()));
         gbs.mappedJointBase = NULL;
     }
 }
@@ -160,6 +166,7 @@ call on loading a new map
 void idVertexCache::FreeStaticData()
 {
     // Destroy and recreate the static buffers to clear state
+    UnmapGeoBufferSet(staticData);
     staticData.vertexBuffer.FreeBufferObject();
     staticData.indexBuffer.FreeBufferObject();
     staticData.vertexBuffer.AllocBufferObject(NULL, STATIC_VERTEX_MEMORY);
@@ -191,21 +198,25 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc(geoBufferSet_t& vcs, const void* 
 
     // thread safe interlocked adds
     byte** base = NULL;
+    int* mappedStart = NULL;
     int endPos = 0;
     if (type == CACHE_INDEX) {
         base = &vcs.mappedIndexBase;
+        mappedStart = &vcs.mappedIndexStart;
         endPos = vcs.indexMemUsed.Add(bytes);
         if (endPos > vcs.indexBuffer.GetAllocedSize()) {
             idLib::Error("Out of index cache");
         }
     } else if (type == CACHE_VERTEX) {
         base = &vcs.mappedVertexBase;
+        mappedStart = &vcs.mappedVertexStart;
         endPos = vcs.vertexMemUsed.Add(bytes);
         if (endPos > vcs.vertexBuffer.GetAllocedSize()) {
             idLib::Error("Out of vertex cache");
         }
     } else if (type == CACHE_JOINT) {
         base = &vcs.mappedJointBase;
+        mappedStart = &vcs.mappedJointStart;
         endPos = vcs.jointMemUsed.Add(bytes);
         if (endPos > vcs.jointBuffer.GetAllocedSize()) {
             idLib::Error("Out of joint buffer cache");
@@ -220,7 +231,10 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc(geoBufferSet_t& vcs, const void* 
 
     // Actually perform the data transfer
     if (data != NULL) {
-        MapGeoBufferSet(vcs);
+        MapGeoBufferSet(vcs, (&vcs == &staticData) ? BM_WRITE_NOINVALIDATE : BM_WRITE);
+        if (offset < *mappedStart) {
+            *mappedStart = offset;
+        }
         CopyBuffer(*base + offset, (const byte*)data, bytes);
     }
 

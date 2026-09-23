@@ -85,6 +85,7 @@ extern PFNGLGETBUFFERPOINTERVARBPROC qglGetBufferPointervARB;
 
 // GL_ARB_map_buffer_Range
 extern PFNGLMAPBUFFERRANGEPROC qglMapBufferRange;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC qglFlushMappedBufferRange;
 
 // GL_ARB_draw_elements_base_vertex
 extern PFNGLDRAWELEMENTSBASEVERTEXPROC qglDrawElementsBaseVertex;

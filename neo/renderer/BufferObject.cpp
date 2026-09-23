@@ -144,6 +144,7 @@ idVertexBuffer::idVertexBuffer()
     size = 0;
     offsetInOtherBuffer = OWNS_BUFFER_FLAG;
     apiObject = NULL;
+    explicitFlush = false;
     SetUnmapped();
 }
 
@@ -338,15 +339,21 @@ void* idVertexBuffer::MapBuffer(bufferMapType_t mapType) const
         }
     } else if (mapType == BM_WRITE) {
         // buffer = qglMapBufferARB( GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB );
-        buffer = qglMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, GetAllocedSize(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+        buffer = qglMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, GetAllocedSize(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
         if (buffer != NULL) {
             buffer = (byte*)buffer + GetOffset();
         }
         // assert( IsWriteCombined( buffer ) ); // commented out because it spams the console
+    } else if (mapType == BM_WRITE_NOINVALIDATE) {
+        buffer = qglMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, GetAllocedSize(), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+        if (buffer != NULL) {
+            buffer = (byte*)buffer + GetOffset();
+        }
     } else {
         assert(false);
     }
 
+    const_cast<bool&>(explicitFlush) = (mapType != BM_READ);
     SetMapped();
 
     if (buffer == NULL) {
@@ -360,7 +367,7 @@ void* idVertexBuffer::MapBuffer(bufferMapType_t mapType) const
 idVertexBuffer::UnmapBuffer
 ========================
 */
-void idVertexBuffer::UnmapBuffer() const
+void idVertexBuffer::UnmapBuffer(int flushStart, int flushEnd) const
 {
     assert(apiObject != NULL);
     assert(IsMapped());
@@ -370,6 +377,12 @@ void idVertexBuffer::UnmapBuffer() const
     // RB end
 
     qglBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferObject);
+    if (flushEnd < 0) {
+        flushEnd = GetAllocedSize();
+    }
+    if (explicitFlush && flushEnd > flushStart) {
+        qglFlushMappedBufferRange(GL_ARRAY_BUFFER_ARB, flushStart, flushEnd - flushStart);
+    }
     if (!qglUnmapBufferARB(GL_ARRAY_BUFFER_ARB)) {
         idLib::Printf("idVertexBuffer::UnmapBuffer failed\n");
     }
@@ -407,6 +420,7 @@ idIndexBuffer::idIndexBuffer()
     size = 0;
     offsetInOtherBuffer = OWNS_BUFFER_FLAG;
     apiObject = NULL;
+    explicitFlush = false;
     SetUnmapped();
 }
 
@@ -604,15 +618,21 @@ void* idIndexBuffer::MapBuffer(bufferMapType_t mapType) const
         }
     } else if (mapType == BM_WRITE) {
         // buffer = qglMapBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB );
-        buffer = qglMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, GetAllocedSize(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+        buffer = qglMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, GetAllocedSize(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
         if (buffer != NULL) {
             buffer = (byte*)buffer + GetOffset();
         }
         // assert( IsWriteCombined( buffer ) ); // commented out because it spams the console
+    } else if (mapType == BM_WRITE_NOINVALIDATE) {
+        buffer = qglMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, GetAllocedSize(), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+        if (buffer != NULL) {
+            buffer = (byte*)buffer + GetOffset();
+        }
     } else {
         assert(false);
     }
 
+    const_cast<bool&>(explicitFlush) = (mapType != BM_READ);
     SetMapped();
 
     if (buffer == NULL) {
@@ -626,7 +646,7 @@ void* idIndexBuffer::MapBuffer(bufferMapType_t mapType) const
 idIndexBuffer::UnmapBuffer
 ========================
 */
-void idIndexBuffer::UnmapBuffer() const
+void idIndexBuffer::UnmapBuffer(int flushStart, int flushEnd) const
 {
     assert(apiObject != NULL);
     assert(IsMapped());
@@ -636,6 +656,12 @@ void idIndexBuffer::UnmapBuffer() const
     // RB end
 
     qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferObject);
+    if (flushEnd < 0) {
+        flushEnd = GetAllocedSize();
+    }
+    if (explicitFlush && flushEnd > flushStart) {
+        qglFlushMappedBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, flushStart, flushEnd - flushStart);
+    }
     if (!qglUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB)) {
         idLib::Printf("idIndexBuffer::UnmapBuffer failed\n");
     }
@@ -848,7 +874,7 @@ float* idJointBuffer::MapBuffer(bufferMapType_t mapType) const
     numBytes = numBytes;
     assert(GetOffset() == 0);
     // buffer = qglMapBufferARB( GL_UNIFORM_BUFFER, GL_WRITE_ONLY_ARB );
-    buffer = qglMapBufferRange(GL_UNIFORM_BUFFER, 0, GetAllocedSize(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+    buffer = qglMapBufferRange(GL_UNIFORM_BUFFER, 0, GetAllocedSize(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
     if (buffer != NULL) {
         buffer = (byte*)buffer + GetOffset();
     }
@@ -866,7 +892,7 @@ float* idJointBuffer::MapBuffer(bufferMapType_t mapType) const
 idJointBuffer::UnmapBuffer
 ========================
 */
-void idJointBuffer::UnmapBuffer() const
+void idJointBuffer::UnmapBuffer(int flushStart, int flushEnd) const
 {
     assert(apiObject != NULL);
     assert(IsMapped());
@@ -875,6 +901,12 @@ void idJointBuffer::UnmapBuffer() const
     qglBindBufferARB(GL_UNIFORM_BUFFER, reinterpret_cast<GLintptrARB>(apiObject));
     // RB end
 
+    if (flushEnd < 0) {
+        flushEnd = GetAllocedSize();
+    }
+    if (flushEnd > flushStart) {
+        qglFlushMappedBufferRange(GL_UNIFORM_BUFFER, flushStart, flushEnd - flushStart);
+    }
     if (!qglUnmapBufferARB(GL_UNIFORM_BUFFER)) {
         idLib::Printf("idJointBuffer::UnmapBuffer failed\n");
     }
