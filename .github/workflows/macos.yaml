@@ -1,0 +1,85 @@
+name: macOS
+on:
+  push: ~
+  pull_request:
+    branches: [master]
+  workflow_call:
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: macOS (arm64)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install cmake ninja ccache coreutils sdl2 openal-soft
+
+      - name: Setup ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/ccache
+          key: macos-ccache-${{ github.sha }}
+          restore-keys: macos-ccache-
+
+      - name: Configure
+        run: >
+          cmake -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          -DOPENAL_INCLUDE_DIR="$(brew --prefix openal-soft)/include/AL"
+          -DOPENAL_LIBRARY="$(brew --prefix openal-soft)/lib/libopenal.dylib"
+
+      - name: Build
+        run: cmake --build build --parallel "$(sysctl -n hw.ncpu)"
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          SHORT_SHA="${GITHUB_SHA::8}"
+          cp build/Doom3BFG "dist/ChocDoom3BFG-macos-${SHORT_SHA}"
+          cp -r base dist/
+          ls -lh dist/
+
+      - name: Smoke Test
+        env:
+          ALSOFT_DRIVERS: "null"
+        run: |
+          cd dist
+          status=0
+          gtimeout 180 ./ChocDoom3BFG-macos-* +set r_fullscreen 0 > ../smoke.log 2>&1 || status=$?
+          tail -40 ../smoke.log
+
+          if [ $status -eq 124 ]; then
+            echo "::error::the engine hung during startup"
+            exit 1
+          fi
+          if [ $status -ge 128 ]; then
+            echo "::error::the engine died from signal $((status - 128))"
+            exit 1
+          fi
+
+          for marker in \
+            "OpenGL Renderer:" \
+            "Initializing Render Shaders" \
+            "sound system initialized."
+          do
+            if ! grep -qF "$marker" ../smoke.log; then
+              echo "::error::startup never reached: $marker"
+              exit 1
+            fi
+          done
+          echo "startup reached the renderer and the sound system"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChocDoom3BFG-macos-arm64
+          path: dist/*
+          if-no-files-found: error
