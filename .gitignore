@@ -1,5 +1,6 @@
 build*/
 .idea
+.DS_Store
 cmake-build-debug
 neo/idlib/precompiled.h.gch
 base/_common.crc

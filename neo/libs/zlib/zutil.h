@@ -123,7 +123,7 @@ void* _Cdecl farmalloc(unsigned long nbytes);
 #ifndef Z_SOLO
 #if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
 #include <unix.h> /* for fdopen */
-#else
+#elif !defined(__APPLE__)
 #ifndef fdopen
 #define fdopen(fd, mode) NULL /* No fdopen() */
 #endif

@@ -42,6 +42,17 @@ If you have questions concerning this license or the applicable additional terms
 // #include "win_local.h"
 #include "../../renderer/tr_local.h"
 
+#if defined(__APPLE__)
+bool QGL_Init(const char* dllname)
+{
+    return true;
+}
+
+void QGL_Shutdown(void)
+{
+}
+#else
+
 /*
 int ( WINAPI* qwglChoosePixelFormat )( HDC, CONST PIXELFORMATDESCRIPTOR* );
 int ( WINAPI* qwglDescribePixelFormat )( HDC, int, UINT, LPPIXELFORMATDESCRIPTOR );
@@ -2012,6 +2023,8 @@ bool QGL_Init(const char* dllname)
 
     return true;
 }
+
+#endif
 
 /*
 ==================

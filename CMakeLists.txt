@@ -1331,6 +1331,9 @@ else()
         if(OPENAL)
             find_package(OpenAL REQUIRED)
             add_definitions(-DUSE_OPENAL)
+            if(APPLE)
+                include_directories(${OPENAL_INCLUDE_DIR}/..)
+            endif()
 
             list(APPEND DOOM_INCLUDES ${OPENAL_INCLUDES})
             list(
@@ -1431,6 +1434,9 @@ else()
     # we need to recreate the precompiled header for Doom3BFG
     # (i.e. can't use the one created for idlib before)
     # because some definitions (e.g. -D__IDLIB__ -D__DOOM_DLL__) differ
+    if(APPLE)
+        add_custom_target(precomp_header_rbdoom3bfg)
+    else()
     add_custom_target(
         precomp_header_rbdoom3bfg
         ALL
@@ -1440,6 +1446,7 @@ else()
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Creating idlib/precompiled.h.gch for Doom3BFG"
     )
+    endif()
 
     # it's ugly enough that the precompiled header binary needs to be in the
     # source directory (instead of the build directory), so let's at least
@@ -1496,6 +1503,18 @@ else()
             pthread
             dl
             rt
+            SDL2::SDL2
+            ${OPENAL_LIBRARY}
+            ${FFMPEG_LIBRARIES}
+        )
+    endif()
+
+    if(APPLE)
+        find_library(OPENGL_FRAMEWORK OpenGL)
+        target_link_libraries(
+            Doom3BFG
+            idlib
+            ${OPENGL_FRAMEWORK}
             SDL2::SDL2
             ${OPENAL_LIBRARY}
             ${FFMPEG_LIBRARIES}

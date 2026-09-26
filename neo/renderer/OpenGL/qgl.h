@@ -32,7 +32,21 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __QGL_H__
 #define __QGL_H__
 
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+#define GL_GLEXT_LEGACY
+#define GLhandleARB GLhandleARB_apple
+#include <OpenGL/gl.h>
+#undef GLhandleARB
+#undef GL_VERSION_1_2
+#undef GL_VERSION_1_3
+#undef GL_VERSION_1_4
+#undef GL_VERSION_1_5
+#undef GL_VERSION_2_0
+#undef GL_VERSION_2_1
+#else
 #include <GL/gl.h>
+#endif
 
 #ifndef APIENTRY
 #define APIENTRY
