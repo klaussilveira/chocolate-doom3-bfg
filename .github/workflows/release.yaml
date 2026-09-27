@@ -8,13 +8,15 @@ jobs:
     uses: ./.github/workflows/linux.yaml
   windows:
     uses: ./.github/workflows/windows.yaml
+  macos:
+    uses: ./.github/workflows/macos.yaml
   appimage:
     uses: ./.github/workflows/appimage.yaml
   flatpak:
     uses: ./.github/workflows/flatpak.yaml
 
   release:
-    needs: [linux, windows, appimage, flatpak]
+    needs: [linux, windows, macos, appimage, flatpak]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -29,6 +31,8 @@ jobs:
           tar -czf "ChocDoom3BFG-linux-ubuntu-${tag}.tar.gz" -C ChocDoom3BFG-linux-ubuntu .
           tar -czf "ChocDoom3BFG-linux-fedora-${tag}.tar.gz" -C ChocDoom3BFG-linux-fedora .
           (cd ChocDoom3BFG-windows-mingw && zip -r "../ChocDoom3BFG-windows-${tag}.zip" .)
+          chmod +x ChocDoom3BFG-macos-arm64/ChocDoom3BFG-macos-*
+          tar -czf "ChocDoom3BFG-macos-arm64-${tag}.tar.gz" -C ChocDoom3BFG-macos-arm64 .
           mv ChocDoom3BFG-appimage-x86_64/*.AppImage "ChocDoom3BFG-${tag}-x86_64.AppImage"
           mv ChocDoom3BFG-flatpak-x86_64/*.flatpak "ChocDoom3BFG-${tag}.flatpak"
 
@@ -40,5 +44,6 @@ jobs:
             ChocDoom3BFG-linux-ubuntu-*.tar.gz
             ChocDoom3BFG-linux-fedora-*.tar.gz
             ChocDoom3BFG-windows-*.zip
+            ChocDoom3BFG-macos-arm64-*.tar.gz
             ChocDoom3BFG-*-x86_64.AppImage
             ChocDoom3BFG-*.flatpak

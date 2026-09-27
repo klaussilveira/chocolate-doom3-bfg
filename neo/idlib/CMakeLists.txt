@@ -133,6 +133,9 @@ else()
 
     separate_arguments(_compiler_FLAGS)
 
+    if(APPLE)
+        add_custom_target(precomp_header_idlib)
+    else()
     add_custom_target(
         precomp_header_idlib
         ALL
@@ -142,6 +145,7 @@ else()
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Creating idlib/precompiled.h.gch for idlib"
     )
+    endif()
 
     add_library(idlib ${ID_SOURCES_ALL} ${ID_INCLUDES_ALL})
     add_dependencies(idlib precomp_header_idlib)

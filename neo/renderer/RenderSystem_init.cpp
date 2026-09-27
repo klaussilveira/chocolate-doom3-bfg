@@ -461,11 +461,11 @@ static void R_CheckPortableExtensions()
     }
 
     // GL_ARB_seamless_cube_map
-    glConfig.seamlessCubeMapAvailable = R_CheckExtension("GL_ARB_seamless_cube_map");
+    glConfig.seamlessCubeMapAvailable = (!isGLES && glConfig.glVersion >= 3.2) || R_CheckExtension("GL_ARB_seamless_cube_map");
     r_useSeamlessCubeMap.SetModified(); // the CheckCvars() next frame will enable / disable it
 
     // GL_ARB_framebuffer_sRGB
-    glConfig.sRGBFramebufferAvailable = R_CheckExtension("GL_ARB_framebuffer_sRGB");
+    glConfig.sRGBFramebufferAvailable = (!isGLES && glConfig.glVersion >= 3.0) || R_CheckExtension("GL_ARB_framebuffer_sRGB");
     r_useSRGB.SetModified(); // the CheckCvars() next frame will enable / disable it
 
     // GL_ARB_vertex_buffer_object
@@ -501,7 +501,7 @@ static void R_CheckPortableExtensions()
     }
 
     // GL_ARB_draw_elements_base_vertex
-    glConfig.drawElementsBaseVertexAvailable = R_CheckExtension("GL_ARB_draw_elements_base_vertex");
+    glConfig.drawElementsBaseVertexAvailable = (!isGLES && glConfig.glVersion >= 3.2) || R_CheckExtension("GL_ARB_draw_elements_base_vertex");
     if (glConfig.drawElementsBaseVertexAvailable) {
         qglDrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)GLimp_ExtensionPointer("glDrawElementsBaseVertex");
     } else if(R_CheckExtension("GL_EXT_draw_elements_base_vertex")) {

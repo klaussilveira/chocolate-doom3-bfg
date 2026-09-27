@@ -166,6 +166,9 @@ If you have questions concerning this license or the applicable additional terms
 // Yamagi: <stddef.h> for ptrdiff_t on FreeBSD
 #include <stddef.h>
 // Yamagi end
+#ifdef __APPLE__
+#include <locale>
+#endif
 
 //-----------------------------------------------------
 

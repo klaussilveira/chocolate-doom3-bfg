@@ -50,7 +50,12 @@ idCVar in_nograb("in_nograb", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "prevents input g
 idCVar r_waylandcompat("r_waylandcompat", "0", CVAR_SYSTEM | CVAR_NOCHEAT | CVAR_ARCHIVE, "wayland compatible framebuffer");
 
 // RB: only relevant if using SDL 2.0
-idCVar r_useOpenGL32("r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2);
+#if defined(__APPLE__)
+#define R_USEOPENGL32_DEFAULT "2"
+#else
+#define R_USEOPENGL32_DEFAULT "1"
+#endif
+idCVar r_useOpenGL32("r_useOpenGL32", R_USEOPENGL32_DEFAULT, CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2);
 // RB end
 
 static bool grabbed = false;

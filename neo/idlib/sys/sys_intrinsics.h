@@ -36,6 +36,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined(USE_INTRINSICS_SSE)
 #include <emmintrin.h>
+#if defined(__MINGW32__)
+#include <intrin.h>
+#endif
 #endif
 /*
 ================================================================================================
