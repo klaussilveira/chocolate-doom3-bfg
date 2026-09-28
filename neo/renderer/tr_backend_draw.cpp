@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "tr_local.h"
 
@@ -799,6 +800,7 @@ on the 360.
 */
 static void RB_FillDepthBufferFast(drawSurf_t** drawSurfs, int numDrawSurfs)
 {
+    ZoneScoped;
     if (numDrawSurfs == 0) {
         return;
     }
@@ -1117,6 +1119,9 @@ static void RB_RenderInteractions(const drawSurf_t* surfList, const viewLight_t*
             complexSurfaces.Append(walk);
         }
     }
+    std::stable_sort(allSurfaces.Ptr(), allSurfaces.Ptr() + allSurfaces.Num(), [](const drawSurf_t* a, const drawSurf_t* b) {
+        return a->material < b->material;
+    });
     for (int i = 0; i < complexSurfaces.Num(); i++) {
         allSurfaces.Append(complexSurfaces[i]);
     }
@@ -1371,6 +1376,7 @@ The stencil buffer should have been set to 128 on any surfaces that might receiv
 */
 static void RB_StencilShadowPass(const drawSurf_t* drawSurfs, const viewLight_t* vLight)
 {
+    ZoneScoped;
     if (r_skipShadows.GetBool()) {
         return;
     }
@@ -1713,6 +1719,7 @@ RB_DrawInteractions
 */
 static void RB_DrawInteractions()
 {
+    ZoneScoped;
     if (r_skipInteractions.GetBool()) {
         return;
     }
@@ -1868,6 +1875,7 @@ be multiplied by guiEye for polarity and screenSeparation for scale.
 static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const int numDrawSurfs,
     const float guiStereoScreenOffset, const int stereoEye)
 {
+    ZoneScoped;
     // only obey skipAmbient if we are rendering a view
     if (backEnd.viewDef->viewEntitys && r_skipAmbient.GetBool()) {
         return numDrawSurfs;
@@ -2479,6 +2487,7 @@ RB_FogAllLights
 */
 static void RB_FogAllLights()
 {
+    ZoneScoped;
     if (r_skipFogLights.GetBool() || r_showOverDraw.GetInteger() != 0
         || backEnd.viewDef->isXraySubview /* don't fog in xray mode*/) {
         return;
@@ -2516,6 +2525,7 @@ RB_DrawViewInternal
 */
 void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye)
 {
+    ZoneScoped;
     renderLog.OpenBlock("RB_DrawViewInternal");
 
     //-------------------------------------------------
@@ -2808,6 +2818,7 @@ is 0, so the stereoEye parameter is not always the same as that.
 */
 void RB_DrawView(const void* data, const int stereoEye)
 {
+    ZoneScoped;
     const drawSurfsCommand_t* cmd = (const drawSurfsCommand_t*)data;
 
     backEnd.viewDef = cmd->viewDef;

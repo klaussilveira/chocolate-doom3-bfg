@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "snd_local.h"
 
@@ -292,6 +293,7 @@ idSoundWorldLocal::Update
 */
 void idSoundWorldLocal::Update()
 {
+    ZoneScoped;
 
     if (s_noSound.GetBool()) {
         return;

@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "tr_local.h"
 
@@ -246,6 +247,7 @@ R_SortDrawSurfs
 */
 static void R_SortDrawSurfs(drawSurf_t** drawSurfs, const int numDrawSurfs)
 {
+    ZoneScoped;
 #if 1
 
     uint64* indices = (uint64*)_alloca16(numDrawSurfs * sizeof(indices[0]));
@@ -374,6 +376,7 @@ Parms will typically be allocated with R_FrameAlloc
 */
 void R_RenderView(viewDef_t* parms)
 {
+    ZoneScoped;
     // save view in case we are a subview
     viewDef_t* oldView = tr.viewDef;
 

@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "../Game_local.h"
 
@@ -1738,6 +1739,7 @@ idPhysics_Player::Evaluate
 */
 bool idPhysics_Player::Evaluate(int timeStepMSec, int endTimeMSec)
 {
+    ZoneScoped;
     idVec3 masterOrigin, oldOrigin;
     idMat3 masterAxis;
 

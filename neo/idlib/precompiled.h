@@ -29,6 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PRECOMPILED_H__
 #define __PRECOMPILED_H__
 
+#ifdef TRACY_ENABLE
+#include "tracy/Tracy.hpp"
+#undef ALIGN
+#endif
 #include "sys/sys_defines.h"
 #include "sys/sys_builddefines.h"
 #include "sys/sys_includes.h"

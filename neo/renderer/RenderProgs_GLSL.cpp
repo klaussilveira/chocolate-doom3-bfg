@@ -1410,7 +1410,7 @@ idRenderProgManager::CommitUnforms
 void idRenderProgManager::CommitUniforms()
 {
     const int progID = GetGLSLCurrentProgram();
-    const glslProgram_t& prog = glslPrograms[progID];
+    glslProgram_t& prog = glslPrograms[progID];
 
     if (r_useUniformArrays.GetBool()) {
         ALIGNTYPE16 idVec4 localVectors[RENDERPARM_USER + MAX_GLSL_USER_PARMS];
@@ -1421,7 +1421,11 @@ void idRenderProgManager::CommitUniforms()
                 for (int i = 0; i < vertexUniforms.Num(); i++) {
                     localVectors[i] = glslUniforms[vertexUniforms[i]];
                 }
-                qglUniform4fv(prog.vertexUniformArray, vertexUniforms.Num(), localVectors->ToFloatPtr());
+                if (prog.vertexUniformCache.Num() != vertexUniforms.Num() || memcmp(prog.vertexUniformCache.Ptr(), localVectors, vertexUniforms.Num() * sizeof(idVec4)) != 0) {
+                    prog.vertexUniformCache.SetNum(vertexUniforms.Num());
+                    memcpy(prog.vertexUniformCache.Ptr(), localVectors, vertexUniforms.Num() * sizeof(idVec4));
+                    qglUniform4fv(prog.vertexUniformArray, vertexUniforms.Num(), localVectors->ToFloatPtr());
+                }
             }
         }
 
@@ -1431,7 +1435,11 @@ void idRenderProgManager::CommitUniforms()
                 for (int i = 0; i < fragmentUniforms.Num(); i++) {
                     localVectors[i] = glslUniforms[fragmentUniforms[i]];
                 }
-                qglUniform4fv(prog.fragmentUniformArray, fragmentUniforms.Num(), localVectors->ToFloatPtr());
+                if (prog.fragmentUniformCache.Num() != fragmentUniforms.Num() || memcmp(prog.fragmentUniformCache.Ptr(), localVectors, fragmentUniforms.Num() * sizeof(idVec4)) != 0) {
+                    prog.fragmentUniformCache.SetNum(fragmentUniforms.Num());
+                    memcpy(prog.fragmentUniformCache.Ptr(), localVectors, fragmentUniforms.Num() * sizeof(idVec4));
+                    qglUniform4fv(prog.fragmentUniformArray, fragmentUniforms.Num(), localVectors->ToFloatPtr());
+                }
             }
         }
     } else {
@@ -1578,6 +1586,8 @@ void idRenderProgManager::LoadGLSLProgram(const int programIndex, const int vert
     programName.StripFileExtension();
     prog.name = programName;
     prog.progId = program;
+    prog.vertexUniformCache.Clear();
+    prog.fragmentUniformCache.Clear();
     prog.fragmentShaderIndex = fragmentShaderIndex;
     prog.vertexShaderIndex = vertexShaderIndex;
 }

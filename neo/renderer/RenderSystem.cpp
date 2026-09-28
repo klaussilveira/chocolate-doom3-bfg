@@ -28,11 +28,25 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "tr_local.h"
 
 idRenderSystemLocal tr;
 idRenderSystem* renderSystem = &tr;
+
+extern idCVar rs_enable;
+
+static bool timerQueryIssued = false;
+static uint64 lastGPUMicroSec = 0;
+
+static bool R_GPUTimeWanted()
+{
+    if (com_speeds.GetBool() || rs_enable.GetInteger() != 0) {
+        return true;
+    }
+    return com_showFPS.GetInteger() == 1 && (tr.frameCount % 60) == 0;
+}
 
 /*
 =====================
@@ -93,6 +107,7 @@ RenderCommandBuffers
 */
 void idRenderSystemLocal::RenderCommandBuffers(const emptyCommand_t* const cmdHead)
 {
+    ZoneScoped;
     // if there isn't a draw view command, do nothing to avoid swapping a bad frame
     bool hasView = false;
     for (const emptyCommand_t* cmd = cmdHead; cmd; cmd = (const emptyCommand_t*)cmd->next) {
@@ -114,13 +129,17 @@ void idRenderSystemLocal::RenderCommandBuffers(const emptyCommand_t* const cmdHe
     // r_skipRender is usually more usefull, because it will still
     // draw 2D graphics
     if (!r_skipBackEnd.GetBool()) {
-        if (glConfig.timerQueryAvailable) {
+        timerQueryIssued = glConfig.timerQueryAvailable && R_GPUTimeWanted();
+        if (timerQueryIssued) {
             if (tr.timerQueryId == 0) {
                 qglGenQueriesARB(1, &tr.timerQueryId);
             }
             qglBeginQueryARB(GL_TIME_ELAPSED_EXT, tr.timerQueryId);
             RB_ExecuteBackEndCommands(cmdHead);
-            qglEndQueryARB(GL_TIME_ELAPSED_EXT);
+            {
+                ZoneScopedN("glEndQuery");
+                qglEndQueryARB(GL_TIME_ELAPSED_EXT);
+            }
             qglFlush();
         } else {
             RB_ExecuteBackEndCommands(cmdHead);
@@ -633,6 +652,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers(
     uint64* shadowMicroSec,
     uint64* gpuMicroSec)
 {
+    ZoneScoped;
 
     SwapCommandBuffers_FinishRendering(frontEndMicroSec, backEndMicroSec, shadowMicroSec, gpuMicroSec);
 
@@ -669,7 +689,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
     }
 
     // read back the start and end timer queries from the previous frame
-    if (glConfig.timerQueryAvailable) {
+    if (timerQueryIssued) {
         // RB: 64 bit fixes, changed int64 to GLuint64EXT
         GLuint64EXT drawingTimeNanoseconds = 0;
         // RB end
@@ -677,9 +697,11 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
         if (tr.timerQueryId != 0) {
             qglGetQueryObjectui64vEXT(tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds);
         }
-        if (gpuMicroSec != NULL) {
-            *gpuMicroSec = drawingTimeNanoseconds / 1000;
-        }
+        lastGPUMicroSec = drawingTimeNanoseconds / 1000;
+        timerQueryIssued = false;
+    }
+    if (gpuMicroSec != NULL) {
+        *gpuMicroSec = lastGPUMicroSec;
     }
 
     //------------------------------
@@ -712,6 +734,7 @@ idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers
 */
 const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers()
 {
+    ZoneScoped;
     if (!R_IsInitialized()) {
         return NULL;
     }

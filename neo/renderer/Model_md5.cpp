@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "tr_local.h"
 #include "Model_local.h"
@@ -1208,6 +1209,7 @@ idRenderModelMD5::InstantiateDynamicModel
 */
 idRenderModel* idRenderModelMD5::InstantiateDynamicModel(const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel)
 {
+    ZoneScoped;
     if (cachedModel != NULL && !r_useCachedDynamicModels.GetBool()) {
         delete cachedModel;
         cachedModel = NULL;

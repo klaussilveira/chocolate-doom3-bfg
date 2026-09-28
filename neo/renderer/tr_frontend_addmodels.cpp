@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "tr_local.h"
 #include "Model_local.h"
@@ -318,6 +319,7 @@ two or more lights.
 */
 void R_AddSingleModel(viewEntity_t* vEntity)
 {
+    ZoneScoped;
     // we will add all interaction surfs here, to be chained to the lights in later serial code
     vEntity->drawSurfs = NULL;
     vEntity->staticShadowVolumes = NULL;

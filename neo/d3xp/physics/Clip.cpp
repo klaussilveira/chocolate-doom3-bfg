@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "../Game_local.h"
 
@@ -1168,6 +1169,7 @@ idClip::Translation
 bool idClip::Translation(trace_t& results, const idVec3& start, const idVec3& end,
     const idClipModel* mdl, const idMat3& trmAxis, int contentMask, const idEntity* passEntity)
 {
+    ZoneScoped;
     int i, num;
     idClipModel *touch, *clipModelList[MAX_GENTITIES];
     idBounds traceBounds;
@@ -1311,6 +1313,7 @@ idClip::Motion
 bool idClip::Motion(trace_t& results, const idVec3& start, const idVec3& end, const idRotation& rotation,
     const idClipModel* mdl, const idMat3& trmAxis, int contentMask, const idEntity* passEntity)
 {
+    ZoneScoped;
     int i, num;
     idClipModel *touch, *clipModelList[MAX_GENTITIES];
     idVec3 dir, endPosition;

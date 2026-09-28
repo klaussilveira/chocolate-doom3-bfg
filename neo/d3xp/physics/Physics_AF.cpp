@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "../Game_local.h"
 
@@ -6402,6 +6403,7 @@ idPhysics_AF::Evaluate
 */
 bool idPhysics_AF::Evaluate(int timeStepMSec, int endTimeMSec)
 {
+    ZoneScoped;
     float timeStep;
 
     if (timeScaleRampStart < MS2SEC(endTimeMSec) && timeScaleRampEnd > MS2SEC(endTimeMSec)) {

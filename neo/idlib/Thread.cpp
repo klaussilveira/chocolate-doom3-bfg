@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 /*
 ================================================================================================
@@ -195,6 +196,10 @@ idSysThread::ThreadProc
 int idSysThread::ThreadProc(idSysThread* thread)
 {
     int retVal = 0;
+
+#ifdef TRACY_ENABLE
+    tracy::SetThreadName(thread->name.c_str());
+#endif
 
     try {
         if (thread->isWorker) {
