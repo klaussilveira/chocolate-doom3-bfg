@@ -10,6 +10,8 @@ option(FFMPEG "Use FMPEG to render Bink videos" OFF)
 
 option(USE_OPENGL_ES "Use OpenGL ES instead of Desktop GL" OFF)
 
+option(USE_TRACY "Enable the Tracy profiler client" OFF)
+
 if(UNIX)
     set(OPENAL TRUE)
 endif()
@@ -190,6 +192,16 @@ elseif(MSVC)
         # 1: Use MFC in a Static Library
         # 2: Use MFC in a Shared DLL
         set(CMAKE_MFC_FLAG 2)
+    endif()
+endif()
+
+include_directories(neo/libs/tracy)
+
+if(USE_TRACY)
+    add_definitions(-DTRACY_ENABLE)
+    add_library(TracyClient STATIC neo/libs/tracy/TracyClient.cpp)
+    if(WIN32)
+        target_link_libraries(TracyClient ws2_32 dbghelp)
     endif()
 endif()
 
@@ -1533,4 +1545,8 @@ else()
             ${FFMPEG_LIBRARIES}
         )
     endif()
+endif()
+
+if(USE_TRACY)
+    target_link_libraries(Doom3BFG TracyClient)
 endif()

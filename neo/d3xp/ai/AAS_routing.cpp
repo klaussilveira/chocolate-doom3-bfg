@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "AAS_local.h"
 #include "../Game_local.h" // for print and error
@@ -1011,6 +1012,7 @@ idAASLocal::RouteToGoalArea
 */
 bool idAASLocal::RouteToGoalArea(int areaNum, const idVec3 origin, int goalAreaNum, int travelFlags, int& travelTime, idReachability** reach) const
 {
+    ZoneScoped;
     int clusterNum, goalClusterNum, portalNum, i, clusterAreaNum;
     unsigned short int t, bestTime;
     const aasPortal_t* portal;

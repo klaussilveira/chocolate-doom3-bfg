@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "../../idlib/precompiled.h"
+#include "tracy/Tracy.hpp"
 
 // DG: SDL.h somehow needs the following functions, so #undef those silly
 //     "don't use" #defines from Str.h
@@ -527,6 +528,7 @@ GLimp_SwapBuffers
 */
 void GLimp_SwapBuffers()
 {
+    ZoneScoped;
 #if SDL_VERSION_ATLEAST(2, 0, 0)
     if (r_swapInterval.IsModified()) {
         GLimp_ApplySwapInterval();

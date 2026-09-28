@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "../tr_local.h"
 #include "../../framework/Common_local.h"
@@ -164,6 +165,7 @@ const void GL_BlockingSwapBuffers()
         }
 
         if (qglIsSync(syncToWaitOn)) {
+            ZoneScopedN("WaitRenderSync");
             for (GLenum r = GL_TIMEOUT_EXPIRED; r == GL_TIMEOUT_EXPIRED;) {
                 r = qglClientWaitSync(syncToWaitOn, GL_SYNC_FLUSH_COMMANDS_BIT, 1000 * 1000);
             }
@@ -502,6 +504,7 @@ smp extensions, or asyncronously by another thread.
 */
 void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds)
 {
+    ZoneScoped;
     // r_debugRenderToTexture
     int c_draw3d = 0;
     int c_draw2d = 0;
@@ -552,11 +555,17 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds)
             c_setBuffers++;
             break;
         case RC_COPY_RENDER:
-            RB_CopyRender(cmds);
+            {
+                ZoneScopedN("RB_CopyRender");
+                RB_CopyRender(cmds);
+            }
             c_copyRenders++;
             break;
         case RC_POST_PROCESS:
-            RB_PostProcess(cmds);
+            {
+                ZoneScopedN("RB_PostProcess");
+                RB_PostProcess(cmds);
+            }
             break;
         default:
             common->Error("RB_ExecuteBackEndCommands: bad commandId");
@@ -569,7 +578,10 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds)
     // Fix for the steam overlay not showing up while in game without Shell/Debug/Console/Menu also rendering
     qglColorMask(1, 1, 1, 1);
 
-    qglFlush();
+    {
+        ZoneScopedN("glFlush");
+        qglFlush();
+    }
 
     // stop rendering on this thread
     uint64 backEndFinishTime = Sys_Microseconds();

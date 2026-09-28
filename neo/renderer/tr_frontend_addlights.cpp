@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "tr_local.h"
 
@@ -97,6 +98,7 @@ Add any precomputed shadow volumes.
 */
 static void R_AddSingleLight(viewLight_t* vLight)
 {
+    ZoneScoped;
     // until proven otherwise
     vLight->removeFromList = true;
     vLight->shadowOnlyViewEntities = NULL;
@@ -535,6 +537,7 @@ R_OptimizeViewLightsList
 */
 void R_OptimizeViewLightsList()
 {
+    ZoneScoped;
     // go through each visible light
     int numViewLights = 0;
     for (viewLight_t* vLight = tr.viewDef->viewLights; vLight != NULL; vLight = vLight->next) {

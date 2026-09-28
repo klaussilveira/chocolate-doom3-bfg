@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "tr_local.h"
 
@@ -246,6 +247,7 @@ int c_callbackUpdate;
 
 void idRenderWorldLocal::UpdateEntityDef(qhandle_t entityHandle, const renderEntity_t* re)
 {
+    ZoneScoped;
     if (r_skipUpdates.GetBool()) {
         return;
     }

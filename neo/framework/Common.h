@@ -99,7 +99,11 @@ public:
     }
 };
 
+#ifdef TRACY_ENABLE
+#define SCOPED_PROFILE_EVENT(x) ZoneTransientN(scopedProfileEvent, x, static_cast<bool>(true))
+#else
 #define SCOPED_PROFILE_EVENT(x) idScopedProfileEvent scopedProfileEvent_##__LINE__(x)
+#endif
 
 ID_INLINE bool BeginTraceRecording(const char* szName)
 {

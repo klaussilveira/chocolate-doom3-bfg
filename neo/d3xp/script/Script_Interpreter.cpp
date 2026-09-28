@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "../Game_local.h"
 
@@ -973,6 +974,7 @@ idInterpreter::Execute
 */
 bool idInterpreter::Execute()
 {
+    ZoneScoped;
     varEval_t var_a;
     varEval_t var_b;
     varEval_t var_c;

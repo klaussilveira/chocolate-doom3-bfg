@@ -443,6 +443,8 @@ protected:
         GLint vertexUniformArray;
         GLint fragmentUniformArray;
         idList<glslUniformLocation_t> uniformLocations;
+        idList<idVec4> vertexUniformCache;
+        idList<idVec4> fragmentUniformCache;
     };
     int currentRenderProgram;
     idList<glslProgram_t, TAG_RENDER> glslPrograms;

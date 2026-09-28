@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "../Game_local.h"
 
@@ -856,6 +857,7 @@ idPhysics_RigidBody::Evaluate
 */
 bool idPhysics_RigidBody::Evaluate(int timeStepMSec, int endTimeMSec)
 {
+    ZoneScoped;
     rigidBodyPState_t next_step;
     idAngles angles;
     trace_t collision;

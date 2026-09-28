@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 #pragma hdrstop
 
 #include "Common_local.h"
@@ -91,6 +92,7 @@ be called directly in the foreground thread for comparison.
 */
 int idGameThread::Run()
 {
+    ZoneScoped;
     commonLocal.frameTiming.startGameTime = Sys_Microseconds();
 
     // debugging tool to test frame dropping behavior
@@ -225,6 +227,7 @@ idCommonLocal::Draw
 */
 void idCommonLocal::Draw()
 {
+    ZoneScoped;
     // debugging tool to test frame dropping behavior
     if (com_sleepDraw.GetInteger()) {
         Sys_Sleep(com_sleepDraw.GetInteger());
@@ -317,6 +320,7 @@ This is an out-of-sequence screen update, not the normal game rendering
 // DG: added possibility to *not* release mouse in UpdateScreen(), it fucks up the view angle for screenshots
 void idCommonLocal::UpdateScreen(bool captureToImage, bool releaseMouse)
 {
+    ZoneScoped;
     if (insideUpdateScreen) {
         return;
     }
@@ -594,7 +598,10 @@ void idCommonLocal::Frame()
             // not enough time has passed to run a frame, as might happen if
             // we don't have vsync on, or the monitor is running at 120hz while
             // com_engineHz is 60, so sleep a bit and check again
-            Sys_Sleep(0);
+            {
+                ZoneScopedN("WaitForGameTic");
+                Sys_Sleep(0);
+            }
         }
 
         //--------------------------------------------
@@ -704,7 +711,10 @@ void idCommonLocal::Frame()
 
         // make sure the game / draw thread has completed
         // This may block if the game is taking longer than the render back end
-        gameThread.WaitForThread();
+        {
+            ZoneScopedN("WaitForGameThread");
+            gameThread.WaitForThread();
+        }
 
         // Send local usermds to the server.
         // This happens after the game frame has run so that prediction data is up to date.
@@ -758,6 +768,8 @@ void idCommonLocal::Frame()
         mainFrameTiming = frameTiming;
 
         session->GetSaveGameManager().Pump();
+
+        FrameMark;
     } catch (idException&) {
         // an ERP_DROP was thrown
 #if defined(USE_DOOMCLASSIC)

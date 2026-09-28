@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 
 #include "../Game_local.h"
 
@@ -4392,6 +4393,7 @@ idAnimator::CreateFrame
 */
 bool idAnimator::CreateFrame(int currentTime, bool force)
 {
+    ZoneScoped;
     int i, j;
     int numJoints;
     int parentNum;

@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "precompiled.h"
+#include "tracy/Tracy.hpp"
 #pragma hdrstop
 
 #include "Game_local.h"
@@ -2179,6 +2180,7 @@ idGameLocal::SortActiveEntityList
 */
 void idGameLocal::SortActiveEntityList()
 {
+    ZoneScoped;
     idEntity *ent, *next_ent, *master, *part;
 
     // if the active entity list needs to be reordered to place physics team masters at the front
@@ -2281,6 +2283,8 @@ idGameLocal::RunEntityThink
 */
 void idGameLocal::RunEntityThink(idEntity& ent, idUserCmdMgr& userCmdMgr)
 {
+    ZoneScoped;
+    ZoneText(ent.GetEntityDefName(), strlen(ent.GetEntityDefName()));
     if (ent.entityNumber < MAX_PLAYERS) {
         // Players may run more than one think per frame in MP,
         // if there is a large buffer of usercmds from the network.
@@ -2301,6 +2305,7 @@ idGameLocal::RunFrame
 */
 void idGameLocal::RunFrame(idUserCmdMgr& cmdMgr, gameReturn_t& ret)
 {
+    ZoneScoped;
     idEntity* ent;
     int num;
     float ms;
@@ -2758,6 +2763,7 @@ makes rendering and sound system calls
 */
 bool idGameLocal::Draw(int clientNum)
 {
+    ZoneScoped;
 
     if (clientNum == -1) {
         return false;

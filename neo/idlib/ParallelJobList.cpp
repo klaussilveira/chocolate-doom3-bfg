@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 #include "ParallelJobList.h"
+#include "tracy/Tracy.hpp"
 
 /*
 ================================================================================================
@@ -676,6 +677,8 @@ int idParallelJobList_Threads::RunJobsInternal(unsigned int threadNum, threadJob
 
         // execute the next job
         {
+            ZoneScopedN("Job");
+            ZoneName(GetJobName(jobList[state.nextJobIndex].function), strlen(GetJobName(jobList[state.nextJobIndex].function)));
             uint64 jobStart = Sys_Microseconds();
 
             jobList[state.nextJobIndex].function(jobList[state.nextJobIndex].data);
